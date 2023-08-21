@@ -24,6 +24,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "eslint-plugin-jsx-a11y": "^6.7.1",
     "expo": "^49.0.5",
     "expo-constants": "~14.4.2",
     "expo-linking": "~5.0.2",
