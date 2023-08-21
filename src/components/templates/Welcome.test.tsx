@@ -7,7 +7,7 @@ describe('App component', () => {
     it('should render the default text', () => {
       render(<Welcome />);
 
-      const text = screen.queryByText(/Open up App\//);
+      const text = screen.queryByText(/Hello/);
       expect(text).toBeVisible();
     });
   });

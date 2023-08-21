@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import { Welcome } from '@/templates/Welcome';
+import { Welcome } from '@/components/templates/Welcome';
 
 const Home = () => (
   <>
