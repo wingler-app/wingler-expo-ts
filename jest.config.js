@@ -1,9 +1,10 @@
 module.exports = {
-  preset: '@testing-library/react-native',
+  // preset: '@testing-library/react-native',
+  preset: 'jest-expo',
   moduleNameMapper: {
     // Handle module aliases (this will be automatically configured for you soon)
     '^@/(.*)$': '<rootDir>/src/$1',
-
+    // '^expo-splash-screen$': '<rootDir>/__mocks__/expo-splash-screen.js',
     '^__mocks__/(.*)$': '<rootDir>/__mocks__/$1',
   },
   setupFilesAfterEnv: ['./jest.setup.ts'],

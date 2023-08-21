@@ -5371,7 +5371,7 @@ expo-modules-autolinking@1.5.0:
     find-up "^5.0.0"
     fs-extra "^9.1.0"
 
-expo-modules-core@1.5.9:
+expo-modules-core@1.5.9, expo-modules-core@~1.5.9:
   version "1.5.9"
   resolved "https://registry.yarnpkg.com/expo-modules-core/-/expo-modules-core-1.5.9.tgz#d8bc397860cabb23f735f5baac3602bd73231671"
   integrity sha512-kQxllZfus7wM0O6X0Ud+SOnbH/kbxtEAQp2gkvDq3P3kqhtafue/H9CPDX04uWc/pypvp9vp/sZ+qvA0alaVuQ==
@@ -5397,7 +5397,7 @@ expo-router@2.0.0:
     schema-utils "^4.0.1"
     url "^0.11.0"
 
-expo-splash-screen@~0.20.2, expo-splash-screen@~0.20.4:
+expo-splash-screen@~0.20.2, expo-splash-screen@~0.20.5:
   version "0.20.5"
   resolved "https://registry.yarnpkg.com/expo-splash-screen/-/expo-splash-screen-0.20.5.tgz#ebeba3e3977606830f74f506ab2cc25042bb7efd"
   integrity sha512-nTALYdjHpeEA30rdOWSguxn72ctv8WM8ptuUgpfRgsWyn4i6rwYds/rBXisX69XO5fg+XjHAQqijGx/b28+3tg==
@@ -7141,7 +7141,7 @@ jest-worker@^29.6.2:
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
 
-jest@^29.6.2:
+jest@^29.2.1:
   version "29.6.2"
   resolved "https://registry.yarnpkg.com/jest/-/jest-29.6.2.tgz#3bd55b9fd46a161b2edbdf5f1d1bd0d1eab76c42"
   integrity sha512-8eQg2mqFbaP7CwfsTpCxQ+sHzw1WuNWL5UUvjnWP4hx2riGz9fPSzYOaU5q8/GqWn1TfgZIVTqYJygbGbWAANg==
