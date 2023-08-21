@@ -1,6 +1,6 @@
 {
-  "name": "react-native-boilerplate",
-  "version": "1.0.0",
+  "name": "wingler-expo-ts",
+  "version": "0.0.1",
   "main": "Main.tsx",
   "scripts": {
     "start": "expo start --dev-client",
