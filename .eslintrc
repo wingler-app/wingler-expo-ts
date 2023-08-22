@@ -32,6 +32,8 @@
         "project": "./tsconfig.json"
       },
       "rules": {
+        "global-require": "off", // Allow require() in any place
+        "no-console": "off", // Allow console.log
         "prettier/prettier": [
           "error",
           {
