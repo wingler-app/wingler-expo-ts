@@ -1,26 +1,17 @@
-// import {useState, useEffect} from 'react';
 import type { RhinoInference } from '@picovoice/rhino-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { Audio } from 'expo-av';
+import { router } from 'expo-router';
 import { Linking } from 'react-native';
 
-// import { logger } from 'react-native-logs';
-import type { StackNavigation } from '../types';
-
-// const log = logger.createLogger();
-
-export const beverageHandler = (
-  beverage: string,
-  navigation: StackNavigation,
-): void => {
+export const beverageHandler = (beverage: string): void => {
   switch (beverage) {
     case 'coffee':
       console.log('Going to Settings');
-      navigation.navigate('Settings');
+      router.push('settings');
       break;
     case 'espresso':
       console.log('Going to Home');
-      navigation.navigate('Wingler');
+      router.push('wingler');
       break;
     default:
       console.log('default');
@@ -35,6 +26,7 @@ export const playMusic = (musicGenre: string | undefined): void => {
 
   (async () => {
     const accessToken = await AsyncStorage.getItem('@SpotifyToken');
+    console.log(accessToken);
     try {
       const response = await fetch(
         `${API}search?q=genre%22${genreApiString}%22&type=track`,
@@ -45,6 +37,7 @@ export const playMusic = (musicGenre: string | undefined): void => {
         },
       );
       const data = await response.json();
+      console.log(data);
       // console.log(data.tracks.items[0].uri);
       Linking.openURL(data.tracks.items[0].external_urls.spotify);
       // playSound(data.tracks.items[0].preview_url);
@@ -74,15 +67,16 @@ export const playMusic = (musicGenre: string | undefined): void => {
 
 const InferenceHandler = (
   inference: RhinoInference,
-  navigation: StackNavigation,
+  // navigation: StackNavigation,
 ): void => {
   // const navigation = useNavigation<StackNavigation>();
+  // console.log('navigation', navigation);
   if (inference.isUnderstood) {
     console.log(`Inference: ${inference.intent}`);
     switch (inference.intent) {
       case 'orderBeverage':
         if (inference.slots?.beverage) {
-          beverageHandler(inference.slots.beverage, navigation);
+          beverageHandler(inference.slots.beverage);
         }
         break;
       case 'playMusic':
