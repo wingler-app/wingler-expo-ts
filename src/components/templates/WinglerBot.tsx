@@ -2,9 +2,10 @@ import { PorcupineManager } from '@picovoice/porcupine-react-native';
 import type { RhinoInference } from '@picovoice/rhino-react-native';
 import { RhinoErrors, RhinoManager } from '@picovoice/rhino-react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import * as Random from 'expo-random';
+import * as ExpoCrypto from 'expo-crypto';
 import { Component } from 'react';
 import {
+  Image,
   Modal,
   PermissionsAndroid,
   Platform,
@@ -24,12 +25,9 @@ interface RhinoInferenceObject {
   inference: RhinoInference;
   id: string;
 }
-// const imageLogo = require('./assets/images/logo.png');
 
-const returnKeywordPaths = (): string[] => {
-  if (Platform.OS === 'android') return ['wingler_en_android_v2_2_0.ppn'];
-  return ['wingler_en_ios_v2_2_0.ppn'];
-};
+const imageLogo = require('../../../assets/logo.png');
+
 const ACCESS_KEY: string =
   'MH+tEvDiFJdcOGKK/fsc8z0TBDn8mB74O0tbU8TDv90Yv6bjvvIwUA==';
 
@@ -71,7 +69,7 @@ export default class WinglerBot extends Component<Props, State> {
   async componentDidMount() {
     this.porcupineManager = await PorcupineManager.fromKeywordPaths(
       ACCESS_KEY,
-      returnKeywordPaths(),
+      ['wingler_en_android_v2_2_0.ppn'],
       this.detectionCallback,
       undefined,
       undefined,
@@ -137,10 +135,10 @@ export default class WinglerBot extends Component<Props, State> {
   }
 
   async inferenceCallback(inference: RhinoInference) {
-    InferenceHandler(inference, this.props.navigation);
+    InferenceHandler(inference);
     const obj: RhinoInferenceObject = {
       inference,
-      id: Random.getRandomBytes(16).toString(),
+      id: ExpoCrypto.getRandomBytes(16).toString(),
     };
 
     this.setState((previousState) => ({
@@ -243,7 +241,7 @@ export default class WinglerBot extends Component<Props, State> {
                 className="h-[92] w-[100]"
                 source={require('./assets/logo.png')}
               /> */}
-              {/* <Image className="h-[92] w-[100]" source={imageLogo} /> */}
+              <Image className="h-[92] w-[100]" source={imageLogo} />
             </TouchableOpacity>
             {/* <TouchableOpacity
             className="w-10 h-10 bg-red-600 rounded-full"
