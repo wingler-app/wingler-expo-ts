@@ -1,7 +1,12 @@
 import type { RhinoInference } from '@picovoice/rhino-react-native';
 import { router } from 'expo-router';
 
-import InferenceHandler, { beverageHandler, playMusic } from './inference';
+import InferenceHandler, {
+  beverageHandler,
+  chatPrint,
+  playMusic,
+  prettyPrint,
+} from './inference';
 
 jest.mock('@react-native-async-storage/async-storage');
 jest.mock('react-native', () => ({
@@ -42,15 +47,6 @@ describe('playMusic', () => {
     playMusic(undefined);
     expect(mockFetch).not.toHaveBeenCalled();
   });
-
-  it('should call Linking.openURL with the correct URL', () => {
-    const mockFetch = jest.fn();
-    global.fetch = mockFetch;
-    // await AsyncStorage.setItem('@SpotifyToken', 'test_token');
-    // await playMusic('rock');
-    playMusic('rock');
-    expect(true).toBe(true);
-  });
 });
 
 describe('InferenceHandler', () => {
@@ -69,5 +65,57 @@ describe('InferenceHandler', () => {
     // const navigation = { navigate: jest.fn() } as unknown as StackNavigation;
     InferenceHandler(inference);
     expect(true).toBe(true);
+  });
+});
+
+describe('prettyPrint', () => {
+  it('should return a pretty-printed JSON string', () => {
+    const inference: unknown | RhinoInference = {
+      isUnderstood: true,
+      intent: 'orderBeverage',
+      slots: {
+        beverage: 'coffee',
+      },
+      isFinalized: true,
+      _isFinalized: true,
+    };
+    const expectedOutput = `{
+    "isUnderstood": true,
+    "intent": "orderBeverage",
+    "slots": {
+        "beverage": "coffee"
+    },
+    "isFinalized": true,
+    "_isFinalized": true
+}`;
+    expect(prettyPrint(inference as RhinoInference)).toEqual(expectedOutput);
+  });
+});
+
+describe('chatPrint', () => {
+  it('should return a chat-friendly string', () => {
+    const inference: unknown | RhinoInference = {
+      isUnderstood: true,
+      intent: 'orderBeverage',
+      slots: {
+        beverage: 'coffee',
+      },
+      isFinalized: true,
+      _isFinalized: true,
+    };
+    const expectedOutput = '✅ orderBeverage coffee=... ';
+    expect(chatPrint(inference as RhinoInference)).toEqual(expectedOutput);
+  });
+
+  it('should return an error string if inference is not understood', () => {
+    const inference: unknown | RhinoInference = {
+      isUnderstood: false,
+      intent: '',
+      slots: {},
+      isFinalized: true,
+      _isFinalized: true,
+    };
+    const expectedOutput = '❌ ';
+    expect(chatPrint(inference as RhinoInference)).toEqual(expectedOutput);
   });
 });

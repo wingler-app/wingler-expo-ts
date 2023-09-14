@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "288764092407",
+    "project_id": "wingler-38420",
+    "storage_bucket": "wingler-38420.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288764092407:android:5cb710f8321693a3e598f2",
+        "android_client_info": {
+          "package_name": "com.wingler"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-GHxKIf6Toz3Qlv9ll6LiJGZjkAqri6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
