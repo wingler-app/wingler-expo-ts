@@ -37,10 +37,15 @@ const Welcome = () => {
   }, []);
 
   return (
-    <View className="flex-1 items-center justify-center">
-      <Text>Hello World!</Text>
+    <View className="flex-1 items-center justify-center bg-black">
+      <Text className="mb-8 text-2xl text-white">Hello World!</Text>
       <Image className="h-[92] w-[100]" source={test} />
-      <Link href="/wingler">Wingler</Link>
+      <Link
+        href="/wingler"
+        className="mt-12 rounded border-[1px] border-white px-4 py-2 text-white active:bg-white active:text-black "
+      >
+        Enter wingler chat
+      </Link>
     </View>
   );
 };
