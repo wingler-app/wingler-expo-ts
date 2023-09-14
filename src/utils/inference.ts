@@ -3,6 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { Linking } from 'react-native';
 
+import { promptOpenAI } from './handleQuestion';
+
 export const beverageHandler = (beverage: string): void => {
   switch (beverage) {
     case 'coffee':
@@ -37,7 +39,6 @@ export const playMusic = (musicGenre: string | undefined): void => {
         },
       );
       const data = await response.json();
-      console.log(data);
       // console.log(data.tracks.items[0].uri);
       Linking.openURL(data.tracks.items[0].external_urls.spotify);
       // playSound(data.tracks.items[0].preview_url);
@@ -47,41 +48,55 @@ export const playMusic = (musicGenre: string | undefined): void => {
   })();
 };
 
-// const playSound = async (preview_url: string): Promise<void> => {
-//   console.log(preview_url);
-//   try {
-//     const { sound } = await Audio.Sound.createAsync(
-//       { uri: preview_url },
-//       { shouldPlay: true, isLooping: false },
-//       onPlaybackStatusUpdate,
-//     );
-//     await sound.playAsync();
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+const goTo = (location: string): void => {
+  switch (location) {
+    case 'home':
+      console.log('Going to Home');
+      router.push('/');
+      break;
+    case 'settings':
+      console.log('Going to Settings');
+      router.push('settings');
+      break;
+    case 'chat':
+      console.log('Going to Chat');
+      router.push('wingler');
+      break;
+    default:
+      console.log('default');
+      break;
+  }
+};
 
-// const onPlaybackStatusUpdate = async (status: any): Promise<void> => {
-//   console.log(status);
-// };
+const playBack = (playback: string): void => {
+  console.log(playback);
+};
 
-const InferenceHandler = (
-  inference: RhinoInference,
-  // navigation: StackNavigation,
-): void => {
-  // const navigation = useNavigation<StackNavigation>();
-  // console.log('navigation', navigation);
-  if (inference.isUnderstood) {
-    console.log(`Inference: ${inference.intent}`);
-    switch (inference.intent) {
+const InferenceHandler = (inference: RhinoInference): void => {
+  const { intent, slots, isUnderstood } = inference;
+
+  if (isUnderstood) {
+    console.log(`Inference: ${intent}`);
+    switch (intent) {
       case 'orderBeverage':
-        if (inference.slots?.beverage) {
-          beverageHandler(inference.slots.beverage);
+        if (slots?.beverage) {
+          beverageHandler(slots.beverage);
         }
         break;
       case 'playMusic':
-        console.log('playMusic', inference.slots?.musicGenre);
-        playMusic(inference.slots?.musicGenre);
+        console.log('playMusic', slots?.musicGenre);
+        playMusic(slots?.musicGenre);
+        break;
+      case 'appCommands':
+        if (slots?.locations) goTo(slots.locations);
+        if (slots?.playback) playBack(slots.playback);
+        break;
+      case 'askQuestion':
+        // if (typeof slots?.question === 'string') {
+        promptOpenAI('What is the meaning of life?');
+        // } else {
+        //   console.log('No question found');
+        // }
         break;
       default:
         console.log("Didn't understand the command");
