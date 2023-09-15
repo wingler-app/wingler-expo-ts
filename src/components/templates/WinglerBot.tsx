@@ -29,7 +29,7 @@ interface RhinoInferenceObject {
 const imageLogo = require('../../../assets/logo.png');
 
 const ACCESS_KEY: string =
-  'MH+tEvDiFJdcOGKK/fsc8z0TBDn8mB74O0tbU8TDv90Yv6bjvvIwUA==';
+  'J0P63/4nK6Qi5Griv0Lf0xzdFzcWlZ+wELe1/SX1vQ8FZszSi/5rrQ==';
 
 type Props = NativeStackScreenProps<StackParamList, 'Wingler'>;
 type State = {
@@ -229,24 +229,16 @@ export default class WinglerBot extends Component<Props, State> {
     return (
       <View className="flex-1">
         <View className="flex-1 justify-center bg-black">
-          <View className="absolute top-0 w-full items-center justify-center">
+          <View className="absolute top-10 w-full items-center justify-center">
             <TouchableOpacity
               className={`h-40 w-40 items-center justify-center ${
                 this.state.isError ? 'bg-red-600' : ''
-              } ${this.state.buttonColor}  rounded-full`}
+              } ${this.state.buttonColor} rounded-full`}
               onPress={() => this.startProcessing()}
               disabled={this.state.buttonDisabled || this.state.isError}
             >
-              {/* <Image
-                className="h-[92] w-[100]"
-                source={require('./assets/logo.png')}
-              /> */}
               <Image className="h-[92] w-[100]" source={imageLogo} />
             </TouchableOpacity>
-            {/* <TouchableOpacity
-            className="w-10 h-10 bg-red-600 rounded-full"
-            onPress={() => this.props.navigation.navigate('Settings')}
-          /> */}
           </View>
 
           <Modal
@@ -259,7 +251,7 @@ export default class WinglerBot extends Component<Props, State> {
                 <Text className="text-black">{this.state.rhinoText}</Text>
               </ScrollView>
               <TouchableOpacity
-                className="flex-0.05 justify-center self-center bg-blue-700 p-1"
+                className="flex-[0.05] justify-center self-center bg-blue-700 p-1"
                 onPress={() => this.setState({ showInferenceInfo: false })}
               >
                 <Text className="text-white">CLOSE</Text>
@@ -280,7 +272,7 @@ export default class WinglerBot extends Component<Props, State> {
                 </Text>
               </ScrollView>
               <TouchableOpacity
-                className="flex-0.05 justify-center self-center bg-blue-700 p-1"
+                className="flex-[0.05] justify-center self-center bg-blue-700 p-1"
                 onPress={() => this.setState({ showContextInfo: false })}
               >
                 <Text className="text-white">CLOSE</Text>
@@ -296,7 +288,7 @@ export default class WinglerBot extends Component<Props, State> {
             </View>
           )}
 
-          <ScrollView className="top-24 flex-1">
+          <ScrollView className="top-32 flex-1">
             {this.state.history.map((item) => (
               <View className="m-4 flex-1" key={item.id}>
                 <View className="h-14 w-14 rounded-full bg-white" />
@@ -309,21 +301,22 @@ export default class WinglerBot extends Component<Props, State> {
             ))}
           </ScrollView>
         </View>
-
-        <View className="flex-2 flex-row items-center justify-between bg-blue-500">
-          <Text className="ml-5 font-bold text-white">wingler™ by MEKTIG</Text>
+        <View className="flex-2 flex-row items-center justify-between bg-black">
+          <Text className="ml-5 font-bold text-gray-700">
+            wingler™ by Mektig
+          </Text>
           <View className="m-2 flex-row">
             <TouchableOpacity
-              className="mr-2 rounded bg-yellow-300"
+              className="mr-2 rounded-full bg-yellow-300"
               onPress={() => this.showContextInfo()}
             >
-              <Text className="p-2 text-black">Context Info</Text>
+              <Text className="px-2  text-black">Context Info</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="rounded bg-yellow-300"
+              className="rounded-full bg-yellow-300"
               onPress={() => this.showInferenceInfo()}
             >
-              <Text className="p-2 text-black">Inference</Text>
+              <Text className="px-2  text-black">Inference</Text>
             </TouchableOpacity>
           </View>
         </View>
