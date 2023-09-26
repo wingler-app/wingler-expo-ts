@@ -4,27 +4,14 @@ import { RhinoErrors, RhinoManager } from '@picovoice/rhino-react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as ExpoCrypto from 'expo-crypto';
 import { Component } from 'react';
-import {
-  Image,
-  Modal,
-  PermissionsAndroid,
-  Platform,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { PermissionsAndroid, Platform, Text, View } from 'react-native';
 
-import type { StackParamList } from '../../types';
-import InferenceHandler, {
-  chatPrint,
-  prettyPrint,
-} from '../../utils/inference';
-
-interface RhinoInferenceObject {
-  inference: RhinoInference;
-  id: string;
-}
+import type { BotQA, RhinoInferenceObject, StackParamList } from '../../types';
+import InferenceHandler, { prettyPrint } from '../../utils/inference';
+import Chat from '../organisms/chat';
+import ContextInfo from '../organisms/contextInfo';
+import ListenerIndicator from '../organisms/listenerIndicator';
+import WingModal from '../organisms/modal';
 
 const imageLogo = require('../../../assets/logo.png');
 
@@ -135,20 +122,30 @@ export default class WinglerBot extends Component<Props, State> {
   }
 
   async inferenceCallback(inference: RhinoInference) {
-    InferenceHandler(inference);
-    const obj: RhinoInferenceObject = {
-      inference,
-      id: ExpoCrypto.getRandomBytes(16).toString(),
-    };
+    const botQA: null | BotQA = await InferenceHandler(inference);
+    if (botQA !== null) {
+      const obj: RhinoInferenceObject = {
+        botQA,
+        id: ExpoCrypto.getRandomBytes(16).toString(),
+      };
 
-    this.setState((previousState) => ({
-      rhinoText: prettyPrint(inference),
-      buttonColor: 'border-4 border-transparent',
-      buttonDisabled: false,
-      isListening: false,
-      history: [...previousState.history, obj],
-    }));
-
+      this.setState((previousState) => ({
+        rhinoText: prettyPrint(inference),
+        buttonColor: 'border-4 border-transparent',
+        buttonDisabled: false,
+        isListening: false,
+        history: [...previousState.history, obj],
+      }));
+    } else {
+      console.log('Inference Text is null');
+      this.setState((previousState) => ({
+        rhinoText: prettyPrint(inference),
+        buttonColor: 'border-4 border-transparent',
+        buttonDisabled: false,
+        isListening: false,
+        history: [...previousState.history],
+      }));
+    }
     await this.rhinoManager?.delete();
     this.porcupineManager?.start();
   }
@@ -213,72 +210,40 @@ export default class WinglerBot extends Component<Props, State> {
     }
   }
 
-  showContextInfo() {
-    if (!this.state.isError) {
-      this.setState({ showContextInfo: true });
-    }
+  showContextInfo(mode: boolean) {
+    console.log('showContextInfo');
+    if (!this.state.isError) this.setState({ showContextInfo: mode });
   }
 
-  showInferenceInfo() {
-    if (!this.state.isError) {
-      this.setState({ showInferenceInfo: true });
-    }
+  showInferenceInfo(mode: boolean) {
+    if (!this.state.isError) this.setState({ showInferenceInfo: mode });
   }
 
   render() {
     return (
       <View className="flex-1">
         <View className="flex-1 justify-center bg-black">
-          <View className="absolute top-10 w-full items-center justify-center">
-            <TouchableOpacity
-              className={`h-40 w-40 items-center justify-center ${
-                this.state.isError ? 'bg-red-600' : ''
-              } ${this.state.buttonColor} rounded-full`}
-              onPress={() => this.startProcessing()}
-              disabled={this.state.buttonDisabled || this.state.isError}
-            >
-              <Image className="h-[92] w-[100]" source={imageLogo} />
-            </TouchableOpacity>
-          </View>
-
-          <Modal
-            animationType="slide"
-            transparent
+          <ListenerIndicator
+            isError={this.state.isError}
+            buttonColor={this.state.buttonColor}
+            buttonDisabled={this.state.buttonDisabled}
+            imageLogo={imageLogo}
+            onPress={() => this.startProcessing()}
+          />
+          <WingModal
+            info={this.state.rhinoText}
             visible={this.state.showInferenceInfo}
-          >
-            <View className="m-10 mt-24 flex-1 rounded-lg bg-white p-4">
-              <ScrollView className="mb-4 flex-[]">
-                <Text className="text-black">{this.state.rhinoText}</Text>
-              </ScrollView>
-              <TouchableOpacity
-                className="flex-[0.05] justify-center self-center bg-blue-700 p-1"
-                onPress={() => this.setState({ showInferenceInfo: false })}
-              >
-                <Text className="text-white">CLOSE</Text>
-              </TouchableOpacity>
-            </View>
-          </Modal>
-
-          <Modal
-            animationType="slide"
-            transparent
+            onClose={() => this.showInferenceInfo(false)}
+          />
+          <WingModal
+            info={
+              this.rhinoManager?.contextInfo
+                ? this.rhinoManager?.contextInfo
+                : `${this.state.contextInfoText}`
+            }
             visible={this.state.showContextInfo}
-          >
-            <View className="m-10 mt-24 flex-1 rounded-lg bg-white p-4">
-              <ScrollView className="mb-4 flex-[]">
-                <Text className="text-black">
-                  {this.rhinoManager?.contextInfo}
-                  {this.state.contextInfoText}
-                </Text>
-              </ScrollView>
-              <TouchableOpacity
-                className="flex-[0.05] justify-center self-center bg-blue-700 p-1"
-                onPress={() => this.setState({ showContextInfo: false })}
-              >
-                <Text className="text-white">CLOSE</Text>
-              </TouchableOpacity>
-            </View>
-          </Modal>
+            onClose={() => this.showContextInfo(false)}
+          />
 
           {this.state.isError && (
             <View className="m-5 my-1 rounded-lg bg-red-500 p-4">
@@ -287,39 +252,12 @@ export default class WinglerBot extends Component<Props, State> {
               </Text>
             </View>
           )}
-
-          <ScrollView className="top-32 flex-1">
-            {this.state.history.map((item) => (
-              <View className="m-4 flex-1" key={item.id}>
-                <View className="h-14 w-14 rounded-full bg-white" />
-                <View className="mx-14 flex-1 flex-row rounded rounded-tl-none bg-indigo-900 px-6 py-4">
-                  <Text className="flex-wrap text-xl text-white">
-                    {chatPrint(item.inference)}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
+          <Chat history={this.state.history} />
         </View>
-        <View className="flex-2 flex-row items-center justify-between bg-black">
-          <Text className="ml-5 font-bold text-gray-700">
-            wingler™ by Mektig
-          </Text>
-          <View className="m-2 flex-row">
-            <TouchableOpacity
-              className="mr-2 rounded-full bg-yellow-300"
-              onPress={() => this.showContextInfo()}
-            >
-              <Text className="px-2  text-black">Context Info</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="rounded-full bg-yellow-300"
-              onPress={() => this.showInferenceInfo()}
-            >
-              <Text className="px-2  text-black">Inference</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+        <ContextInfo
+          showContextInfo={() => this.showContextInfo(true)}
+          showInferenceInfo={() => this.showInferenceInfo(true)}
+        />
       </View>
     );
   }
