@@ -1,9 +1,30 @@
 import type { RhinoInference } from '@picovoice/rhino-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import * as Speech from 'expo-speech';
 import { Linking } from 'react-native';
 
+import type { BotQA } from '@/types';
+
 import { promptOpenAI } from './handleQuestion';
+
+// const log = logger.createLogger();
+export const speechOptions: Speech.SpeechOptions = {
+  language: 'en-US',
+  pitch: 1,
+  rate: 0.75,
+};
+
+// const listAllVoiceOptions = async () => {
+//   try {
+//     const voices = await Speech.getAvailableVoicesAsync();
+//     if (log.debug) {
+//       log.debug('Available voices', voices);
+//     }
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
 
 export const beverageHandler = (beverage: string): void => {
   switch (beverage) {
@@ -72,8 +93,14 @@ const playBack = (playback: string): void => {
   console.log(playback);
 };
 
-const InferenceHandler = (inference: RhinoInference): void => {
+const InferenceHandler = (inference: RhinoInference): null | BotQA => {
   const { intent, slots, isUnderstood } = inference;
+  const botQA: BotQA = {
+    question: '',
+    answer: '',
+  };
+
+  // listAllVoiceOptions();
 
   if (isUnderstood) {
     console.log(`Inference: ${intent}`);
@@ -81,47 +108,46 @@ const InferenceHandler = (inference: RhinoInference): void => {
       case 'orderBeverage':
         if (slots?.beverage) {
           beverageHandler(slots.beverage);
+          botQA.question = `Ordering ${slots.beverage}`;
+          botQA.answer = "I'm on it!";
         }
         break;
       case 'playMusic':
         console.log('playMusic', slots?.musicGenre);
         playMusic(slots?.musicGenre);
+        botQA.question = `Play ${slots?.musicGenre}`;
+        botQA.answer = 'Setting the mood...';
         break;
       case 'appCommands':
-        if (slots?.locations) goTo(slots.locations);
-        if (slots?.playback) playBack(slots.playback);
+        if (slots?.locations) {
+          goTo(slots.locations);
+          botQA.question = `Go to ${slots.locations}`;
+          botQA.answer = 'See you there!';
+        }
+        if (slots?.playback) {
+          playBack(slots.playback);
+          botQA.question = `${slots.playback}`;
+          botQA.answer = 'Ok!';
+        }
         break;
       case 'askQuestion':
-        // if (typeof slots?.question === 'string') {
         promptOpenAI('What is the meaning of life?');
-        // } else {
-        //   console.log('No question found');
-        // }
+        botQA.question = 'I wonder...';
+        botQA.answer = 'Well, I think...';
         break;
       default:
         console.log("Didn't understand the command");
-        break;
+        return null;
     }
   } else {
     console.log("Didn't understand the command");
+    return null;
   }
+  setTimeout(() => Speech.speak(botQA.answer, speechOptions), 1000);
+  return botQA;
 };
-
-export default InferenceHandler;
 
 export const prettyPrint = (inference: RhinoInference): string =>
   JSON.stringify(inference, null, 4);
 
-export const chatPrint = (inference: RhinoInference): string => {
-  let chatText = (inference.isUnderstood ? '✅ ' : '❌ ') + inference.intent;
-  if (inference.isUnderstood && inference.slots) {
-    chatText += ' ';
-    const slots = Object.values(inference.slots);
-    slots.forEach((slot: string) => {
-      chatText += `${slot}=... `;
-    });
-    // chatText += `${slotName}=${inference.slots[slotName]} `;
-    chatText += '';
-  }
-  return chatText;
-};
+export default InferenceHandler;
