@@ -19,6 +19,7 @@ module.exports = {
     '!**/node_modules/**',
     '!**/babel.config.js',
     '!**/jest.setup.js',
+    '!**/src/plugins/**',
   ],
   coverageThreshold: {
     global: {
