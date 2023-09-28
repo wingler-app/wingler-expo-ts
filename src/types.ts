@@ -7,3 +7,13 @@ export type StackParamList = {
 };
 
 export type StackNavigation = NavigationProp<StackParamList>;
+
+export interface RhinoInferenceObject {
+  botQA: BotQA;
+  id: string;
+}
+
+export interface BotQA {
+  question: string;
+  answer: string;
+}

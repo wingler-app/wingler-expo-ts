@@ -3,9 +3,9 @@ import { router } from 'expo-router';
 
 import InferenceHandler, {
   beverageHandler,
-  chatPrint,
   playMusic,
   prettyPrint,
+  speechOptions,
 } from './inference';
 
 jest.mock('@react-native-async-storage/async-storage');
@@ -13,6 +13,9 @@ jest.mock('react-native', () => ({
   Linking: {
     openURL: jest.fn(),
   },
+}));
+jest.mock('expo-speech', () => ({
+  speak: jest.fn(),
 }));
 
 jest.mock('expo-router', () => ({
@@ -65,6 +68,19 @@ describe('InferenceHandler', () => {
     // const navigation = { navigate: jest.fn() } as unknown as StackNavigation;
     InferenceHandler(inference);
     expect(true).toBe(true);
+    // expect(Speech.speak).toHaveBeenCalled();
+  });
+});
+
+describe('speechOptions', () => {
+  it('should be of type SpeechOptions', () => {
+    expect(speechOptions).toEqual(
+      expect.objectContaining({
+        language: 'en-US',
+        pitch: 1,
+        rate: 0.75,
+      }),
+    );
   });
 });
 
@@ -89,33 +105,5 @@ describe('prettyPrint', () => {
     "_isFinalized": true
 }`;
     expect(prettyPrint(inference as RhinoInference)).toEqual(expectedOutput);
-  });
-});
-
-describe('chatPrint', () => {
-  it('should return a chat-friendly string', () => {
-    const inference: unknown | RhinoInference = {
-      isUnderstood: true,
-      intent: 'orderBeverage',
-      slots: {
-        beverage: 'coffee',
-      },
-      isFinalized: true,
-      _isFinalized: true,
-    };
-    const expectedOutput = '✅ orderBeverage coffee=... ';
-    expect(chatPrint(inference as RhinoInference)).toEqual(expectedOutput);
-  });
-
-  it('should return an error string if inference is not understood', () => {
-    const inference: unknown | RhinoInference = {
-      isUnderstood: false,
-      intent: '',
-      slots: {},
-      isFinalized: true,
-      _isFinalized: true,
-    };
-    const expectedOutput = '❌ ';
-    expect(chatPrint(inference as RhinoInference)).toEqual(expectedOutput);
   });
 });
