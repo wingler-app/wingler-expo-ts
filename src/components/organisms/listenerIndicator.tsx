@@ -1,3 +1,4 @@
+import { Motion } from '@legendapp/motion';
 import type { GestureResponderEvent } from 'react-native';
 import { Image, TouchableOpacity, View } from 'react-native';
 
@@ -14,14 +15,14 @@ const ListenerIndicator = ({
 }: ListenerIndicatorProps) => {
   return (
     <View className="absolute top-10 z-50 w-full items-center justify-center">
-      <TouchableOpacity
-        className={`h-40 w-40 items-center justify-center  rounded-full ${
-          buttonDisabled ? 'bg-teal-900' : ''
-        }`}
-        onPress={onPress}
-        disabled={buttonDisabled}
-      >
-        <Image className="h-[92] w-[100]" source={imageLogo} />
+      <Motion.View
+        className="absolute h-40 w-40 rounded-full bg-teal-900"
+        animate={{
+          scale: buttonDisabled ? 1 : 0,
+        }}
+      />
+      <TouchableOpacity onPress={onPress} disabled={buttonDisabled}>
+        <Image className="h-[93] w-[100]" source={imageLogo} />
       </TouchableOpacity>
     </View>
   );
