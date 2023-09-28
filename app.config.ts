@@ -5,13 +5,13 @@ export const config: ExpoConfig = {
   slug: 'wingler',
   version: '0.0.1',
   orientation: 'portrait',
-  icon: './assets/logo.png',
+  icon: './assets/ios-icon.jpg',
   userInterfaceStyle: 'dark',
   scheme: 'myapp',
   splash: {
-    image: './assets/logo.png',
+    image: './assets/logo-splash.png',
     resizeMode: 'contain',
-    backgroundColor: '#000000',
+    backgroundColor: '#151523',
   },
   assetBundlePatterns: ['**/*'],
   ios: {
@@ -29,8 +29,8 @@ export const config: ExpoConfig = {
   android: {
     googleServicesFile: './google-services.json',
     adaptiveIcon: {
-      foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#000000',
+      foregroundImage: './assets/adaptive-icon/foreground.png',
+      backgroundImage: './assets/adaptive-icon/background.png',
     },
     permissions: ['RECORD_AUDIO', 'INTERNET'],
     package: 'com.wingler',
