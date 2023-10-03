@@ -54,7 +54,7 @@ const Welcome = () => {
   }, []);
 
   return (
-    <View className="flex-1 items-center justify-center bg-black">
+    <View className="flex-1 items-center justify-center bg-primary-dark">
       {!hasCheckedAuth ? (
         <Text className="text-4xl text-white">Calling firebase</Text>
       ) : (

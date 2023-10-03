@@ -89,7 +89,7 @@ export default function SettingsTemplate() {
   // };
 
   return (
-    <View className="flex-1 items-center justify-center bg-primary-black">
+    <View className="flex-1 items-center justify-center bg-primary-dark">
       <Button
         disabled={!request}
         title="Get Spotify Token"

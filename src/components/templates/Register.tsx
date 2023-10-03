@@ -70,7 +70,7 @@ const RegisterTemplate = () => {
   };
 
   return (
-    <View className="flex-1 justify-center bg-black px-5 ">
+    <View className="flex-1 justify-center bg-primary-dark px-5 ">
       {!hasCheckedAuth ? (
         <Text className="text-center text-white">Calling Firebase...</Text>
       ) : (

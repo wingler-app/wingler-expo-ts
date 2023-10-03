@@ -75,7 +75,7 @@ const WinglerBot = () => {
 
   return (
     <View className="flex-1">
-      <View className="flex-1 justify-center bg-primary-black">
+      <View className="flex-1 justify-center bg-primary-dark">
         <ListenerIndicator
           buttonDisabled={isListening}
           onPress={() => console.log('pressed')}
