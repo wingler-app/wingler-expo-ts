@@ -13,7 +13,7 @@ import ListenerIndicator from '../organisms/listenerIndicator';
 import WingModal from '../organisms/modal';
 
 const ACCESS_KEY: string =
-  'J0P63/4nK6Qi5Griv0Lf0xzdFzcWlZ+wELe1/SX1vQ8FZszSi/5rrQ==';
+  'cxPKsYiXYjyiBNITmZniwbKNu5lqYDTRU+qeciOjaqWMC+AhY25qzQ==';
 
 const WinglerBot = () => {
   const [isListening, setIsListening] = useState<boolean>(false);
@@ -75,7 +75,7 @@ const WinglerBot = () => {
 
   return (
     <View className="flex-1">
-      <View className="flex-1 justify-center bg-black">
+      <View className="flex-1 justify-center bg-primary-dark">
         <ListenerIndicator
           buttonDisabled={isListening}
           onPress={() => console.log('pressed')}

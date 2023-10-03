@@ -1,10 +1,16 @@
-import { Link } from 'expo-router';
-import { useEffect } from 'react';
+import type { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Image, PermissionsAndroid, Platform, Text, View } from 'react-native';
+
+import Button from '../atoms/Button';
 
 const test = require('../../../assets/logo.png');
 
 const Welcome = () => {
+  const [hasCheckedAuth, setHasCheckedAuth] = useState<boolean>(false);
+
   const recordAudioRequest = async () => {
     if (Platform.OS === 'android') {
       // Android requires an explicit call to ask for permission
@@ -25,27 +31,42 @@ const Welcome = () => {
     return true;
   };
 
+  const onAuthStateChanged = (user: FirebaseAuthTypes.User | null) => {
+    setTimeout(() => {
+      if (user) {
+        router.push('wingler');
+        console.log('User is signed in');
+      } else {
+        setHasCheckedAuth(true);
+        console.log('User is signed out');
+      }
+    }, 1000);
+  };
+
   useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     (async () => {
       const hasPermission = await recordAudioRequest();
       console.log(hasPermission);
     })();
 
-    // return () => {
-    //   second
-    // }
+    return subscriber; // unsubscribe on unmount
   }, []);
 
   return (
-    <View className="flex-1 items-center justify-center bg-black">
-      <Text className="mb-8 text-2xl text-white">Hello World!</Text>
-      <Image className="h-[92] w-[100]" source={test} />
-      <Link
-        href="/wingler"
-        className="mt-12 rounded border-[1px] border-white px-4 py-2 text-white active:bg-white active:text-black "
-      >
-        Enter wingler chat
-      </Link>
+    <View className="flex-1 items-center justify-center bg-primary-dark">
+      {!hasCheckedAuth ? (
+        <Text className="text-4xl text-white">Calling firebase</Text>
+      ) : (
+        <>
+          <Image className="h-[92] w-[100]" source={test} />
+          <Button
+            buttonStyle="m-10"
+            title="Get Started"
+            onPress={() => router.push('login')}
+          />
+        </>
+      )}
     </View>
   );
 };

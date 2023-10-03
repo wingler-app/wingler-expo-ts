@@ -1,14 +1,16 @@
-import { Motion } from '@legendapp/motion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import auth from '@react-native-firebase/auth';
 import {
   makeRedirectUri,
   ResponseType,
   useAuthRequest,
 } from 'expo-auth-session';
-import { BlurView } from 'expo-blur';
+import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
-import { Button, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
+
+import Button from '../atoms/Button';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -20,7 +22,7 @@ const discovery = {
 
 export default function SettingsTemplate() {
   const [spotifyToken, setSpotifyToken] = useState<String>('nothing');
-  const [value, setValue] = useState<Number>(0);
+  // const [value, setValue] = useState<Number>(0);
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Token,
@@ -43,6 +45,15 @@ export default function SettingsTemplate() {
     },
     discovery,
   );
+
+  const handleLogout = async () => {
+    auth()
+      .signOut()
+      .then(() => {
+        console.log('User signed out!');
+        router.push('/');
+      });
+  };
 
   useEffect(() => {
     (async () => {
@@ -73,22 +84,23 @@ export default function SettingsTemplate() {
     }
   }, [response]);
 
-  const handleMotionPress = () => {
-    setValue(value === 0 ? 1 : 0);
-  };
+  // const handleMotionPress = () => {
+  //   setValue(value === 0 ? 1 : 0);
+  // };
 
   return (
-    <View className="flex-1 items-center justify-center">
+    <View className="flex-1 items-center justify-center bg-primary-dark">
       <Button
         disabled={!request}
-        title="Login"
+        title="Get Spotify Token"
         onPress={() => {
           promptAsync();
         }}
       />
-      <Button title="animate" onPress={handleMotionPress} />
+      {/* <Button title="animate" onPress={handleMotionPress} /> */}
+      <Button title="Logout" onPress={handleLogout} />
 
-      <View className="relative h-60 w-60 items-center justify-center self-center border-2 border-green-600 ">
+      {/* <View className="relative h-60 w-60 items-center justify-center self-center border-2 border-green-600 ">
         <Motion.View
           animate={{
             scale: value ? 1 : 0,
@@ -118,8 +130,11 @@ export default function SettingsTemplate() {
         whileHover={{ scale: 1.2 }}
         whileTap={{ y: 20 }}
         transition={{ type: 'spring' }}
-      />
-      <Text className="m-2 text-red-600">{spotifyToken}</Text>
+      /> */}
+
+      <Text className="m-4 rounded border-2 border-white p-4 text-white">
+        {spotifyToken}
+      </Text>
     </View>
   );
 }

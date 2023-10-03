@@ -11,7 +11,7 @@ const ContextInfo = ({
   showInferenceInfo,
 }: ContextInfoProps) => {
   return (
-    <View className="flex flex-row items-center justify-between bg-black">
+    <View className="flex flex-row items-center justify-between bg-primary-dark">
       <Text className="ml-5 font-bold text-gray-700">wingler™ by Mektig</Text>
       <View className="m-2 flex-row">
         <TouchableOpacity

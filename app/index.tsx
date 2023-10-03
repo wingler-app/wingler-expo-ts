@@ -7,6 +7,8 @@ const Home = () => (
     <Stack.Screen
       options={{
         title: 'My home',
+        animationTypeForReplace: 'pop',
+        animation: 'slide_from_bottom',
       }}
     />
     <Welcome />
