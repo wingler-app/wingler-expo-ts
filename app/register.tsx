@@ -7,6 +7,8 @@ const Register = () => (
     <Stack.Screen
       options={{
         title: 'Register',
+        animationTypeForReplace: 'pop',
+        animation: 'slide_from_bottom',
       }}
     />
     <RegisterTemplate />
