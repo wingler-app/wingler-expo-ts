@@ -2,13 +2,16 @@ import { render, screen } from '@testing-library/react-native';
 
 import { Welcome } from './Welcome';
 
-describe('App component', () => {
-  describe('Render method', () => {
-    it('should render the default text', () => {
-      render(<Welcome />);
+jest.mock('@react-native-firebase/auth', () => {
+  return () => ({
+    onAuthStateChanged: jest.fn(),
+  });
+});
 
-      const text = screen.queryByText(/Hello/);
-      expect(text).toBeVisible();
-    });
+describe('Welcome', () => {
+  it('should render the default text', () => {
+    render(<Welcome />);
+    const text = screen.queryByText(/Calling/);
+    expect(text).toBeVisible();
   });
 });
