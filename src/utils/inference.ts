@@ -6,25 +6,11 @@ import { Linking } from 'react-native';
 
 import type { BotQA } from '@/types';
 
-import { promptOpenAI } from './handleQuestion';
-
-// const log = logger.createLogger();
 export const speechOptions: Speech.SpeechOptions = {
   language: 'en-US',
   pitch: 1,
   rate: 0.75,
 };
-
-// const listAllVoiceOptions = async () => {
-//   try {
-//     const voices = await Speech.getAvailableVoicesAsync();
-//     if (log.debug) {
-//       log.debug('Available voices', voices);
-//     }
-//   } catch (err) {
-//     console.log(err);
-//   }
-// };
 
 export const beverageHandler = (beverage: string): void => {
   switch (beverage) {
@@ -93,14 +79,14 @@ const playBack = (playback: string): void => {
   console.log(playback);
 };
 
-const InferenceHandler = (inference: RhinoInference): null | BotQA => {
+const InferenceHandler = async (
+  inference: RhinoInference,
+): Promise<false | null | BotQA> => {
   const { intent, slots, isUnderstood } = inference;
   const botQA: BotQA = {
     question: '',
     answer: '',
   };
-
-  // listAllVoiceOptions();
 
   if (isUnderstood) {
     console.log(`Inference: ${intent}`);
@@ -131,10 +117,7 @@ const InferenceHandler = (inference: RhinoInference): null | BotQA => {
         }
         break;
       case 'askQuestion':
-        promptOpenAI('What is the meaning of life?');
-        botQA.question = 'I wonder...';
-        botQA.answer = 'Well, I think...';
-        break;
+        return false;
       default:
         console.log("Didn't understand the command");
         return null;

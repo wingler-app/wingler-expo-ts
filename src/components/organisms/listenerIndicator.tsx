@@ -6,17 +6,21 @@ const imageLogo = require('../../../assets/logo.png');
 
 type ListenerIndicatorProps = {
   buttonDisabled: boolean;
+  isSpeechToText: boolean;
   onPress: ((event: GestureResponderEvent) => void) | undefined;
 };
 
 const ListenerIndicator = ({
   buttonDisabled,
+  isSpeechToText,
   onPress,
 }: ListenerIndicatorProps) => {
   return (
     <View className="absolute top-10 z-50 w-full items-center justify-center">
       <Motion.View
-        className="absolute h-40 w-40 rounded-full bg-teal-900"
+        className={`absolute h-40 w-40 rounded-full ${
+          isSpeechToText ? 'bg-red-300' : 'bg-teal-900'
+        }`}
         animate={{
           scale: buttonDisabled ? 1 : 0,
         }}

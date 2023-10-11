@@ -89,6 +89,14 @@ export const config: ExpoConfig = {
     ],
     ['@config-plugins/detox', { subdomains: '*' }],
     ['./src/plugins/my-plugin.js', './assets/picovoice'],
+    [
+      '@react-native-voice/voice',
+      {
+        microphonePermission: 'Allow $(PRODUCT_NAME) to access the microphone',
+        speechRecognitionPermission:
+          'Allow $(PRODUCT_NAME) to securely recognize user speech',
+      },
+    ],
     '@react-native-firebase/app',
     // '@react-native-firebase/perf',
     // '@react-native-firebase/crashlytics',
