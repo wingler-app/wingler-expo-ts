@@ -2,7 +2,6 @@ import type { RhinoInference } from '@picovoice/rhino-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import * as Speech from 'expo-speech';
-import { Linking } from 'react-native';
 
 import type { BotQA } from '@/types';
 
@@ -28,31 +27,39 @@ export const beverageHandler = (beverage: string): void => {
   }
 };
 
-export const playMusic = (musicGenre: string | undefined): void => {
-  if (!musicGenre) return;
+export const playMusic = async (musicGenre: string | undefined) => {
+  if (!musicGenre) return 'Sorry, I could not find any music';
   const genreApiString = musicGenre.replace(' ', '%20');
   const API: string = 'https://api.spotify.com/v1/';
 
-  (async () => {
-    const accessToken = await AsyncStorage.getItem('@SpotifyToken');
-    console.log(accessToken);
-    try {
-      const response = await fetch(
-        `${API}search?q=genre%22${genreApiString}%22&type=track`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+  const accessToken = await AsyncStorage.getItem('@SpotifyToken');
+  // console.log(accessToken);
+  try {
+    const response = await fetch(
+      `${API}search?q=genre%22${genreApiString}%22&type=track`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
         },
-      );
-      const data = await response.json();
-      // console.log(data.tracks.items[0].uri);
-      Linking.openURL(data.tracks.items[0].external_urls.spotify);
-      // playSound(data.tracks.items[0].preview_url);
-    } catch (err) {
-      console.log(err);
-    }
-  })();
+      },
+    );
+    const data = await response.json();
+    // console.log(data.tracks.items[0].artists[0].name);
+    // console.log(data.tracks.items[0].album.images[0].url);
+    const answer = await {
+      type: 'music',
+      artist: data.tracks.items[0].artists[0].name,
+      albumCover: data.tracks.items[0].album.images[0].url,
+      uri: data.tracks.items[0].external_urls.spotify,
+    };
+    console.log('answermusic', answer);
+    return answer;
+    // Linking.openURL(data.tracks.items[0].external_urls.spotify);
+    // playSound(data.tracks.items[0].preview_url);
+  } catch (err) {
+    console.log(err);
+    return 'Sorry, I could not find any music';
+  }
 };
 
 const goTo = (location: string): void => {
@@ -100,9 +107,15 @@ const InferenceHandler = async (
         break;
       case 'playMusic':
         console.log('playMusic', slots?.musicGenre);
-        playMusic(slots?.musicGenre);
-        botQA.question = `Play ${slots?.musicGenre}`;
-        botQA.answer = 'Setting the mood...';
+        try {
+          const music = await playMusic(slots?.musicGenre);
+          console.log('musicffs', music);
+          botQA.question = `Play ${slots?.musicGenre}`;
+          // botQA.answer = 'Setting the mood...';
+          botQA.answer = music;
+        } catch (e) {
+          console.log(e);
+        }
         break;
       case 'appCommands':
         if (slots?.locations) {
@@ -114,6 +127,7 @@ const InferenceHandler = async (
           playBack(slots.playback);
           botQA.question = `${slots.playback}`;
           botQA.answer = 'Ok!';
+          if (slots.playback === 'stop') Speech.stop();
         }
         break;
       case 'askQuestion':
@@ -126,7 +140,9 @@ const InferenceHandler = async (
     console.log("Didn't understand the command");
     return null;
   }
-  setTimeout(() => Speech.speak(botQA.answer, speechOptions), 1000);
+  if (typeof botQA.answer === 'string') {
+    setTimeout(() => Speech.speak(botQA.answer as string, speechOptions), 1000);
+  }
   return botQA;
 };
 
