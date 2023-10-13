@@ -31,7 +31,7 @@ function Button({ onPress, title, buttonStyle, disabled }: ButtonProps) {
         ${disabled && 'bg-gray-400'} ${buttonStyle}`}
         onPress={handleOnPress}
       >
-        <Text className="text-center font-bold uppercase text-white dark:text-black">
+        <Text className="text-center font-bold uppercase tracking-widest text-white dark:text-black">
           {title}
         </Text>
       </Pressable>
