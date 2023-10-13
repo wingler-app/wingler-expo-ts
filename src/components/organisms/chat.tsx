@@ -1,69 +1,39 @@
-import { Motion } from '@legendapp/motion';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useRef, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { memo, useEffect, useRef, useState } from 'react';
+import { ScrollView, View } from 'react-native';
 
 import type { RhinoInferenceObject } from '@/types';
 
-const QnA = ({
-  item,
-  index,
-}: {
-  item: RhinoInferenceObject;
-  index: Number;
-}) => {
-  const style = index === 0 ? 'mt-60' : 'mt-0';
-  // set a timer for 1 second then set show to true
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    setTimeout(() => {
-      setShow(true);
-    }, 1000);
-  });
-  return (
-    <View key={item.id} className={style}>
-      <Motion.View
-        className="mx-4 flex-1 items-end"
-        initial={{ y: -50, opacity: 0 }}
-        animate={{
-          y: 0,
-          opacity: 1,
-        }}
-        whileHover={{ scale: 1.2 }}
-        whileTap={{ y: 20 }}
-        transition={{ type: 'spring', damping: 20 }}
-      >
-        <View className="m-4 flex-1 flex-row rounded-xl rounded-tr-none bg-indigo-900 px-6 py-4">
-          <Text className="flex-wrap text-xl text-white">
-            {item.botQA.question}
-          </Text>
-        </View>
-      </Motion.View>
-      {show && (
-        <Motion.View
-          className="mx-4 flex-1 items-start "
-          initial={{ y: -50, opacity: 0 }}
-          animate={{
-            y: 0,
-            opacity: 1,
-          }}
-          transition={{
-            type: 'spring',
-            damping: 20,
-          }}
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ y: 20 }}
-        >
-          <View className="mx-4 flex-1 flex-row rounded-xl rounded-tl-none bg-teal-600 px-6 py-4">
-            <Text className="flex-wrap text-xl text-white">
-              {item.botQA.answer}
-            </Text>
-          </View>
-        </Motion.View>
-      )}
-    </View>
-  );
-};
+import Bubble from './bubble';
+
+const QnA = memo(
+  ({ item, index }: { item: RhinoInferenceObject; index: Number }) => {
+    const [show, setShow] = useState(false);
+    const style = index === 0 ? 'mt-60' : 'mt-0';
+    const { question, answer } = item.botQA;
+    console.log('QnA', item.botQA.answer);
+
+    useEffect(() => {
+      if (!show) {
+        setTimeout(() => {
+          setShow(true);
+        }, 1000);
+      }
+    }, [show]);
+
+    return (
+      <View key={item.id} className={style}>
+        <Bubble type="user" content={question} />
+        {show &&
+          (typeof answer === 'string' ? (
+            <Bubble type="answer" content={answer} />
+          ) : (
+            <Bubble type={answer.type} content={answer} />
+          ))}
+      </View>
+    );
+  },
+);
 
 export default function Chat({ history }: { history: RhinoInferenceObject[] }) {
   const scrollViewRef = useRef<ScrollView>(null);
