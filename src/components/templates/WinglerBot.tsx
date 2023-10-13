@@ -2,16 +2,11 @@ import { PicovoiceManager } from '@picovoice/picovoice-react-native';
 import type { RhinoInference } from '@picovoice/rhino-react-native';
 import Voice from '@react-native-voice/voice';
 import * as ExpoCrypto from 'expo-crypto';
-import * as Speech from 'expo-speech';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
-import type { RhinoInferenceObject } from '@/types';
-import { promptOpenAI } from '@/utils/handleQuestion';
-import InferenceHandler, {
-  prettyPrint,
-  speechOptions,
-} from '@/utils/inference';
+import type { BotQA, RhinoInferenceObject } from '@/types';
+import InferenceHandler, { prettyPrint } from '@/utils/inference';
 
 import Chat from '../organisms/chat';
 import ContextInfo from '../organisms/contextInfo';
@@ -54,14 +49,20 @@ const WinglerBot = () => {
     console.log('onSpeechResults', e);
     if (e === undefined || e.value === undefined) return;
     console.log(e.value[0]);
-    (async () => {
-      if (e.value !== undefined) {
-        const last = e.value[0] as string;
-        const answer = await promptOpenAI(last);
-        Speech.speak(answer, speechOptions);
-      }
-    })();
+    const botQA: BotQA = {
+      question: e.value[0],
+      answer: {
+        question: e.value[0],
+        type: 'askAI',
+      },
+    };
+    const obj: RhinoInferenceObject = {
+      botQA,
+      id: ExpoCrypto.getRandomBytes(16).toString(),
+    };
+    setHistory((previousState) => [...previousState, obj]);
   };
+
   useEffect(() => {
     Voice.onSpeechStart = onSpeechStart;
     Voice.onSpeechEnd = onSpeechEnd;
