@@ -27,6 +27,14 @@ const WinglerBot = () => {
 
   const picovoiceManager = useRef<PicovoiceManager>();
 
+  const addToHistory = (botQA: BotQA) => {
+    const obj: RhinoInferenceObject = {
+      botQA,
+      id: ExpoCrypto.getRandomBytes(16).toString(),
+    };
+    setHistory((previousState) => [...previousState, obj]);
+  };
+
   const onSpeechStart = () => {
     setIsListening(true);
     setIsSpeechToText(true);
@@ -46,9 +54,7 @@ const WinglerBot = () => {
   };
 
   const onSpeechResults = (e: any) => {
-    console.log('onSpeechResults', e);
     if (e === undefined || e.value === undefined) return;
-    console.log(e.value[0]);
     const botQA: BotQA = {
       question: e.value[0],
       answer: {
@@ -56,24 +62,20 @@ const WinglerBot = () => {
         type: 'askAI',
       },
     };
-    const obj: RhinoInferenceObject = {
-      botQA,
-      id: ExpoCrypto.getRandomBytes(16).toString(),
-    };
-    setHistory((previousState) => [...previousState, obj]);
+    addToHistory(botQA);
   };
 
-  useEffect(() => {
-    Voice.onSpeechStart = onSpeechStart;
-    Voice.onSpeechEnd = onSpeechEnd;
-    Voice.onSpeechError = onSpeechError;
-    Voice.onSpeechResults = onSpeechResults;
+  Voice.onSpeechStart = onSpeechStart;
+  Voice.onSpeechEnd = onSpeechEnd;
+  Voice.onSpeechError = onSpeechError;
+  Voice.onSpeechResults = onSpeechResults;
 
+  useEffect(() => {
     const textToSpeech = async () => {
       Voice.start('en-US');
     };
 
-    const killPicoVoice = () => {
+    const switchToTTS = () => {
       picovoiceManager.current?.stop();
       textToSpeech();
     };
@@ -85,13 +87,9 @@ const WinglerBot = () => {
       const botQA = await InferenceHandler(inference);
 
       if (botQA !== null && botQA !== false) {
-        const obj: RhinoInferenceObject = {
-          botQA,
-          id: ExpoCrypto.getRandomBytes(16).toString(),
-        };
-        setHistory((previousState) => [...previousState, obj]);
+        addToHistory(botQA);
       } else if (botQA === false) {
-        killPicoVoice();
+        switchToTTS();
       } else {
         console.log('Inference Text is null');
       }
@@ -138,7 +136,6 @@ const WinglerBot = () => {
           isSpeechToText={isSpeechToText}
           onPress={() => console.log('pressed')}
         />
-
         <WingModal
           info={rhinoText}
           visible={showInference}
