@@ -1,6 +1,7 @@
-import { Text } from 'react-native';
+import BubbleText from '../atoms/bubbleText';
 
-const User = ({ content }: { content: string }) => {
-  return <Text className="flex-wrap text-xl text-white">{content}</Text>;
-};
+const User = ({ content }: { content: string }) => (
+  <BubbleText>{content}</BubbleText>
+);
+
 export default User;

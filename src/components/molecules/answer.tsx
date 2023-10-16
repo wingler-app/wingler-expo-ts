@@ -1,6 +1,7 @@
-import { Text } from 'react-native';
+import BubbleText from '../atoms/bubbleText';
 
-const Answer = ({ content }: { content: string }) => {
-  return <Text className="flex-wrap text-xl text-primary-dark">{content}</Text>;
-};
+const Answer = ({ content }: { content: string }) => (
+  <BubbleText dark>{content}</BubbleText>
+);
+
 export default Answer;
