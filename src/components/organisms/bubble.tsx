@@ -50,7 +50,7 @@ const Bubble = ({ content, type }: BubbleProps) => {
   return (
     <Motion.View
       className={`mx-4 flex-1 ${type === 'user' ? 'items-end' : 'items-start'}`}
-      initial={{ y: -50, opacity: 0 }}
+      initial={{ y: 50, opacity: 0 }}
       animate={{
         y: 0,
         opacity: 1,
