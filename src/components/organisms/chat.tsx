@@ -4,7 +4,7 @@ import { ScrollView, View } from 'react-native';
 
 import type { RhinoInferenceObject } from '@/types';
 
-import Bubble from './bubble';
+import Bubble from './Bubble';
 
 const QnA = memo(
   ({ item, index }: { item: RhinoInferenceObject; index: Number }) => {
@@ -40,7 +40,6 @@ export default function Chat({ history }: { history: RhinoInferenceObject[] }) {
   return (
     <View>
       <ScrollView
-        className=""
         ref={scrollViewRef}
         onContentSizeChange={() =>
           scrollViewRef.current?.scrollToEnd({ animated: true })
