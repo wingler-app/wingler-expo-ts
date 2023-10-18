@@ -5,8 +5,9 @@ import { Text, View } from 'react-native';
 import { promptOpenAI } from '@/utils/handleQuestion';
 import { speechOptions } from '@/utils/inference';
 
+import BubbleWrap from '../atoms/BubbleWrap';
 import Button from '../atoms/Button';
-import WingModal from '../organisms/modal';
+import WingModal from '../organisms/Modal';
 
 type AskAIProps = {
   content: {
@@ -43,26 +44,30 @@ const AskAI = ({ content: { question } }: AskAIProps) => {
 
   if (!answer)
     return (
-      <Text className="flex-wrap text-xl text-primary-dark">
-        Connecting to SkyNet...
-      </Text>
+      <BubbleWrap type="askAI">
+        <Text className="flex-wrap text-xl text-primary-dark">
+          Connecting to SkyNet...
+        </Text>
+      </BubbleWrap>
     );
 
   return (
-    <View className="flex flex-col">
-      <Button title="Play ▶" onPress={handleClick} />
-      <Button
-        buttonStyle="mb-0 p-0 bg-transparent"
-        title="Show Answer"
-        onPress={() => setShowAnswer(true)}
-      />
-      <WingModal
-        title={`Answer to "${question}"`}
-        info={answer}
-        visible={showAnswer}
-        onClose={() => setShowAnswer(false)}
-      />
-    </View>
+    <BubbleWrap type="askAI">
+      <View className="flex flex-col">
+        <Button title="Play ▶" onPress={handleClick} />
+        <Button
+          buttonStyle="mb-0 p-0 bg-transparent"
+          title="Show Answer"
+          onPress={() => setShowAnswer(true)}
+        />
+        <WingModal
+          title={`Answer to "${question}"`}
+          info={answer}
+          visible={showAnswer}
+          onClose={() => setShowAnswer(false)}
+        />
+      </View>
+    </BubbleWrap>
   );
 };
 

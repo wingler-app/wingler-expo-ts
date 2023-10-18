@@ -1,7 +1,10 @@
-import BubbleText from '../atoms/bubbleText';
+import BubbleText from '../atoms/BubbleText';
+import BubbleWrap from '../atoms/BubbleWrap';
 
 const Answer = ({ content }: { content: string }) => (
-  <BubbleText dark>{content}</BubbleText>
+  <BubbleWrap type="answer">
+    <BubbleText dark>{content}</BubbleText>
+  </BubbleWrap>
 );
 
 export default Answer;

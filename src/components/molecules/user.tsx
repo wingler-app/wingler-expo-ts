@@ -1,7 +1,10 @@
-import BubbleText from '../atoms/bubbleText';
+import BubbleText from '../atoms/BubbleText';
+import BubbleWrap from '../atoms/BubbleWrap';
 
 const User = ({ content }: { content: string }) => (
-  <BubbleText>{content}</BubbleText>
+  <BubbleWrap type="user">
+    <BubbleText>{content}</BubbleText>
+  </BubbleWrap>
 );
 
 export default User;
