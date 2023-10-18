@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 
 import InferenceHandler, {
   beverageHandler,
-  playMusic,
+  goTo,
   prettyPrint,
   speechOptions,
 } from './inference';
@@ -43,12 +43,25 @@ describe('beverageHandler', () => {
   });
 });
 
-describe('playMusic', () => {
-  it('should not play music', () => {
-    const mockFetch = jest.fn();
-    global.fetch = mockFetch;
-    playMusic(undefined);
-    expect(mockFetch).not.toHaveBeenCalled();
+describe('goTo', () => {
+  it('should navigate to home', () => {
+    goTo('home');
+    expect(router.push).toHaveBeenCalledWith('/');
+  });
+
+  it('should navigate to settings', () => {
+    goTo('settings');
+    expect(router.push).toHaveBeenCalledWith('settings');
+  });
+
+  it('should navigate to wingler', () => {
+    goTo('chat');
+    expect(router.push).toHaveBeenCalledWith('wingler');
+  });
+
+  it('should not navigate', () => {
+    goTo('default');
+    expect(router.push).not.toHaveBeenCalled();
   });
 });
 
