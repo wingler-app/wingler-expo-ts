@@ -3,9 +3,10 @@ import { Text } from 'react-native';
 interface BubbleTextProps {
   children: string;
   dark?: boolean;
+  textStyle?: string;
 }
 
-const BubbleText = ({ children, dark }: BubbleTextProps) => (
+const BubbleText = ({ children, dark, textStyle }: BubbleTextProps) => (
   <Text
     style={{
       textShadowColor: dark ? 'rgba(255,255,255,.2)' : 'rgba(0, 0, 0, .1)',
@@ -13,6 +14,7 @@ const BubbleText = ({ children, dark }: BubbleTextProps) => (
       textShadowRadius: 1,
     }}
     className={`flex-wrap text-xl
+      ${textStyle}
     ${dark ? 'text-black' : 'text-white'}`}
   >
     {children}
