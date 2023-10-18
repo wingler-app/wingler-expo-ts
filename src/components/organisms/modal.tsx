@@ -1,25 +1,34 @@
-import type { GestureResponderEvent } from 'react-native';
-import { Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, Text, View } from 'react-native';
+
+import Button from '../atoms/Button';
 
 interface WingModalProps {
+  title?: string;
   info: string;
   visible: boolean;
-  onClose: ((event: GestureResponderEvent) => void) | undefined;
+  onClose: () => void | undefined;
 }
 
-const WingModal = ({ info, visible, onClose }: WingModalProps) => {
+const WingModal = ({ info, visible, onClose, title }: WingModalProps) => {
   return (
-    <Modal animationType="slide" transparent visible={visible}>
-      <View className="m-10 mt-24 flex-1 rounded-lg bg-white p-4">
-        <ScrollView className="mb-4 flex-[]">
-          <Text className="text-black">{info}</Text>
-        </ScrollView>
-        <TouchableOpacity
-          className="flex-[0.05] justify-center self-center bg-blue-700 p-1"
-          onPress={onClose}
-        >
-          <Text className="text-white">CLOSE</Text>
-        </TouchableOpacity>
+    <Modal
+      animationType="fade"
+      transparent
+      visible={visible}
+      statusBarTranslucent
+    >
+      <View className="flex-1 justify-center bg-[#000000cc]">
+        <View className="m-6 mt-14 flex justify-center rounded-lg bg-primary p-4">
+          <ScrollView className="m-4 mb-10">
+            {title && (
+              <Text className="mb-4 text-xl font-bold text-accent-secondary">
+                {title}
+              </Text>
+            )}
+            <Text className="text-base text-white">{info}</Text>
+          </ScrollView>
+          <Button title="Close" buttonStyle="mb-0" onPress={onClose} />
+        </View>
       </View>
     </Modal>
   );

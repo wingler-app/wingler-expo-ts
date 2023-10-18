@@ -1,8 +1,6 @@
 import type { RhinoInference } from '@picovoice/rhino-react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import * as Speech from 'expo-speech';
-import { Linking } from 'react-native';
 
 import type { BotQA } from '@/types';
 
@@ -28,34 +26,10 @@ export const beverageHandler = (beverage: string): void => {
   }
 };
 
-export const playMusic = (musicGenre: string | undefined): void => {
-  if (!musicGenre) return;
-  const genreApiString = musicGenre.replace(' ', '%20');
-  const API: string = 'https://api.spotify.com/v1/';
+export const prettyPrint = (inference: RhinoInference): string =>
+  JSON.stringify(inference, null, 4);
 
-  (async () => {
-    const accessToken = await AsyncStorage.getItem('@SpotifyToken');
-    console.log(accessToken);
-    try {
-      const response = await fetch(
-        `${API}search?q=genre%22${genreApiString}%22&type=track`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
-      const data = await response.json();
-      // console.log(data.tracks.items[0].uri);
-      Linking.openURL(data.tracks.items[0].external_urls.spotify);
-      // playSound(data.tracks.items[0].preview_url);
-    } catch (err) {
-      console.log(err);
-    }
-  })();
-};
-
-const goTo = (location: string): void => {
+export const goTo = (location: string): void => {
   switch (location) {
     case 'home':
       console.log('Going to Home');
@@ -73,10 +47,6 @@ const goTo = (location: string): void => {
       console.log('default');
       break;
   }
-};
-
-const playBack = (playback: string): void => {
-  console.log(playback);
 };
 
 const InferenceHandler = async (
@@ -99,10 +69,11 @@ const InferenceHandler = async (
         }
         break;
       case 'playMusic':
-        console.log('playMusic', slots?.musicGenre);
-        playMusic(slots?.musicGenre);
         botQA.question = `Play ${slots?.musicGenre}`;
-        botQA.answer = 'Setting the mood...';
+        botQA.answer = {
+          type: 'music',
+          params: slots?.musicGenre,
+        };
         break;
       case 'appCommands':
         if (slots?.locations) {
@@ -111,9 +82,11 @@ const InferenceHandler = async (
           botQA.answer = 'See you there!';
         }
         if (slots?.playback) {
-          playBack(slots.playback);
           botQA.question = `${slots.playback}`;
-          botQA.answer = 'Ok!';
+          botQA.answer = {
+            type: 'playback',
+            command: slots.playback,
+          };
         }
         break;
       case 'askQuestion':
@@ -126,11 +99,10 @@ const InferenceHandler = async (
     console.log("Didn't understand the command");
     return null;
   }
-  setTimeout(() => Speech.speak(botQA.answer, speechOptions), 1000);
+  if (typeof botQA.answer === 'string') {
+    setTimeout(() => Speech.speak(botQA.answer as string, speechOptions), 1000);
+  }
   return botQA;
 };
-
-export const prettyPrint = (inference: RhinoInference): string =>
-  JSON.stringify(inference, null, 4);
 
 export default InferenceHandler;
