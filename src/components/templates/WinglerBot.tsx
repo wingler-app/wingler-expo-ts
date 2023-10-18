@@ -8,10 +8,10 @@ import { View } from 'react-native';
 import type { BotQA, RhinoInferenceObject } from '@/types';
 import InferenceHandler, { prettyPrint } from '@/utils/inference';
 
-import Chat from '../organisms/chat';
-import ContextInfo from '../organisms/contextInfo';
-import ListenerIndicator from '../organisms/listenerIndicator';
-import WingModal from '../organisms/modal';
+import Chat from '../organisms/Chat';
+import ContextInfo from '../organisms/ContextInfo';
+import ListenerIndicator from '../organisms/ListenerIndicator';
+import WingModal from '../organisms/Modal';
 
 const ACCESS_KEY: string =
   'cxPKsYiXYjyiBNITmZniwbKNu5lqYDTRU+qeciOjaqWMC+AhY25qzQ==';
