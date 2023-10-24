@@ -3,6 +3,7 @@ import { Text } from 'react-native';
 
 import Answer from '../molecules/Answer';
 import AskAI from '../molecules/AskAI';
+import Maps from '../molecules/Maps';
 import Music from '../molecules/Music';
 import Playback from '../molecules/PlayBack';
 import User from '../molecules/User';
@@ -19,11 +20,12 @@ type BubbleMapping = {
 };
 
 const bubbleMapping: BubbleMapping = {
-  user: User,
   answer: Answer,
   askAI: AskAI,
+  maps: Maps,
   music: Music,
   playback: Playback,
+  user: User,
 };
 
 const Content = ({ content, type }: BubbleProps) => {
