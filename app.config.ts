@@ -7,7 +7,7 @@ export const config: ExpoConfig = {
   orientation: 'portrait',
   icon: './assets/ios-icon.jpg',
   userInterfaceStyle: 'dark',
-  scheme: 'myapp',
+  scheme: 'com.wingler',
   splash: {
     image: './assets/logo-splash.png',
     resizeMode: 'contain',
@@ -27,12 +27,23 @@ export const config: ExpoConfig = {
     },
   },
   android: {
+    config: {
+      googleMaps: {
+        apiKey: 'AIzaSyBfA8snPSRFtL3IN99IlscknLiUM5E852A',
+      },
+    },
     googleServicesFile: './google-services.json',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon/foreground.png',
       backgroundImage: './assets/adaptive-icon/background.png',
     },
-    permissions: ['RECORD_AUDIO', 'INTERNET'],
+    permissions: [
+      'RECORD_AUDIO',
+      'INTERNET',
+      'ACCESS_BACKGROUND_LOCATION',
+      'ACCESS_FINE_LOCATION',
+      'ACCESS_COARSE_LOCATION',
+    ],
     package: 'com.wingler',
     intentFilters: [
       {
@@ -95,6 +106,14 @@ export const config: ExpoConfig = {
         microphonePermission: 'Allow $(PRODUCT_NAME) to access the microphone',
         speechRecognitionPermission:
           'Allow $(PRODUCT_NAME) to securely recognize user speech',
+      },
+    ],
+    [
+      'expo-location',
+      {
+        locationAlwaysAndWhenInUsePermission:
+          'Allow $(PRODUCT_NAME) to use your location.',
+        isAndroidBackgroundLocationEnabled: true,
       },
     ],
     '@react-native-firebase/app',
