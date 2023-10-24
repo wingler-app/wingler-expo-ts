@@ -51,7 +51,7 @@ export const goTo = (location: string): void => {
 
 const InferenceHandler = async (
   inference: RhinoInference,
-): Promise<false | null | BotQA> => {
+): Promise<string | null | BotQA> => {
   const { intent, slots, isUnderstood } = inference;
   const botQA: BotQA = {
     question: '',
@@ -63,9 +63,7 @@ const InferenceHandler = async (
     switch (intent) {
       case 'orderBeverage':
         if (slots?.beverage) {
-          beverageHandler(slots.beverage);
-          botQA.question = `Ordering ${slots.beverage}`;
-          botQA.answer = "I'm on it!";
+          return 'maps';
         }
         break;
       case 'playMusic':
@@ -90,7 +88,7 @@ const InferenceHandler = async (
         }
         break;
       case 'askQuestion':
-        return false;
+        return 'askAI';
       default:
         console.log("Didn't understand the command");
         return null;

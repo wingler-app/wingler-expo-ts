@@ -1,5 +1,6 @@
 import { PicovoiceManager } from '@picovoice/picovoice-react-native';
 import type { RhinoInference } from '@picovoice/rhino-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Voice from '@react-native-voice/voice';
 import * as ExpoCrypto from 'expo-crypto';
 import { useEffect, useRef, useState } from 'react';
@@ -16,6 +17,15 @@ import WingModal from '../organisms/Modal';
 const ACCESS_KEY: string =
   'cxPKsYiXYjyiBNITmZniwbKNu5lqYDTRU+qeciOjaqWMC+AhY25qzQ==';
 
+const getData = async () => {
+  try {
+    const jsonValue = await AsyncStorage.getItem('@History');
+    return jsonValue != null ? JSON.parse(jsonValue) : null;
+  } catch (e) {
+    return [];
+  }
+};
+
 const WinglerBot = () => {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [history, setHistory] = useState<RhinoInferenceObject[]>([]);
@@ -24,6 +34,7 @@ const WinglerBot = () => {
   const [showContextInfo, setShowContextInfo] = useState<boolean>(false);
   const [contextInfo, setContextInfo] = useState<string>('');
   const [isSpeechToText, setIsSpeechToText] = useState<boolean>(false);
+  const [speechResultsType, setSpeechResultsType] = useState<string>('');
 
   const picovoiceManager = useRef<PicovoiceManager>();
 
@@ -32,7 +43,10 @@ const WinglerBot = () => {
       botQA,
       id: ExpoCrypto.getRandomBytes(16).toString(),
     };
-    setHistory((previousState) => [...previousState, obj]);
+    setHistory((previousState) => {
+      AsyncStorage.setItem('@History', JSON.stringify([...previousState, obj]));
+      return [...previousState, obj];
+    });
   };
 
   const onSpeechStart = () => {
@@ -59,7 +73,7 @@ const WinglerBot = () => {
       question: e.value[0],
       answer: {
         question: e.value[0],
-        type: 'askAI',
+        type: speechResultsType,
       },
     };
     addToHistory(botQA);
@@ -72,10 +86,12 @@ const WinglerBot = () => {
 
   useEffect(() => {
     const textToSpeech = async () => {
-      Voice.start('en-US');
+      Voice.start('sv-SE');
+      // Voice.start('en-US');
     };
 
-    const switchToTTS = () => {
+    const switchToTTS = (type: string) => {
+      setSpeechResultsType(type);
       picovoiceManager.current?.stop();
       textToSpeech();
     };
@@ -86,10 +102,11 @@ const WinglerBot = () => {
 
       const botQA = await InferenceHandler(inference);
 
-      if (botQA !== null && botQA !== false) {
+      if (botQA !== null && typeof botQA === 'object') {
         addToHistory(botQA);
-      } else if (botQA === false) {
-        switchToTTS();
+      } else if (typeof botQA === 'string') {
+        console.log(botQA);
+        switchToTTS(botQA);
       } else {
         console.log('Inference Text is null');
       }
@@ -128,13 +145,21 @@ const WinglerBot = () => {
     };
   }, []);
 
+  useEffect(() => {
+    getData().then((data) => {
+      if (data !== null) {
+        setHistory(data);
+      }
+    });
+  }, []);
+
   return (
     <View className="flex-1">
       <View className="flex-1 justify-center bg-primary-dark">
         <ListenerIndicator
           buttonDisabled={isListening}
           isSpeechToText={isSpeechToText}
-          onPress={() => console.log('pressed')}
+          onPress={() => AsyncStorage.removeItem('@History')}
         />
         <WingModal
           info={rhinoText}
