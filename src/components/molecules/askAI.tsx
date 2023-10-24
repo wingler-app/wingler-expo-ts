@@ -2,7 +2,7 @@ import * as Speech from 'expo-speech';
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
-import { promptOpenAI } from '@/utils/handleQuestion';
+import { useAskAi } from '@/services/CloudFunctions';
 import { speechOptions } from '@/utils/inference';
 
 import BubbleWrap from '../atoms/BubbleWrap';
@@ -16,33 +16,21 @@ type AskAIProps = {
 };
 
 const AskAI = ({ content: { question } }: AskAIProps) => {
-  const [answer, setAnswer] = useState<string | null>(null);
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
+  const [answer, loading] = useAskAi(question);
 
-  useEffect(() => {
-    if (!answer) {
-      (async () => {
-        try {
-          const aiAnswer = await promptOpenAI(question);
-          Speech.speak(aiAnswer, speechOptions);
-          setAnswer(aiAnswer);
-        } catch (e) {
-          console.log(e);
-        }
-      })();
-    }
-
-    return () => {
-      Speech.stop();
-    };
-  }, [question, answer]);
-
-  const handleClick = () => {
+  const readAnswer = () => {
     if (!answer) return;
     Speech.speak(answer, speechOptions);
   };
 
-  if (!answer)
+  useEffect(() => {
+    return () => {
+      Speech.stop();
+    };
+  }, []);
+
+  if (loading || answer === '')
     return (
       <BubbleWrap type="askAI">
         <Text className="flex-wrap text-xl text-primary-dark">
@@ -51,10 +39,12 @@ const AskAI = ({ content: { question } }: AskAIProps) => {
       </BubbleWrap>
     );
 
+  readAnswer();
+
   return (
     <BubbleWrap type="askAI">
       <View className="flex flex-col">
-        <Button title="Play ▶" onPress={handleClick} />
+        <Button title="Play ▶" onPress={readAnswer} />
         <Button
           buttonStyle="mb-0 p-0 bg-transparent"
           title="Show Answer"
