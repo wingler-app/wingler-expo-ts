@@ -6,7 +6,7 @@ import type { BotQA } from '@/types';
 
 export const speechOptions: Speech.SpeechOptions = {
   language: 'en-US',
-  pitch: 1,
+  pitch: 0.75,
   rate: 0.75,
 };
 

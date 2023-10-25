@@ -90,7 +90,7 @@ describe('speechOptions', () => {
     expect(speechOptions).toEqual(
       expect.objectContaining({
         language: 'en-US',
-        pitch: 1,
+        pitch: 0.75,
         rate: 0.75,
       }),
     );
