@@ -34,9 +34,9 @@ const WinglerBot = () => {
   const [showContextInfo, setShowContextInfo] = useState<boolean>(false);
   const [contextInfo, setContextInfo] = useState<string>('');
   const [isSpeechToText, setIsSpeechToText] = useState<boolean>(false);
-  const [speechResultsType, setSpeechResultsType] = useState<string>('');
 
   const picovoiceManager = useRef<PicovoiceManager>();
+  const fromVoiceBubbleType = useRef<string>('');
 
   const addToHistory = (botQA: BotQA) => {
     const obj: RhinoInferenceObject = {
@@ -73,7 +73,7 @@ const WinglerBot = () => {
       question: e.value[0],
       answer: {
         question: e.value[0],
-        type: speechResultsType,
+        type: fromVoiceBubbleType.current,
       },
     };
     addToHistory(botQA);
@@ -85,15 +85,9 @@ const WinglerBot = () => {
   Voice.onSpeechResults = onSpeechResults;
 
   useEffect(() => {
-    const textToSpeech = async () => {
-      Voice.start('sv-SE');
-      // Voice.start('en-US');
-    };
-
-    const switchToTTS = (type: string) => {
-      setSpeechResultsType(type);
+    const switchToVTT = () => {
       picovoiceManager.current?.stop();
-      textToSpeech();
+      Voice.start('sv-SE');
     };
 
     const inferenceCallback = async (inference: RhinoInference) => {
@@ -105,17 +99,14 @@ const WinglerBot = () => {
       if (botQA !== null && typeof botQA === 'object') {
         addToHistory(botQA);
       } else if (typeof botQA === 'string') {
-        console.log(botQA);
-        switchToTTS(botQA);
+        fromVoiceBubbleType.current = botQA;
+        switchToVTT();
       } else {
         console.log('Inference Text is null');
       }
     };
 
-    const wakeWordCallback = () => {
-      console.log('wingler');
-      setIsListening(true);
-    };
+    const wakeWordCallback = () => setIsListening(true);
 
     (async () => {
       try {
