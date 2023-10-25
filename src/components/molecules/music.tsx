@@ -36,10 +36,7 @@ export const getArtist = async (artistId: string): Promise<any | string> => {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-
     const data = await response.json();
-
-    console.log(data);
     return data;
   } catch (e) {
     console.log(e);
@@ -66,10 +63,6 @@ export const getMusic = async (
     );
 
     const data = await response.json();
-
-    console.log(data.tracks.items[0].album);
-    // console.log('getMusic', data.tracks.items[0].artists[0]);
-
     const answer = await {
       uri: data.tracks.items[0].external_urls.spotify,
       name: data.tracks.items[0].name,

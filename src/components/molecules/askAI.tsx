@@ -1,8 +1,8 @@
 import * as Speech from 'expo-speech';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
-import { promptOpenAI } from '@/utils/handleQuestion';
+import { useAskAi } from '@/services/CloudFunctions';
 import { speechOptions } from '@/utils/inference';
 
 import BubbleWrap from '../atoms/BubbleWrap';
@@ -16,33 +16,31 @@ type AskAIProps = {
 };
 
 const AskAI = ({ content: { question } }: AskAIProps) => {
-  const [answer, setAnswer] = useState<string | null>(null);
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
+  const [answer, loading] = useAskAi(question);
+  const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const editedSpeechOptions = speechOptions;
+
+  editedSpeechOptions.onStart = () => setIsSpeaking(true);
+  editedSpeechOptions.onDone = () => setIsSpeaking(false);
+  editedSpeechOptions.onStopped = () => setIsSpeaking(false);
+
+  const readAnswer = useCallback(() => {
+    if (loading) return;
+    Speech.isSpeakingAsync().then((isTalking) => {
+      if (isTalking) return Speech.stop();
+      return Speech.speak(answer, speechOptions);
+    });
+  }, [loading, answer]);
 
   useEffect(() => {
-    if (!answer) {
-      (async () => {
-        try {
-          const aiAnswer = await promptOpenAI(question);
-          Speech.speak(aiAnswer, speechOptions);
-          setAnswer(aiAnswer);
-        } catch (e) {
-          console.log(e);
-        }
-      })();
-    }
-
+    if (!loading) readAnswer();
     return () => {
       Speech.stop();
     };
-  }, [question, answer]);
+  }, [loading, readAnswer]);
 
-  const handleClick = () => {
-    if (!answer) return;
-    Speech.speak(answer, speechOptions);
-  };
-
-  if (!answer)
+  if (loading)
     return (
       <BubbleWrap type="askAI">
         <Text className="flex-wrap text-xl text-primary-dark">
@@ -50,11 +48,15 @@ const AskAI = ({ content: { question } }: AskAIProps) => {
         </Text>
       </BubbleWrap>
     );
+  console.log('askAI rerender');
 
   return (
     <BubbleWrap type="askAI">
       <View className="flex flex-col">
-        <Button title="Play ▶" onPress={handleClick} />
+        <Button
+          title={isSpeaking ? 'Stop ◼' : 'Play ▶'}
+          onPress={readAnswer}
+        />
         <Button
           buttonStyle="mb-0 p-0 bg-transparent"
           title="Show Answer"

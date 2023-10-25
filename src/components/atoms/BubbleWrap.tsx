@@ -10,9 +10,9 @@ const colorMapping = {
 };
 
 const padMapping = {
-  none: '',
   default: 'px-4 py-2',
   even: 'p-4',
+  none: '',
 };
 
 interface BubbleWrapProps {
@@ -23,17 +23,9 @@ interface BubbleWrapProps {
 }
 
 const BubbleWrap = ({ children, type, colors, padding }: BubbleWrapProps) => {
-  let color;
-  let gradient;
-  const paddingStyle =
-    padding !== undefined ? padMapping[padding] : padMapping.default;
-  if (!colors) {
-    color = colorMapping[type !== undefined ? type : 'default'];
-    gradient = ['#ffffff30', 'transparent', '#00000060'];
-  } else {
-    gradient = colors;
-    color = 'transparent';
-  }
+  const color = colors ? 'transparent' : colorMapping[type || 'default'];
+  const gradient = colors || ['#ffffff30', 'transparent', '#00000060'];
+  const paddingStyle = padMapping[padding || 'default'];
 
   return (
     <LinearGradient
@@ -43,7 +35,7 @@ const BubbleWrap = ({ children, type, colors, padding }: BubbleWrapProps) => {
         `}
     >
       <View
-        className={`rounded-xl border-[1px] border-[#ffffff15] ${paddingStyle}
+        className={`overflow-hidden rounded-xl border-[1px] border-[#ffffff15] ${paddingStyle}
         ${type === 'user' ? 'rounded-tr-none' : 'rounded-tl-none'}
         `}
       >
