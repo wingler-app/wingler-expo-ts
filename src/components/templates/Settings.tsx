@@ -32,9 +32,11 @@ export default function SettingsTemplate() {
         'user-library-read',
         'user-read-recently-played',
         'user-top-read',
+        'user-read-playback-state',
         'playlist-read-private',
         'playlist-read-collaborative',
         'playlist-modify-public',
+        'streaming',
       ],
       // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
       // this must be set to false
