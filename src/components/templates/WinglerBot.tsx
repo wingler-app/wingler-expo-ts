@@ -153,15 +153,17 @@ const WinglerBot = () => {
           onPress={() => AsyncStorage.removeItem('@History')}
         />
         <WingModal
-          info={rhinoText}
           visible={showInference}
           onClose={() => setShowInference(false)}
-        />
+        >
+          {rhinoText}
+        </WingModal>
         <WingModal
-          info={contextInfo}
           visible={showContextInfo}
           onClose={() => setShowContextInfo(false)}
-        />
+        >
+          {contextInfo}
+        </WingModal>
         <Chat history={history} />
       </View>
 
