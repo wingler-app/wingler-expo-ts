@@ -15,7 +15,7 @@ import { getColors } from 'react-native-image-colors';
 import type { AndroidImageColors } from 'react-native-image-colors/build/types';
 
 const API: string = 'https://api.spotify.com/v1/';
-
+const clientId = '6960973e424a4929845ac3b16e377c68';
 // Endpoint
 const discovery = {
   authorizationEndpoint: 'https://accounts.spotify.com/authorize',
@@ -55,12 +55,27 @@ interface ArtistType {
   avatar: string;
 }
 
+interface SpotifyAuthResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  scope: string;
+  refresh_token: string;
+}
+
+interface SpotifyParamsRecord extends SpotifyAuthResponse {
+  timestamp: number;
+}
+
 type GenreProps = string;
 type ArtistProps = string;
 
+type PlaybackPlay = (url: string) => Promise<void>;
+type PlaybackPause = () => Promise<void>;
+
 interface SpotifyResponse {
   loading: boolean;
-  error: any;
+  error: FetchError | null;
 }
 
 interface GenreResponse extends SpotifyResponse {
@@ -71,172 +86,18 @@ interface ArtistResponse extends SpotifyResponse {
   answer: ArtistType;
 }
 
-const useGenre = (genre: GenreProps): GenreResponse => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [answer, setAnswer] = useState<any>(null);
-  const [error, setError] = useState<any>(null);
-
-  useEffect(() => {
-    const abortController = new AbortController();
-
-    (async () => {
-      const accessToken = await AsyncStorage.getItem('@SpotifyToken');
-      try {
-        const response = await fetch(
-          `${API}search?q=genre%3A${genre}&type=track`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          },
-        );
-
-        const data = await response.json();
-        const { average, darkMuted } = (await getColors(
-          data.tracks.items[0].album.images[0].url,
-        )) as AndroidImageColors;
-
-        await setAnswer({
-          uri: data.tracks.items[0].uri,
-          name: data.tracks.items[0].name,
-          albumCover: data.tracks.items[0].album.images[0].url,
-          artist: {
-            name: data.tracks.items[0].artists[0].name,
-            id: data.tracks.items[0].artists[0].id,
-          },
-          colors: [average, darkMuted],
-        });
-        setLoading(false);
-      } catch (e) {
-        setError(e);
-      }
-    })();
-
-    return () => abortController.abort();
-  }, [genre]);
-
-  return { answer, loading, error };
-};
-
-const useArtist = (id: ArtistProps): ArtistResponse => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [answer, setAnswer] = useState<any>(null);
-  const [error, setError] = useState<any>(null);
-
-  useEffect(() => {
-    (async () => {
-      const accessToken = await AsyncStorage.getItem('@SpotifyToken');
-
-      try {
-        const response = await fetch(`${API}artists/${id}`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-        const data = await response.json();
-        await setAnswer({
-          uri: data.uri,
-          avatar: data.images[0].url,
-        });
-        setLoading(false);
-      } catch (e) {
-        console.log(e);
-        setError(e);
-      }
-    })();
-  }, [id]);
-
-  return { answer, loading, error };
-};
-
-const useDevice = () => {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [devices, setDevices] = useState<DeviceType[]>([]);
-  const [error, setError] = useState<any>(null);
-  const [device, setDevice] = useState<DeviceType | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const d = await AsyncStorage.getItem('@SpotifyDevice');
-        if (d) setDevice(JSON.parse(d));
-      } catch (e) {
-        console.log(e);
-      }
-    })();
-  }, [device]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const accessToken = await AsyncStorage.getItem('@SpotifyToken');
-        const response = await fetch(
-          'https://api.spotify.com/v1/me/player/devices',
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          },
-        );
-        const data = await response.json();
-        //  {"error": {"message": "The access token expired", "status": 401}}gg
-        if (data.error) throw new Error(data.error.message);
-        if (data.devices.length === 0) throw new Error('No devices found');
-        await setDevices(data.devices);
-        setLoading(false);
-      } catch (e) {
-        setError(e);
-      }
-    })();
-  }, []);
-
-  return { device, devices, loading, error };
-};
-
-const play = async (uri: string) => {
-  if (!uri) return;
-
-  const body = JSON.stringify({
-    uris: [uri],
-    offset: {
-      position: 0,
-    },
-    position_ms: 0,
-  });
-
-  try {
-    const accessToken = await AsyncStorage.getItem('@SpotifyToken');
-    let device: DeviceType = { id: 0, name: '' };
-    const d = await AsyncStorage.getItem('@SpotifyDevice');
-    if (d) device = JSON.parse(d);
-    const url = `${API}me/player/play?device_id=${device.id}`;
-    console.log(url);
-    await fetch(url, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body,
-    });
-  } catch (e) {
-    console.error(e);
-  }
-};
-
 const useToken = (): [
+  SpotifyAuthResponse | null,
   AuthRequest | null,
-  AuthSessionResult | null,
   (options?: AuthRequestPromptOptions) => Promise<AuthSessionResult>,
-  string,
+  AuthSessionResult | null,
 ] => {
   WebBrowser.maybeCompleteAuthSession();
-  const [token, setToken] = useState<string>('nothing');
+  const [params, setParams] = useState<any | null>(null);
   const [request, response, promptAsync] = useAuthRequest(
     {
       responseType: ResponseType.Token,
-      clientId: '6960973e424a4929845ac3b16e377c68',
+      clientId,
       scopes,
       // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
       // this must be set to false
@@ -250,21 +111,33 @@ const useToken = (): [
 
   useEffect(() => {
     (async () => {
-      const accessToken = await AsyncStorage.getItem('@SpotifyToken');
-      if (accessToken) setToken(accessToken);
+      const paramsString = await AsyncStorage.getItem('@SpotifyParams');
+      if (paramsString) {
+        const paramsData: SpotifyParamsRecord = JSON.parse(paramsString);
+        const expirationTime =
+          paramsData.expires_in * 1000 + paramsData.timestamp;
+        if (expirationTime > Date.now()) {
+          setParams(paramsData);
+        } else {
+          promptAsync();
+        }
+      }
     })();
-  }, []);
+  }, [promptAsync]);
 
   useEffect(() => {
     if (response?.type === 'success') {
       (async () => {
         try {
-          // eslint-disable-next-line
-          let { access_token } = response.params;
-          access_token =
-            typeof access_token === 'string' ? access_token : 'nothing';
-          await setToken(access_token);
-          await AsyncStorage.setItem('@SpotifyToken', access_token);
+          const newParams = {
+            ...response.params,
+            timestamp: Date.now(),
+          };
+          setParams(newParams);
+          await AsyncStorage.setItem(
+            '@SpotifyParams',
+            JSON.stringify(newParams),
+          );
         } catch (e) {
           console.log(e);
         }
@@ -272,7 +145,193 @@ const useToken = (): [
     }
   }, [response]);
 
-  return [request, response, promptAsync, token];
+  return [params, request, promptAsync, response];
 };
 
-export { play, useArtist, useDevice, useGenre, useToken };
+const usePlayback = (): [PlaybackPlay, PlaybackPause] => {
+  const [params] = useToken();
+
+  const play = async (uri: string) => {
+    if (uri && params) {
+      const body = JSON.stringify({
+        uris: [uri],
+        offset: {
+          position: 0,
+        },
+        position_ms: 0,
+      });
+
+      try {
+        let device: DeviceType = { id: 0, name: '' };
+        const data = await AsyncStorage.getItem('@SpotifyDevice');
+        if (data) device = JSON.parse(data);
+        const url = `${API}me/player/play?device_id=${device.id}`;
+        console.log(url);
+        await fetch(url, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${params.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body,
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
+  const pause = async () => {
+    if (params) {
+      const url = `${API}me/player/pause`;
+      await fetch(url, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${params.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+  };
+
+  return [play, pause];
+};
+
+const useGenre = (genre: GenreProps): GenreResponse => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [answer, setAnswer] = useState<any>(null);
+  const [error, setError] = useState<any>(null);
+  const [params] = useToken();
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    if (params) {
+      (async () => {
+        try {
+          const response = await fetch(
+            `${API}search?q=genre%3A${genre}&type=track`,
+            {
+              headers: {
+                Authorization: `Bearer ${params.access_token}`,
+              },
+            },
+          );
+
+          const data = await response.json();
+          const { average, darkMuted } = (await getColors(
+            data.tracks.items[0].album.images[0].url,
+          )) as AndroidImageColors;
+
+          await setAnswer({
+            uri: data.tracks.items[0].uri,
+            name: data.tracks.items[0].name,
+            albumCover: data.tracks.items[0].album.images[0].url,
+            artist: {
+              name: data.tracks.items[0].artists[0].name,
+              id: data.tracks.items[0].artists[0].id,
+            },
+            colors: [average, darkMuted],
+          });
+          setLoading(false);
+        } catch (e) {
+          setError(e);
+        }
+      })();
+    }
+    return () => abortController.abort();
+  }, [genre, params]);
+
+  return { answer, loading, error };
+};
+
+const useArtist = (id: ArtistProps): ArtistResponse => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [answer, setAnswer] = useState<any>(null);
+  const [error, setError] = useState<FetchError | null>(null);
+  const [params] = useToken();
+
+  useEffect(() => {
+    if (params) {
+      (async () => {
+        try {
+          const response = await fetch(`${API}artists/${id}`, {
+            headers: {
+              Authorization: `Bearer ${params.access_token}`,
+            },
+          });
+          const data = await response.json();
+          await setAnswer({
+            uri: data.uri,
+            avatar: data.images[0].url,
+          });
+          setLoading(false);
+        } catch (e) {
+          console.log(e);
+          setError(e as FetchError);
+        }
+      })();
+    }
+  }, [id, params]);
+
+  return { answer, loading, error };
+};
+
+type FetchError = {
+  status: number;
+  message: string;
+};
+
+const useDevice = (): [
+  DeviceType | null,
+  DeviceType[],
+  boolean,
+  FetchError | null,
+] => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [device, setDevice] = useState<DeviceType | null>(null);
+  const [devices, setDevices] = useState<DeviceType[]>([]);
+  const [error, setError] = useState<FetchError | null>(null);
+  const [params] = useToken();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await AsyncStorage.getItem('@SpotifyDevice');
+        if (data) setDevice(JSON.parse(data));
+      } catch (e) {
+        console.log(e);
+      }
+    })();
+  }, [device]);
+
+  useEffect(() => {
+    if (params) {
+      (async () => {
+        try {
+          const response = await fetch(
+            'https://api.spotify.com/v1/me/player/devices',
+            {
+              method: 'GET',
+              headers: {
+                Authorization: `Bearer ${params.access_token}`,
+              },
+            },
+          );
+          const data = await response.json();
+          //  {"error": {"message": "The access token expired", "status": 401}}gg
+          if (data.error) throw new Error(data.error.message);
+          if (data.devices.length === 0) throw new Error('No devices found');
+          await setDevices(data.devices);
+          setLoading(false);
+        } catch (e) {
+          setError(e as FetchError);
+          setLoading(false);
+        }
+      })();
+    }
+  }, [params]);
+
+  return [device, devices, loading, error];
+};
+
+export { useArtist, useDevice, useGenre, usePlayback, useToken };
