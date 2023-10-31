@@ -150,7 +150,10 @@ const WinglerBot = () => {
         <ListenerIndicator
           buttonDisabled={isListening}
           isSpeechToText={isSpeechToText}
-          onPress={() => AsyncStorage.removeItem('@History')}
+          onPress={() => {
+            AsyncStorage.removeItem('@History');
+            setHistory([]);
+          }}
         />
         <WingModal
           visible={showInference}
