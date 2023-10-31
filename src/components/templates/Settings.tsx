@@ -10,8 +10,8 @@ import Button from '../atoms/Button';
 import WingModal from '../organisms/Modal';
 
 export default function SettingsTemplate() {
-  const [request, , promptAsync, token] = useToken();
-  const { device, devices, loading, error } = useDevice();
+  const [params, request, promptAsync] = useToken();
+  const [device, devices, loading, error] = useDevice();
   const [showDevices, setShowDevices] = useState(false);
 
   const handleLogout = async () => {
@@ -31,7 +31,7 @@ export default function SettingsTemplate() {
       console.log(e);
     }
   };
-  if (!request || loading) return <Text>loading...</Text>;
+  if (!params || loading) return <Text>loading...</Text>;
   if (error) return <Text>{error.message}</Text>;
   return (
     <View className="flex-1 items-center justify-center bg-primary-dark">
@@ -47,7 +47,7 @@ export default function SettingsTemplate() {
       />
 
       <Text className="m-4 rounded border-2 border-white p-4 text-white">
-        {token}
+        {params.access_token}
       </Text>
 
       <Button title="Logout" onPress={handleLogout} />
