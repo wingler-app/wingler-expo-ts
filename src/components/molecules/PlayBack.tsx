@@ -1,4 +1,5 @@
 import * as Speech from 'expo-speech';
+import { memo, useEffect } from 'react';
 
 import { usePlayback } from '@/services/Spotify';
 
@@ -10,17 +11,17 @@ interface PlaybackProps {
 }
 
 const Playback = ({ content: { command } }: PlaybackProps) => {
-  const [, pause] = usePlayback();
-  const playBack = (playback: string): void => {
-    if (playback === 'stop') {
+  const { stop } = usePlayback();
+
+  useEffect(() => {
+    if (command === 'stop') {
       Speech.stop();
-      if (pause) pause();
+      stop();
     }
-    console.log(playback);
-  };
+    console.log('effect is run');
+  }, [command, stop]);
 
-  playBack(command);
-
+  console.log('stor render');
   return (
     <BubbleWrap type="answer">
       <BubbleText dark>Ok!</BubbleText>
@@ -28,4 +29,4 @@ const Playback = ({ content: { command } }: PlaybackProps) => {
   );
 };
 
-export default Playback;
+export default memo(Playback);

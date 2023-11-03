@@ -15,7 +15,7 @@ interface MusicProps {
 
 const Music = ({ content: { params } }: MusicProps) => {
   const { answer, loading, error } = useGenre(params);
-  const [play] = usePlayback();
+  const { play } = usePlayback();
 
   useEffect(() => {
     if (answer && play && !loading && !error) play(answer.uri);

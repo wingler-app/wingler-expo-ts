@@ -14,26 +14,6 @@ import { useEffect, useState } from 'react';
 import { getColors } from 'react-native-image-colors';
 import type { AndroidImageColors } from 'react-native-image-colors/build/types';
 
-const API: string = 'https://api.spotify.com/v1/';
-const clientId = '6960973e424a4929845ac3b16e377c68';
-// Endpoint
-const discovery = {
-  authorizationEndpoint: 'https://accounts.spotify.com/authorize',
-  tokenEndpoint: 'https://accounts.spotify.com/api/token',
-};
-
-const scopes: string[] = [
-  'user-read-email',
-  'user-library-read',
-  'user-read-recently-played',
-  'user-top-read',
-  'user-read-playback-state',
-  'playlist-read-private',
-  'playlist-read-collaborative',
-  'playlist-modify-public',
-  'streaming',
-];
-
 type DeviceType = {
   id: number;
   name: string;
@@ -71,7 +51,7 @@ type GenreProps = string;
 type ArtistProps = string;
 
 type PlaybackPlay = (url: string) => Promise<void>;
-type PlaybackPause = () => Promise<void>;
+type PlaybackStop = () => Promise<void>;
 
 interface SpotifyResponse {
   loading: boolean;
@@ -85,6 +65,54 @@ interface GenreResponse extends SpotifyResponse {
 interface ArtistResponse extends SpotifyResponse {
   answer: ArtistType;
 }
+
+const API: string = 'https://api.spotify.com/v1/';
+const clientId = '6960973e424a4929845ac3b16e377c68';
+// Endpoint
+const discovery = {
+  authorizationEndpoint: 'https://accounts.spotify.com/authorize',
+  tokenEndpoint: 'https://accounts.spotify.com/api/token',
+};
+
+const scopes: string[] = [
+  'user-read-email',
+  'user-library-read',
+  'user-read-recently-played',
+  'user-top-read',
+  'user-read-playback-state',
+  'playlist-read-private',
+  'playlist-read-collaborative',
+  'playlist-modify-public',
+  'streaming',
+];
+
+const MethodMap = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
+};
+
+const spotifyFetch = async (
+  url: string,
+  token: string,
+  method?: keyof typeof MethodMap,
+  body: any = null,
+): Promise<any> => {
+  try {
+    const response = await fetch(`${API}${url}`, {
+      method: method || MethodMap.GET,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body,
+    });
+    const data = await response.json();
+    return data;
+  } catch (e) {
+    return null;
+  }
+};
 
 const useToken = (): [
   SpotifyAuthResponse | null,
@@ -121,6 +149,8 @@ const useToken = (): [
         } else {
           promptAsync();
         }
+      } else {
+        promptAsync();
       }
     })();
   }, [promptAsync]);
@@ -138,6 +168,7 @@ const useToken = (): [
             '@SpotifyParams',
             JSON.stringify(newParams),
           );
+          console.log('Got new params');
         } catch (e) {
           console.log(e);
         }
@@ -148,7 +179,12 @@ const useToken = (): [
   return [params, request, promptAsync, response];
 };
 
-const usePlayback = (): [PlaybackPlay, PlaybackPause] => {
+type PlaybackResponse = {
+  play: PlaybackPlay;
+  stop: PlaybackStop;
+};
+
+const usePlayback = (): PlaybackResponse => {
   const [params] = useToken();
 
   const play = async (uri: string) => {
@@ -162,39 +198,25 @@ const usePlayback = (): [PlaybackPlay, PlaybackPause] => {
       });
 
       try {
-        let device: DeviceType = { id: 0, name: '' };
         const data = await AsyncStorage.getItem('@SpotifyDevice');
-        if (data) device = JSON.parse(data);
-        const url = `${API}me/player/play?device_id=${device.id}`;
-        console.log(url);
-        await fetch(url, {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${params.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body,
-        });
+        if (data) {
+          const device: DeviceType = JSON.parse(data);
+          const url = `me/player/play?device_id=${device.id}`;
+          console.log(url);
+          await spotifyFetch(url, params.access_token, 'PUT', body);
+        }
       } catch (e) {
         console.error(e);
       }
     }
   };
 
-  const pause = async () => {
-    if (params) {
-      const url = `${API}me/player/pause`;
-      await fetch(url, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${params.access_token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-    }
+  const stop = async () => {
+    if (params)
+      await spotifyFetch('me/player/pause', params.access_token, 'PUT');
   };
 
-  return [play, pause];
+  return { play, stop };
 };
 
 const useGenre = (genre: GenreProps): GenreResponse => {
@@ -208,16 +230,11 @@ const useGenre = (genre: GenreProps): GenreResponse => {
     if (params) {
       (async () => {
         try {
-          const response = await fetch(
-            `${API}search?q=genre%3A${genre}&type=track`,
-            {
-              headers: {
-                Authorization: `Bearer ${params.access_token}`,
-              },
-            },
+          const data = await spotifyFetch(
+            `search?q=genre%3A${genre}&type=track`,
+            params.access_token,
           );
 
-          const data = await response.json();
           const { average, darkMuted } = (await getColors(
             data.tracks.items[0].album.images[0].url,
           )) as AndroidImageColors;
@@ -232,9 +249,10 @@ const useGenre = (genre: GenreProps): GenreResponse => {
             },
             colors: [average, darkMuted],
           });
-          setLoading(false);
         } catch (e) {
           setError(e);
+        } finally {
+          setLoading(false);
         }
       })();
     }
@@ -254,20 +272,16 @@ const useArtist = (id: ArtistProps): ArtistResponse => {
     if (params) {
       (async () => {
         try {
-          const response = await fetch(`${API}artists/${id}`, {
-            headers: {
-              Authorization: `Bearer ${params.access_token}`,
-            },
-          });
-          const data = await response.json();
+          const data = await spotifyFetch(`artists/${id}`, params.access_token);
           await setAnswer({
             uri: data.uri,
             avatar: data.images[0].url,
           });
-          setLoading(false);
         } catch (e) {
           console.log(e);
           setError(e as FetchError);
+        } finally {
+          setLoading(false);
         }
       })();
     }
@@ -308,23 +322,16 @@ const useDevice = (): [
     if (params) {
       (async () => {
         try {
-          const response = await fetch(
-            'https://api.spotify.com/v1/me/player/devices',
-            {
-              method: 'GET',
-              headers: {
-                Authorization: `Bearer ${params.access_token}`,
-              },
-            },
+          const data = await spotifyFetch(
+            `me/player/devices`,
+            params.access_token,
           );
-          const data = await response.json();
-          //  {"error": {"message": "The access token expired", "status": 401}}gg
           if (data.error) throw new Error(data.error.message);
           if (data.devices.length === 0) throw new Error('No devices found');
           await setDevices(data.devices);
-          setLoading(false);
         } catch (e) {
           setError(e as FetchError);
+        } finally {
           setLoading(false);
         }
       })();
