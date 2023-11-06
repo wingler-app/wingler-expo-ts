@@ -5,13 +5,16 @@ import Button from '../atoms/Button';
 import WingModal from './Modal';
 
 type ContextInfoProps = {
+  visible: boolean;
   rhinoText: string | undefined;
   contextInfo: string | undefined;
 };
 
-const ContextInfo = ({ rhinoText, contextInfo }: ContextInfoProps) => {
+const ContextInfo = ({ visible, rhinoText, contextInfo }: ContextInfoProps) => {
   const [showContextInfo, setShowContextInfo] = useState<boolean>(false);
   const [showInferenceInfo, setShowInferenceInfo] = useState<boolean>(false);
+
+  if (!visible) return null;
 
   return (
     <View className="flex flex-row items-center justify-between bg-primary-dark">

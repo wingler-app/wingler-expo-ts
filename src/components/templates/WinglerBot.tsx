@@ -11,11 +11,11 @@ import InferenceHandler, { prettyPrint } from '@/utils/inference';
 
 import Chat from '../organisms/Chat';
 import ContextInfo from '../organisms/ContextInfo';
+import DevHelper from '../organisms/DevHelper';
 import ListenerIndicator from '../organisms/ListenerIndicator';
-import WingModal from '../organisms/Modal';
 
 const ACCESS_KEY: string =
-  'cxPKsYiXYjyiBNITmZniwbKNu5lqYDTRU+qeciOjaqWMC+AhY25qzQ==';
+  'DL/kgn1cY69IfkfqQuomZtBsrFbnnSlXfjEKeunsnqHYb0gjgmJ7bw==';
 
 const getData = async () => {
   try {
@@ -30,8 +30,6 @@ const WinglerBot = () => {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [history, setHistory] = useState<RhinoInferenceObject[]>([]);
   const [rhinoText, setRhinoText] = useState<string>('');
-  const [showInference, setShowInference] = useState<boolean>(false);
-  const [showContextInfo, setShowContextInfo] = useState<boolean>(false);
   const [contextInfo, setContextInfo] = useState<string>('');
   const [isSpeechToText, setIsSpeechToText] = useState<boolean>(false);
 
@@ -155,24 +153,15 @@ const WinglerBot = () => {
             setHistory([]);
           }}
         />
-        <WingModal
-          visible={showInference}
-          onClose={() => setShowInference(false)}
-        >
-          {rhinoText}
-        </WingModal>
-        <WingModal
-          visible={showContextInfo}
-          onClose={() => setShowContextInfo(false)}
-        >
-          {contextInfo}
-        </WingModal>
+
         <Chat history={history} />
+        <DevHelper />
       </View>
 
       <ContextInfo
-        showContextInfo={() => setShowContextInfo(true)}
-        showInferenceInfo={() => setShowInference(true)}
+        visible={false}
+        rhinoText={rhinoText}
+        contextInfo={contextInfo}
       />
     </View>
   );
