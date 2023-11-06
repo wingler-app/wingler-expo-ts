@@ -7,6 +7,7 @@ import { Text, View } from 'react-native';
 import { useDevice, useToken } from '@/services/Spotify';
 
 import Button from '../atoms/Button';
+import DevHelper from '../organisms/DevHelper';
 import WingModal from '../organisms/Modal';
 
 export default function SettingsTemplate() {
@@ -31,8 +32,11 @@ export default function SettingsTemplate() {
       console.log(e);
     }
   };
-  if (!params || loading) return <Text>loading...</Text>;
+
+  if (!params) return <Text>waiting for params</Text>;
+  if (loading) return <Text>loading...</Text>;
   if (error) return <Text>{error.message}</Text>;
+
   return (
     <View className="flex-1 items-center justify-center bg-primary-dark">
       <Button
@@ -69,6 +73,7 @@ export default function SettingsTemplate() {
           </View>
         </WingModal>
       )}
+      <DevHelper />
     </View>
   );
 }
