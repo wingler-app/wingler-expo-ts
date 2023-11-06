@@ -9,7 +9,7 @@ import Bubble from './Bubble';
 const QnA = memo(
   ({ item, index }: { item: RhinoInferenceObject; index: Number }) => {
     const [show, setShow] = useState(false);
-    const style = index === 0 ? 'mt-60' : 'mt-0';
+    const style = index === 0 ? 'mt-24' : 'mt-0';
     const { question, answer } = item.botQA;
     console.log('QnA', item.botQA.answer);
 
@@ -51,7 +51,7 @@ export default function Chat({ history }: { history: RhinoInferenceObject[] }) {
       </ScrollView>
       <LinearGradient
         colors={['#151523', '#151523', 'transparent']}
-        className="absolute z-40 h-1/3 w-full"
+        className="absolute z-40 h-24 w-full"
       />
     </View>
   );
