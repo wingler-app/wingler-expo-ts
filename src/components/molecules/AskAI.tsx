@@ -64,10 +64,11 @@ const AskAI = ({ content: { question } }: AskAIProps) => {
         />
         <WingModal
           title={`Answer to "${question}"`}
-          info={answer}
           visible={showAnswer}
           onClose={() => setShowAnswer(false)}
-        />
+        >
+          {answer}
+        </WingModal>
       </View>
     </BubbleWrap>
   );

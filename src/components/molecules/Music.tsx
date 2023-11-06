@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
 import { Image, Pressable, View } from 'react-native';
 
-import { play, useGenre } from '@/services/Spotify';
+import { useGenre, usePlayback } from '@/services/Spotify';
 
 import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';
@@ -14,6 +15,11 @@ interface MusicProps {
 
 const Music = ({ content: { params } }: MusicProps) => {
   const { answer, loading, error } = useGenre(params);
+  const { play } = usePlayback();
+
+  useEffect(() => {
+    if (answer && play && !loading && !error) play(answer.uri);
+  }, [answer, play, loading, error]);
 
   if (loading)
     return (
@@ -32,7 +38,10 @@ const Music = ({ content: { params } }: MusicProps) => {
     );
 
   const { uri, name, albumCover, artist, colors } = answer;
-  const handleClick = () => play(uri);
+  // if (play) play(uri);
+  const handleClick = () => {
+    if (play) play(uri);
+  };
 
   return (
     <BubbleWrap type="music" colors={colors} padding="even">
