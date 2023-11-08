@@ -24,6 +24,9 @@ const bubbleMapping: BubbleMapping = {
   askAI: AskAI,
   maps: Maps,
   music: Music,
+  musicartist: Music,
+  musicalbum: Music,
+  musicsong: Music,
   playback: Playback,
   user: User,
 };
@@ -32,7 +35,7 @@ const Content = ({ content, type }: BubbleProps) => {
   const Component = bubbleMapping[type];
 
   if (!Component) return <Text>Unsupported type: {type}</Text>;
-  return <Component content={content} />;
+  return <Component type={type} content={content} />;
 };
 
 const Bubble = ({ content, type }: BubbleProps) => (
