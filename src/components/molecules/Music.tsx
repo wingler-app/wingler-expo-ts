@@ -9,14 +9,19 @@ import Artist from './Artist';
 
 interface MusicProps {
   content: {
-    params: string;
+    params?: string;
+    question?: string;
   };
+  type: string;
 }
 
-const Music = ({ content: { params } }: MusicProps) => {
-  const { answer, loading, error } = useGenre(params);
+const Music = ({ content: { params, question }, type }: MusicProps) => {
+  const { answer, loading, error } = useGenre({
+    genre: params !== undefined ? params : question || '',
+    type,
+  });
   const { play } = usePlayback();
-
+  console.log('type', type);
   useEffect(() => {
     if (answer && play && !loading && !error) play(answer.uri);
   }, [answer, play, loading, error]);
