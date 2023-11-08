@@ -44,6 +44,7 @@ export default function Chat({ history }: { history: RhinoInferenceObject[] }) {
         onContentSizeChange={() =>
           scrollViewRef.current?.scrollToEnd({ animated: true })
         }
+        className="h-full"
       >
         {history.map((item, index) => (
           <QnA key={item.id} index={index} item={item} />
