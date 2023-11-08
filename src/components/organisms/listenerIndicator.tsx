@@ -1,63 +1,51 @@
-import { Motion } from '@legendapp/motion';
+import { createMotionAnimatedComponent, Motion } from '@legendapp/motion';
 import { BlurView } from 'expo-blur';
 import type { GestureResponderEvent } from 'react-native';
 import { Image, TouchableOpacity } from 'react-native';
-import Animated, {
-  useAnimatedProps,
-  withTiming,
-} from 'react-native-reanimated';
 
 const imageLogo = require('../../../assets/logo.png');
 
 type ListenerIndicatorProps = {
-  buttonDisabled: boolean;
+  isListening: boolean;
   isSpeechToText: boolean;
   onPress: ((event: GestureResponderEvent) => void) | undefined;
 };
 
+const AnimatedBlurView = createMotionAnimatedComponent(BlurView);
+
 const ListenerIndicator = ({
-  buttonDisabled,
+  isListening,
   isSpeechToText,
   onPress,
 }: ListenerIndicatorProps) => {
-  const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
-  const animatedProps = useAnimatedProps(() => {
-    return {
-      intensity: withTiming(buttonDisabled ? 60 : 0, { duration: 300 }),
-    };
-  });
-
+  if (!isListening) return null;
   return (
-    <Motion.View
-      initial={{ opacity: 0 }}
-      animate={{
-        opacity: buttonDisabled ? 1 : 1,
+    <AnimatedBlurView
+      initialProps={{ intensity: 0 }}
+      animateProps={{
+        intensity: isListening ? 60 : 10,
       }}
-      transition={{ type: 'spring' }}
-      className={`absolute z-50 flex h-full w-full
-      ${!buttonDisabled ? 'h-0' : 'h-full'}
-      `}
+      tint="dark"
+      className="absolute z-40 flex h-full w-full items-center justify-center self-center"
     >
-      <AnimatedBlurView
-        animatedProps={animatedProps}
-        tint="dark"
-        className={`absolute flex h-full w-full items-center justify-center self-center border-2 border-black
-        ${!buttonDisabled ? 'h-0 opacity-0' : 'h-full opacity-100'}
-        `}
-      >
-        <Motion.View
-          className={`absolute h-40 w-40 rounded-full ${
-            isSpeechToText ? 'bg-red-300' : ''
-          }`}
-          animate={{
-            scale: buttonDisabled ? 1 : 0,
-          }}
-        />
-        <TouchableOpacity className="absolute " onPress={onPress}>
-          <Image className="h-[93] w-[100]" source={imageLogo} />
-        </TouchableOpacity>
-      </AnimatedBlurView>
-    </Motion.View>
+      <Motion.View
+        className={`absolute h-40 w-40 rounded-full ${
+          isSpeechToText ? 'bg-orange-500' : ''
+        }`}
+        animate={{
+          scale: isSpeechToText ? 1 : 0,
+        }}
+      />
+      <Motion.View
+        className="absolute h-full w-full bg-primary-dark"
+        animate={{
+          opacity: isListening ? 0.3 : 0,
+        }}
+      />
+      <TouchableOpacity className="absolute " onPress={onPress}>
+        <Image className="h-[93] w-[100]" source={imageLogo} />
+      </TouchableOpacity>
+    </AnimatedBlurView>
   );
 };
 

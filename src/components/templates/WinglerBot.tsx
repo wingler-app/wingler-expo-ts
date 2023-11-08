@@ -48,7 +48,6 @@ const WinglerBot = () => {
   };
 
   const onSpeechStart = () => {
-    setIsListening(true);
     setIsSpeechToText(true);
   };
 
@@ -89,18 +88,19 @@ const WinglerBot = () => {
     };
 
     const inferenceCallback = async (inference: RhinoInference) => {
-      setIsListening(false);
       setRhinoText(prettyPrint(inference));
 
       const botQA = await InferenceHandler(inference);
 
       if (botQA !== null && typeof botQA === 'object') {
         addToHistory(botQA);
+        setIsListening(false);
       } else if (typeof botQA === 'string') {
         fromVoiceBubbleType.current = botQA;
         switchToVTT();
       } else {
         console.log('Inference Text is null');
+        setIsListening(false);
       }
     };
 
@@ -150,7 +150,7 @@ const WinglerBot = () => {
     <View className="flex-1">
       <View className="flex-1 justify-center bg-primary-dark">
         <ListenerIndicator
-          buttonDisabled={isListening}
+          isListening={isListening}
           isSpeechToText={isSpeechToText}
           onPress={() => {
             AsyncStorage.removeItem('@History');
