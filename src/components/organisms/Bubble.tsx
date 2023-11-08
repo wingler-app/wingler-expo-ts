@@ -10,7 +10,6 @@ import User from '../molecules/User';
 
 console.log();
 type BubbleProps = {
-  // type: string;
   type: keyof typeof bubbleMapping;
   content: object | string;
 };
