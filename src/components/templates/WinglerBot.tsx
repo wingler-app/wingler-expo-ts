@@ -48,7 +48,6 @@ const WinglerBot = () => {
   };
 
   const onSpeechStart = () => {
-    setIsListening(true);
     setIsSpeechToText(true);
   };
 
@@ -89,31 +88,38 @@ const WinglerBot = () => {
     };
 
     const inferenceCallback = async (inference: RhinoInference) => {
-      setIsListening(false);
       setRhinoText(prettyPrint(inference));
 
       const botQA = await InferenceHandler(inference);
 
       if (botQA !== null && typeof botQA === 'object') {
         addToHistory(botQA);
+        setIsListening(false);
       } else if (typeof botQA === 'string') {
         fromVoiceBubbleType.current = botQA;
         switchToVTT();
       } else {
         console.log('Inference Text is null');
+        setIsListening(false);
       }
     };
 
-    const wakeWordCallback = () => setIsListening(true);
+    const wakeWordCallback = () => {
+      console.log('Wake word detected');
+      setIsListening(true);
+    };
 
     (async () => {
       try {
         picovoiceManager.current = await PicovoiceManager.create(
           ACCESS_KEY,
-          'wingler_en_android_v2_2_0.ppn',
+          'wingler_en_android_v3_0_0.ppn',
           wakeWordCallback,
-          'wingler_commands_en_android_v2_2_0.rhn',
+          'wingler_commands_en_android_v3_0_0.rhn',
           inferenceCallback,
+          undefined,
+          undefined,
+          1,
         );
         if (picovoiceManager === undefined) {
           throw new Error('picovoiceManager is undefined');
@@ -136,9 +142,7 @@ const WinglerBot = () => {
 
   useEffect(() => {
     getData().then((data) => {
-      if (data !== null) {
-        setHistory(data);
-      }
+      if (data !== null) setHistory(data);
     });
   }, []);
 
@@ -146,7 +150,7 @@ const WinglerBot = () => {
     <View className="flex-1">
       <View className="flex-1 justify-center bg-primary-dark">
         <ListenerIndicator
-          buttonDisabled={isListening}
+          isListening={isListening}
           isSpeechToText={isSpeechToText}
           onPress={() => {
             AsyncStorage.removeItem('@History');

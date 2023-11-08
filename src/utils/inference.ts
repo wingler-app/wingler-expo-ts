@@ -61,17 +61,21 @@ const InferenceHandler = async (
   if (isUnderstood) {
     console.log(`Inference: ${intent}`);
     switch (intent) {
-      case 'orderBeverage':
-        if (slots?.beverage) {
-          return 'maps';
-        }
-        break;
+      case 'showMap':
+        return 'maps';
       case 'playMusic':
-        botQA.question = `Play ${slots?.musicGenre}`;
-        botQA.answer = {
-          type: 'music',
-          params: slots?.musicGenre,
-        };
+        if (slots?.musicGenre) {
+          botQA.question = `Play ${slots.musicGenre}`;
+          botQA.answer = {
+            type: 'music',
+            params: slots.musicGenre,
+          };
+          break;
+        }
+        if (slots?.musicSearch) {
+          const search = `music${slots.musicSearch}`;
+          return search;
+        }
         break;
       case 'appCommands':
         if (slots?.locations) {

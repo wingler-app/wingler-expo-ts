@@ -47,7 +47,11 @@ interface SpotifyParamsRecord extends SpotifyAuthResponse {
   timestamp: number;
 }
 
-type GenreProps = string;
+// type GenreProps = string;
+type GenreProps = {
+  genre: string;
+  type?: string;
+};
 type ArtistProps = string;
 
 type PlaybackPlay = (url: string) => Promise<void>;
@@ -219,21 +223,36 @@ const usePlayback = (): PlaybackResponse => {
   return { play, stop };
 };
 
-const useGenre = (genre: GenreProps): GenreResponse => {
+type SearchMappingType = {
+  [key: string]: string;
+};
+
+const searchMapping: SearchMappingType = {
+  music: 'search?q=genre%3A',
+  musicartist: 'search?q=artist%3A',
+  musicalbum: 'search?q=album%3A',
+  musicsong: 'search?q=',
+  musicplaylist: 'search?q=',
+  musicuser: 'search?q=',
+};
+
+const useGenre = ({ genre, type }: GenreProps): GenreResponse => {
   const [loading, setLoading] = useState<boolean>(true);
   const [answer, setAnswer] = useState<any>(null);
   const [error, setError] = useState<any>(null);
   const [params] = useToken();
 
   useEffect(() => {
+    const searchString = searchMapping[type || 'music'];
     const abortController = new AbortController();
     if (params) {
       (async () => {
         try {
           const data = await spotifyFetch(
-            `search?q=genre%3A${genre}&type=track`,
+            `${searchString}${genre}&type=track`,
             params.access_token,
           );
+          console.log(data);
 
           const { average, darkMuted } = (await getColors(
             data.tracks.items[0].album.images[0].url,
@@ -257,7 +276,7 @@ const useGenre = (genre: GenreProps): GenreResponse => {
       })();
     }
     return () => abortController.abort();
-  }, [genre, params]);
+  }, [genre, type, params]);
 
   return { answer, loading, error };
 };
