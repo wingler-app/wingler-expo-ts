@@ -104,16 +104,22 @@ const WinglerBot = () => {
       }
     };
 
-    const wakeWordCallback = () => setIsListening(true);
+    const wakeWordCallback = () => {
+      console.log('Wake word detected');
+      setIsListening(true);
+    };
 
     (async () => {
       try {
         picovoiceManager.current = await PicovoiceManager.create(
           ACCESS_KEY,
-          'wingler_en_android_v2_2_0.ppn',
+          'wingler_en_android_v3_0_0.ppn',
           wakeWordCallback,
-          'wingler_commands_en_android_v2_2_0.rhn',
+          'wingler_commands_en_android_v3_0_0.rhn',
           inferenceCallback,
+          undefined,
+          undefined,
+          1,
         );
         if (picovoiceManager === undefined) {
           throw new Error('picovoiceManager is undefined');
@@ -136,9 +142,7 @@ const WinglerBot = () => {
 
   useEffect(() => {
     getData().then((data) => {
-      if (data !== null) {
-        setHistory(data);
-      }
+      if (data !== null) setHistory(data);
     });
   }, []);
 
