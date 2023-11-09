@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Image, Linking, Pressable, Text } from 'react-native';
 
-import { useArtist } from '@/services/Spotify';
+import useArtist from '@/hooks/spotify/useArtist';
 
 import BubbleText from '../atoms/BubbleText';
 
