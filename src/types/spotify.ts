@@ -46,3 +46,5 @@ export interface ArtistType {
 export interface ArtistResponse extends SpotifyResponse {
   answer: ArtistType;
 }
+
+export type SpotifyGrantType = 'authorization_code' | 'refresh_token';
