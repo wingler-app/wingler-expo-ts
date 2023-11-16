@@ -3220,6 +3220,11 @@
   resolved "https://registry.yarnpkg.com/@react-native-firebase/functions/-/functions-18.5.0.tgz#744d6faacc73230990faa6643074866a57f83f0a"
   integrity sha512-XvIoDB5r12js9Q9FOp0tcCov9eFqGtL8T0nYuzotaHHqSfo1H7UN7n7CD6AvJm8Ow9Nf+dDLpJ2UGnXpQc/XjA==
 
+"@react-native-firebase/remote-config@^18.6.1":
+  version "18.6.1"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/remote-config/-/remote-config-18.6.1.tgz#9c0ef24aa785114df70d084ba2689dfa3816cf68"
+  integrity sha512-IuOZvMAFr+GOBFSqOiWhuBZKy2H/dTdX/sZJr+uu599WJMhcW+XUJ/6UU1pWqJekQkaeugKnUibpR3hxafsHsA==
+
 "@react-native-voice/voice@^3.2.4":
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/@react-native-voice/voice/-/voice-3.2.4.tgz#a0f9e5986c3c290155dd6e35ed192dab1c453f2c"
@@ -5647,6 +5652,11 @@ dotenv@16.0.3, dotenv@~16.0.3:
   version "16.0.3"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.0.3.tgz#115aec42bac5053db3c456db30cc243a5a836a07"
   integrity sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==
+
+dotenv@^16.3.1:
+  version "16.3.1"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.3.1.tgz#369034de7d7e5b120972693352a3bf112172cc3e"
+  integrity sha512-IPzF4w4/Rd94bA9imS68tZBaYyBWSCE47V1RGuMrB94iyTOIEwRmVL2x/4An+6mETpLrKJ5hQkB8W4kFAadeIQ==
 
 dtrace-provider@~0.8:
   version "0.8.8"
@@ -10976,6 +10986,13 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
+
+react-native-dotenv@^3.4.9:
+  version "3.4.9"
+  resolved "https://registry.yarnpkg.com/react-native-dotenv/-/react-native-dotenv-3.4.9.tgz#621c5b0c1d0c5c7f569bfe5a1d804bec7885c010"
+  integrity sha512-dbyd+mcy7SUzxEgmt33TRf1FGcNe6swJhXmB0unKkI49F7+pidog9kPtjxMLTAfmKA8gcN2XHQSKltGfGbGCLQ==
+  dependencies:
+    dotenv "^16.3.1"
 
 react-native-gesture-handler@~2.12.0:
   version "2.12.1"
