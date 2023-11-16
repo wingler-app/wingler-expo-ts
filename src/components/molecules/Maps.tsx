@@ -1,3 +1,4 @@
+import { GOOGLE_MAPS_API_KEY } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
@@ -115,7 +116,7 @@ const Maps = ({ content: { question } }: MapsProps) => {
             strokeColor={Colors.accent.secondary}
             origin={myPos}
             destination={adress}
-            apikey="AIzaSyBfA8snPSRFtL3IN99IlscknLiUM5E852A"
+            apikey={GOOGLE_MAPS_API_KEY}
           />
         </MapView>
       </View>

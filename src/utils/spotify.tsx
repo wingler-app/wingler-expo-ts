@@ -1,3 +1,6 @@
+import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@env';
+import { makeRedirectUri } from 'expo-auth-session';
+
 export const API: string = 'https://api.spotify.com/v1/';
 
 export const MethodMap = {
@@ -7,7 +10,8 @@ export const MethodMap = {
   DELETE: 'DELETE',
 };
 
-export const clientId = '6960973e424a4929845ac3b16e377c68';
+export const clientId = SPOTIFY_CLIENT_ID;
+export const clientSecret = SPOTIFY_CLIENT_SECRET;
 
 // Endpoint
 export const discovery = {
@@ -47,3 +51,7 @@ export const spotifyFetch = async (
     return null;
   }
 };
+
+export const redirectUri = makeRedirectUri({
+  native: 'com.wingler:/settings',
+});
