@@ -1,106 +1,135 @@
-import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { encode as btoa } from 'base-64';
 import type {
   AuthRequest,
   AuthRequestPromptOptions,
   AuthSessionResult,
 } from 'expo-auth-session';
-import {
-  makeRedirectUri,
-  ResponseType,
-  useAuthRequest,
-} from 'expo-auth-session';
+import { ResponseType, TokenResponse, useAuthRequest } from 'expo-auth-session';
+// import { getCurrentTimeInSeconds } from 'expo-auth-session/build/TokenRequest';
+import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect, useState } from 'react';
 
-import type { SpotifyAuthResponse, SpotifyParamsRecord } from '@/types/spotify';
-import { clientId, discovery, scopes } from '@/utils/spotify';
+import type {
+  SpotifyAuthResponse,
+  SpotifyGrantType,
+  SpotifyParamsRecord,
+} from '@/types/spotify';
+import {
+  clientId,
+  clientSecret,
+  discovery,
+  redirectUri,
+  scopes,
+} from '@/utils/spotify';
+
+export function getCurrentTimeInSeconds(): number {
+  return Math.floor(Date.now() / 1000);
+}
 
 const useToken = (): [
   SpotifyAuthResponse | null,
   AuthRequest | null,
   (options?: AuthRequestPromptOptions) => Promise<AuthSessionResult>,
   AuthSessionResult | null,
-  (token: string) => void,
+  (grantType: SpotifyGrantType, codeOrRefreshToken: string) => void,
 ] => {
   WebBrowser.maybeCompleteAuthSession();
   const [params, setParams] = useState<any | null>(null);
   const [request, response, promptAsync] = useAuthRequest(
     {
-      responseType: ResponseType.Token,
+      responseType: ResponseType.Code,
       clientId,
+      clientSecret,
       scopes,
       // In order to follow the "Authorization Code Flow" to fetch token after authorizationEndpoint
       // this must be set to false
       usePKCE: false,
-      redirectUri: makeRedirectUri({
-        native: 'com.wingler:/settings',
-      }),
+      redirectUri,
     },
     discovery,
   );
-  const { getItem: getSpotifyParams, setItem: setSpotifyParams } =
-    useAsyncStorage('@SpotifyParams');
 
-  const handleResponse = useCallback(
-    async (res: any) => {
-      if (res.type !== 'success') return;
+  const handleToken = useCallback(
+    async (grantType: SpotifyGrantType, codeOrRefreshToken: string) => {
+      const body = new URLSearchParams({
+        grant_type: grantType,
+        [grantType === 'authorization_code' ? 'code' : 'refresh_token']:
+          codeOrRefreshToken,
+        ...(grantType === 'authorization_code'
+          ? { redirect_uri: redirectUri }
+          : {}),
+      }).toString();
+
       try {
+        const credsB64 = btoa(`${clientId}:${clientSecret}`);
+        const res = await fetch(discovery.tokenEndpoint, {
+          method: 'POST',
+          headers: {
+            Authorization: `Basic ${credsB64}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body,
+        });
+
+        const responseJson = await res.json();
         const newParams = {
-          ...res.params,
+          ...responseJson,
           timestamp: Date.now(),
+          // issuedAt: getCurrentTimeInSeconds() - 6000000,
+          issuedAt: 1700227249097,
         };
+        if (grantType === 'refresh_token')
+          newParams.refresh_token = codeOrRefreshToken;
+        console.log('newParams', newParams);
         setParams(newParams);
-        await setSpotifyParams(newParams);
-        console.log('Got new params');
+        AsyncStorage.setItem('@SpotifyParams', JSON.stringify(newParams));
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     },
-    [setSpotifyParams],
+    [],
   );
 
-  const refreshToken = useCallback(
-    async (token: string) => {
-      const payload = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `grant_type=refresh_token&refresh_token=${token}&client_id=${clientId}`,
-      };
-      const body = await fetch(discovery.tokenEndpoint, payload);
-      const res = await body.json();
-      console.log('refreshed token', res);
-      handleResponse(res);
-    },
-    [handleResponse],
-  );
   useEffect(() => {
     (async () => {
-      const paramsString = await getSpotifyParams();
+      const paramsString = await AsyncStorage.getItem('@SpotifyParams');
+
       if (paramsString) {
         console.log('Got params from storage', paramsString);
         const paramsData: SpotifyParamsRecord = JSON.parse(paramsString);
+        const myTokenResponse = TokenResponse.fromQueryParams(paramsData);
+        // console.log('myTokenResponse', myTokenResponse);
+        console.log('time', getCurrentTimeInSeconds());
+        console.log('myTokenResponse', myTokenResponse.issuedAt);
+        console.log(
+          'isTokenFresh',
+          TokenResponse.isTokenFresh(myTokenResponse),
+        );
+        console.log('refresh? ', myTokenResponse.shouldRefresh());
+
         const expirationTime =
           paramsData.expires_in * 1000 + paramsData.timestamp;
         if (expirationTime > Date.now()) {
           setParams(paramsData);
         } else {
-          // promptAsync();
-          console.log('paramsData: ', paramsData);
-          refreshToken(paramsData.access_token);
+          handleToken('refresh_token', paramsData.refresh_token);
         }
       } else {
-        promptAsync();
+        router.push('/settings');
       }
     })();
-  }, [getSpotifyParams, promptAsync, refreshToken]);
+  }, [handleToken]);
 
   useEffect(() => {
-    handleResponse(response);
-  }, [handleResponse, response]);
+    if (response?.type === 'success') {
+      if (response.params.code)
+        handleToken('authorization_code', response.params?.code);
+    }
+  }, [response, handleToken]);
 
-  return [params, request, promptAsync, response, refreshToken];
+  return [params, request, promptAsync, response, handleToken];
 };
 
 export default useToken;
