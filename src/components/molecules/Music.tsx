@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { Image, Pressable, View } from 'react-native';
 
-import { useGenre, usePlayback } from '@/services/Spotify';
+import usePlayback from '@/hooks/spotify/usePlayback';
+import useSpotifySearch from '@/hooks/spotify/useSpotifySearch';
 
 import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';
@@ -16,7 +17,7 @@ interface MusicProps {
 }
 
 const Music = ({ content: { params, question }, type }: MusicProps) => {
-  const { answer, loading, error } = useGenre({
+  const { answer, loading, error } = useSpotifySearch({
     genre: params !== undefined ? params : question || '',
     type,
   });

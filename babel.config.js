@@ -14,6 +14,7 @@ module.exports = (api) => {
           },
         },
       ],
+      ['module:react-native-dotenv'],
       require.resolve('expo-router/babel'),
     ],
   };

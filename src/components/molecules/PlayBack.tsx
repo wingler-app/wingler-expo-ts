@@ -1,7 +1,7 @@
 import * as Speech from 'expo-speech';
 import { memo, useEffect } from 'react';
 
-import { usePlayback } from '@/services/Spotify';
+import usePlayback from '@/hooks/spotify/usePlayback';
 
 import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';

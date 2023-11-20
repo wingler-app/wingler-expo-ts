@@ -1,3 +1,4 @@
+import { GOOGLE_MAPS_API_KEY } from '@env';
 import { useEffect, useState } from 'react';
 
 const useGooglePlaces = (question: string) => {
@@ -15,7 +16,7 @@ const useGooglePlaces = (question: string) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-Goog-Api-Key': 'AIzaSyBfA8snPSRFtL3IN99IlscknLiUM5E852A',
+              'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
               'X-Goog-FieldMask': 'places.location,places.formattedAddress',
             },
             body: JSON.stringify({
