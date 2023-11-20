@@ -32,7 +32,7 @@ const usePlayback = (): PlaybackResponse => {
           const device: DeviceType = JSON.parse(data);
           const url = `me/player/play?device_id=${device.id}`;
           console.log(url);
-          await spotifyFetch(url, params.access_token, 'PUT', body);
+          await spotifyFetch(url, params.accessToken, 'PUT', body);
         }
       } catch (e) {
         console.error(e);
@@ -42,7 +42,7 @@ const usePlayback = (): PlaybackResponse => {
 
   const stop = async () => {
     if (params)
-      await spotifyFetch('me/player/pause', params.access_token, 'PUT');
+      await spotifyFetch('me/player/pause', params.accessToken, 'PUT');
   };
 
   return { play, stop };

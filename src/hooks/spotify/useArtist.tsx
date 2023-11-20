@@ -15,7 +15,7 @@ const useArtist = (id: ArtistProps): ArtistResponse => {
     if (params) {
       (async () => {
         try {
-          const data = await spotifyFetch(`artists/${id}`, params.access_token);
+          const data = await spotifyFetch(`artists/${id}`, params.accessToken);
           await setAnswer({
             uri: data.uri,
             avatar: data.images[0].url,

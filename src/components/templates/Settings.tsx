@@ -27,17 +27,19 @@ export default function SettingsTemplate() {
         title="Get Spotify Token"
         onPress={() => promptAsync()}
       />
-      {params?.refresh_token && (
+      {params?.refreshToken !== undefined && (
         <>
           <Button
             disabled={!request}
             title="Refresh Spotify Token"
-            onPress={() => handleToken('refresh_token', params.refresh_token)}
+            onPress={() =>
+              handleToken('refresh_token', params.refreshToken as string)
+            }
           />
           <SelectDevice />
 
           <Text className="m-4 rounded border-2 border-white p-4 text-white">
-            {params.access_token}
+            {params.accessToken}
           </Text>
         </>
       )}

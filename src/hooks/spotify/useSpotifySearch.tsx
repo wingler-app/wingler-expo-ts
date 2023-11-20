@@ -39,9 +39,9 @@ const useSpotifySearch = ({ genre, type }: GenreProps): GenreResponse => {
         try {
           const data = await spotifyFetch(
             `${searchString}${genre}&type=track`,
-            params.access_token,
+            params.accessToken,
           );
-          console.log(data);
+          // console.log(JSON.stringify(data.tracks.items[0], null, 2));
 
           const { average, darkMuted } = (await getColors(
             data.tracks.items[0].album.images[0].url,

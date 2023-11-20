@@ -6,16 +6,11 @@ import type {
   AuthSessionResult,
 } from 'expo-auth-session';
 import { ResponseType, TokenResponse, useAuthRequest } from 'expo-auth-session';
-// import { getCurrentTimeInSeconds } from 'expo-auth-session/build/TokenRequest';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useEffect, useState } from 'react';
 
-import type {
-  SpotifyAuthResponse,
-  SpotifyGrantType,
-  SpotifyParamsRecord,
-} from '@/types/spotify';
+import type { SpotifyGrantType } from '@/types/spotify';
 import {
   clientId,
   clientSecret,
@@ -24,12 +19,8 @@ import {
   scopes,
 } from '@/utils/spotify';
 
-export function getCurrentTimeInSeconds(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
 const useToken = (): [
-  SpotifyAuthResponse | null,
+  TokenResponse | null,
   AuthRequest | null,
   (options?: AuthRequestPromptOptions) => Promise<AuthSessionResult>,
   AuthSessionResult | null,
@@ -73,18 +64,12 @@ const useToken = (): [
           body,
         });
 
-        const responseJson = await res.json();
-        const newParams = {
-          ...responseJson,
-          timestamp: Date.now(),
-          // issuedAt: getCurrentTimeInSeconds() - 6000000,
-          issuedAt: 1700227249097,
-        };
+        const myTokenResponse = TokenResponse.fromQueryParams(await res.json());
         if (grantType === 'refresh_token')
-          newParams.refresh_token = codeOrRefreshToken;
-        console.log('newParams', newParams);
-        setParams(newParams);
-        AsyncStorage.setItem('@SpotifyParams', JSON.stringify(newParams));
+          myTokenResponse.refreshToken = codeOrRefreshToken;
+
+        setParams(myTokenResponse);
+        AsyncStorage.setItem('@SpotifyParams', JSON.stringify(myTokenResponse));
       } catch (e) {
         console.error(e);
       }
@@ -94,27 +79,15 @@ const useToken = (): [
 
   useEffect(() => {
     (async () => {
-      const paramsString = await AsyncStorage.getItem('@SpotifyParams');
+      const data = await AsyncStorage.getItem('@SpotifyParams');
 
-      if (paramsString) {
-        console.log('Got params from storage', paramsString);
-        const paramsData: SpotifyParamsRecord = JSON.parse(paramsString);
-        const myTokenResponse = TokenResponse.fromQueryParams(paramsData);
-        // console.log('myTokenResponse', myTokenResponse);
-        console.log('time', getCurrentTimeInSeconds());
-        console.log('myTokenResponse', myTokenResponse.issuedAt);
-        console.log(
-          'isTokenFresh',
-          TokenResponse.isTokenFresh(myTokenResponse),
-        );
-        console.log('refresh? ', myTokenResponse.shouldRefresh());
+      if (data) {
+        const myTokenResponse: TokenResponse = JSON.parse(data);
 
-        const expirationTime =
-          paramsData.expires_in * 1000 + paramsData.timestamp;
-        if (expirationTime > Date.now()) {
-          setParams(paramsData);
-        } else {
-          handleToken('refresh_token', paramsData.refresh_token);
+        if (TokenResponse.isTokenFresh(myTokenResponse)) {
+          setParams(myTokenResponse);
+        } else if (myTokenResponse.refreshToken) {
+          handleToken('refresh_token', myTokenResponse.refreshToken);
         }
       } else {
         router.push('/settings');
@@ -125,7 +98,7 @@ const useToken = (): [
   useEffect(() => {
     if (response?.type === 'success') {
       if (response.params.code)
-        handleToken('authorization_code', response.params?.code);
+        handleToken('authorization_code', response.params.code);
     }
   }, [response, handleToken]);
 

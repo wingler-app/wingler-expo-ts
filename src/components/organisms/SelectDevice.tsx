@@ -43,7 +43,7 @@ const SelectDevice = () => {
         try {
           const data = await spotifyFetch(
             `me/player/devices`,
-            params.access_token,
+            params.accessToken,
           );
           if (data.error) throw new Error(data.error.message);
           if (data.devices.length === 0) throw new Error('No devices found');
