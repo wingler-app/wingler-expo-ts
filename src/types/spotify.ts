@@ -1,15 +1,3 @@
-export interface SpotifyAuthResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  scope: string;
-  refresh_token: string;
-}
-
-export interface SpotifyParamsRecord extends SpotifyAuthResponse {
-  timestamp: number;
-}
-
 export interface SpotifyResponse {
   loading: boolean;
   error: FetchError | null;
