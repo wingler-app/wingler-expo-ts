@@ -1,15 +1,20 @@
 import auth from '@react-native-firebase/auth';
 import { router } from 'expo-router';
-import { Text, View } from 'react-native';
+import { Image, ScrollView, View } from 'react-native';
 
 import SelectDevice from '@/components/organisms/SelectDevice';
 import useToken from '@/hooks/spotify/useToken';
+import useSettingsStore from '@/store/useSettingsStore';
 
 import Button from '../atoms/Button';
+import MenuSectionTitle from '../atoms/MenuSectionTitle';
 import DevHelper from '../organisms/DevHelper';
+
+const imageLogo = require('../../../assets/logo.png');
 
 export default function SettingsTemplate() {
   const [params, request, promptAsync, , handleToken] = useToken();
+  const { readAloud, toggleReadAloud } = useSettingsStore();
 
   const handleLogout = async () => {
     auth()
@@ -21,30 +26,51 @@ export default function SettingsTemplate() {
   };
 
   return (
-    <View className="flex-1 items-center justify-center bg-primary-dark">
-      <Button
-        disabled={!request}
-        title="Get Spotify Token"
-        onPress={() => promptAsync()}
+    <ScrollView className="flex-1 bg-primary-black">
+      <Image
+        className=" mb-24 mt-32 h-[93] w-[100] self-center"
+        source={imageLogo}
       />
-      {params?.refreshToken !== undefined && (
-        <>
-          <Button
-            disabled={!request}
-            title="Refresh Spotify Token"
-            onPress={() =>
-              handleToken('refresh_token', params.refreshToken as string)
-            }
-          />
-          <SelectDevice />
-
-          <Text className="m-4 rounded border-2 border-white p-4 text-white">
-            {params.accessToken}
-          </Text>
-        </>
-      )}
-      <Button title="Logout" onPress={handleLogout} />
       <DevHelper />
-    </View>
+      <View className="flex-1 bg-primary-black">
+        <MenuSectionTitle title="General" />
+        <View>
+          <Button
+            title={`Read Aloud is ${readAloud ? 'on' : 'off'}`}
+            type="menu"
+            buttonStyle={`${readAloud && 'bg-green-500'}`}
+            textStyle={`${readAloud && 'text-white'}`}
+            onPress={toggleReadAloud}
+          />
+        </View>
+        <MenuSectionTitle title="Spotify" />
+        <Button
+          disabled={!request}
+          title="Get Spotify Token"
+          type="menu"
+          onPress={() => promptAsync()}
+        />
+        {params?.refreshToken !== undefined && (
+          <>
+            <Button
+              disabled={!request}
+              title="Refresh Spotify Token"
+              type="menu"
+              onPress={() =>
+                handleToken('refresh_token', params.refreshToken as string)
+              }
+            />
+            <SelectDevice />
+          </>
+        )}
+        <MenuSectionTitle title="Account" />
+        <Button
+          buttonStyle="border-b-2"
+          title="Logout"
+          type="menu"
+          onPress={handleLogout}
+        />
+      </View>
+    </ScrollView>
   );
 }
