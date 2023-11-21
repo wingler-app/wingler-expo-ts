@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 
 import Button from '../atoms/Button';
 import Modal from './Modal';
@@ -34,10 +34,17 @@ const DevHelper = () => {
         visible={isOpen}
         onClose={() => setIsOpen(false)}
       >
-        <Button title="Settings" onPress={() => devNav('/settings')} />
-        <Button title="Chat" onPress={() => devNav('/wingler')} />
-        <Text className="mb-6 text-center text-white">---</Text>
-        <Button title="Clear Spotify Token" onPress={handleClearToken} />
+        <Button
+          title="Settings"
+          type="list"
+          onPress={() => devNav('/settings')}
+        />
+        <Button type="list" title="Chat" onPress={() => devNav('/wingler')} />
+        <Button
+          type="list"
+          title="Clear Spotify Token"
+          onPress={handleClearToken}
+        />
       </Modal>
     </View>
   );

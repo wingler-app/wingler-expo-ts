@@ -61,11 +61,16 @@ const SelectDevice = () => {
   return (
     devices && (
       <>
-        <Text className="text-white">{device?.name}</Text>
-        <Button
-          title="Select Spotify Device"
-          onPress={() => setShowDevices(true)}
-        />
+        <View className="relative">
+          <Button
+            title="Select Spotify Device"
+            type="menu"
+            onPress={() => setShowDevices(true)}
+          />
+          <Text className="my-2 w-full text-center text-xs text-secondary">
+            <Text className="text-white">Playing on:</Text> {device?.name}
+          </Text>
+        </View>
         <WingModal
           title="Devices"
           visible={showDevices}
@@ -74,11 +79,12 @@ const SelectDevice = () => {
           {error ? (
             <Text className="text-white">{error.message}</Text>
           ) : (
-            <View className="">
+            <>
               {devices.map(({ id, name }) => (
                 <View key={id}>
                   <Button
                     title={name}
+                    type="list"
                     onPress={() => {
                       if (saveDevice) {
                         saveDevice({ id, name });
@@ -88,7 +94,7 @@ const SelectDevice = () => {
                   />
                 </View>
               ))}
-            </View>
+            </>
           )}
         </WingModal>
       </>
