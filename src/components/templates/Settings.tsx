@@ -4,6 +4,7 @@ import { Image, ScrollView, View } from 'react-native';
 
 import SelectDevice from '@/components/organisms/SelectDevice';
 import useToken from '@/hooks/spotify/useToken';
+import useSettingsStore from '@/store/useSettingsStore';
 
 import Button from '../atoms/Button';
 import MenuSectionTitle from '../atoms/MenuSectionTitle';
@@ -13,6 +14,7 @@ const imageLogo = require('../../../assets/logo.png');
 
 export default function SettingsTemplate() {
   const [params, request, promptAsync, , handleToken] = useToken();
+  const { readAloud, toggleReadAloud } = useSettingsStore();
 
   const handleLogout = async () => {
     auth()
@@ -31,6 +33,16 @@ export default function SettingsTemplate() {
       />
       <DevHelper />
       <View className="flex-1 bg-primary-black">
+        <MenuSectionTitle title="General" />
+        <View>
+          <Button
+            title={`Read Aloud is ${readAloud ? 'on' : 'off'}`}
+            type="menu"
+            buttonStyle={`${readAloud && 'bg-green-500'}`}
+            textStyle={`${readAloud && 'text-white'}`}
+            onPress={toggleReadAloud}
+          />
+        </View>
         <MenuSectionTitle title="Spotify" />
         <Button
           disabled={!request}

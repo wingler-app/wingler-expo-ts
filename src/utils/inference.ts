@@ -2,6 +2,7 @@ import type { RhinoInference } from '@picovoice/rhino-react-native';
 import { router } from 'expo-router';
 import * as Speech from 'expo-speech';
 
+import useSettingsStore from '@/store/useSettingsStore';
 import type { BotQA } from '@/types';
 
 export const speechOptions: Speech.SpeechOptions = {
@@ -57,6 +58,7 @@ const InferenceHandler = async (
     question: '',
     answer: '',
   };
+  const { readAloud } = useSettingsStore.getState();
 
   if (isUnderstood) {
     console.log(`Inference: ${intent}`);
@@ -101,7 +103,7 @@ const InferenceHandler = async (
     console.log("Didn't understand the command");
     return null;
   }
-  if (typeof botQA.answer === 'string') {
+  if (typeof botQA.answer === 'string' && readAloud) {
     setTimeout(() => Speech.speak(botQA.answer as string, speechOptions), 1000);
   }
   return botQA;
