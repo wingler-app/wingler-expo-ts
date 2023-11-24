@@ -2,11 +2,11 @@ import { PicovoiceManager } from '@picovoice/picovoice-react-native';
 import type { RhinoInference } from '@picovoice/rhino-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Voice from '@react-native-voice/voice';
-import * as ExpoCrypto from 'expo-crypto';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
-import type { BotQA, RhinoInferenceObject } from '@/types';
+import useHistoryStore from '@/store/useHistoryStore';
+import type { BotQA } from '@/types';
 import InferenceHandler, { prettyPrint } from '@/utils/inference';
 
 import Chat from '../organisms/Chat';
@@ -17,36 +17,15 @@ import ListenerIndicator from '../organisms/ListenerIndicator';
 const ACCESS_KEY: string =
   'DL/kgn1cY69IfkfqQuomZtBsrFbnnSlXfjEKeunsnqHYb0gjgmJ7bw==';
 
-const getData = async () => {
-  try {
-    const jsonValue = await AsyncStorage.getItem('@History');
-    return jsonValue != null ? JSON.parse(jsonValue) : null;
-  } catch (e) {
-    return [];
-  }
-};
-
 const WinglerBot = () => {
   const [isListening, setIsListening] = useState<boolean>(false);
-  const [history, setHistory] = useState<RhinoInferenceObject[]>([]);
   const [rhinoText, setRhinoText] = useState<string>('');
   const [contextInfo, setContextInfo] = useState<string>('');
   const [isSpeechToText, setIsSpeechToText] = useState<boolean>(false);
 
   const picovoiceManager = useRef<PicovoiceManager>();
   const fromVoiceBubbleType = useRef<string>('');
-
-  const addToHistory = (botQA: BotQA) => {
-    const obj: RhinoInferenceObject = {
-      botQA,
-      id: ExpoCrypto.getRandomBytes(16).toString(),
-    };
-    setHistory((previousState) => {
-      AsyncStorage.setItem('@History', JSON.stringify([...previousState, obj]));
-      return [...previousState, obj];
-    });
-  };
-
+  const { addToHistory, clearHistory } = useHistoryStore();
   const onSpeechStart = () => {
     setIsSpeechToText(true);
   };
@@ -138,13 +117,7 @@ const WinglerBot = () => {
       Voice.destroy();
       picovoiceManager?.current?.stop();
     };
-  }, []);
-
-  useEffect(() => {
-    getData().then((data) => {
-      if (data !== null) setHistory(data);
-    });
-  }, []);
+  }, [addToHistory]);
 
   return (
     <View className="flex-1">
@@ -154,11 +127,11 @@ const WinglerBot = () => {
           isSpeechToText={isSpeechToText}
           onPress={() => {
             AsyncStorage.removeItem('@History');
-            setHistory([]);
+            clearHistory();
           }}
         />
 
-        <Chat history={history} />
+        <Chat />
         <DevHelper />
       </View>
 

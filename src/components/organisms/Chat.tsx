@@ -2,13 +2,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { memo, useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
+import useHistoryStore from '@/store/useHistoryStore';
 import type { RhinoInferenceObject } from '@/types';
 
 import Bubble from './Bubble';
 
 const QnA = memo(
   ({ item, index }: { item: RhinoInferenceObject; index: Number }) => {
-    const [show, setShow] = useState(false);
+    const [show, setShow] = useState(item.botQA.done);
     const style = index === 0 ? 'mt-24' : 'mt-0';
     const { question, answer } = item.botQA;
     console.log('QnA', item.botQA.answer);
@@ -28,15 +29,16 @@ const QnA = memo(
           (typeof answer === 'string' ? (
             <Bubble type="answer" content={answer} />
           ) : (
-            <Bubble type={answer.type} content={answer} />
+            <Bubble id={item.id} type={answer.type} content={answer} />
           ))}
       </View>
     );
   },
 );
 
-export default function Chat({ history }: { history: RhinoInferenceObject[] }) {
+export default function Chat() {
   const scrollViewRef = useRef<ScrollView>(null);
+  const { history } = useHistoryStore();
   return (
     <View>
       <ScrollView

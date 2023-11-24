@@ -14,6 +14,7 @@ export interface RhinoInferenceObject {
 }
 
 export interface BotQA {
+  done?: boolean;
   question: string;
   answer: string | any;
 }
