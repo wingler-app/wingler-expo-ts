@@ -1,61 +1,105 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import { memo, useEffect, useRef, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import type { ViewToken } from 'react-native';
+import { FlatList, View } from 'react-native';
 
 import useHistoryStore from '@/store/useHistoryStore';
+import { useRefStore } from '@/store/useRefStore';
 import type { RhinoInferenceObject } from '@/types';
 
-import Bubble from './Bubble';
+import Bubble from './Bubble'; // replace with your actual path
 
-const QnA = memo(
-  ({ item, index }: { item: RhinoInferenceObject; index: Number }) => {
-    const [show, setShow] = useState(item.botQA.done);
-    const style = index === 0 ? 'mt-24' : 'mt-0';
-    const { question, answer } = item.botQA;
-    console.log('QnA', item.botQA.answer);
+type ViewableItem = {
+  item: any; // Replace 'any' with the type of your data
+  key: string;
+  index: number | null;
+  isViewable: boolean;
+  section?: any; // Replace 'any' with the type of your section data
+};
 
-    useEffect(() => {
-      if (!show) {
-        setTimeout(() => {
-          setShow(true);
-        }, 1000);
-      }
-    }, [show]);
+interface QnAProps {
+  item: RhinoInferenceObject;
+  index: number;
+  isVisible: boolean;
+}
 
-    return (
-      <View key={item.id} className={style}>
-        <Bubble type="user" content={question} />
-        {show &&
-          (typeof answer === 'string' ? (
-            <Bubble type="answer" content={answer} />
-          ) : (
-            <Bubble id={item.id} type={answer.type} content={answer} />
-          ))}
-      </View>
-    );
-  },
-);
+const QnA = memo(({ item, index, isVisible }: QnAProps) => {
+  const [show, setShow] = useState(item.botQA.done);
+  const style = index === 0 ? 'mt-24' : 'mt-0';
+  const { question, answer } = item.botQA;
 
-export default function Chat() {
-  const scrollViewRef = useRef<ScrollView>(null);
+  useEffect(() => {
+    if (!show) {
+      setTimeout(() => {
+        setShow(true);
+      }, 1000);
+    }
+  }, [show]);
+
+  return (
+    <View key={item.id} className={style}>
+      <Bubble type="user" content={question} />
+      {show &&
+        (typeof answer === 'string' ? (
+          <Bubble type="answer" content={answer} />
+        ) : (
+          <Bubble
+            id={item.id}
+            type={answer.type}
+            content={answer}
+            visible={isVisible}
+          />
+        ))}
+    </View>
+  );
+});
+
+const Chat = () => {
+  // export default function Chat() {
+  const { setChatRef } = useRefStore();
   const { history } = useHistoryStore();
+  const chatRef = useRef<FlatList<RhinoInferenceObject>>(null);
+  const [visibleItems, setVisibleItems] = useState<string[]>([]);
+  const handleViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      const keys = viewableItems.map((item: ViewableItem) => item.key);
+      setVisibleItems(keys);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (chatRef.current) {
+      setChatRef(chatRef);
+    }
+  }, [chatRef, setChatRef]);
+
+  useEffect(() => {
+    chatRef.current?.scrollToEnd({ animated: true });
+  }, [history]);
+
   return (
     <View>
-      <ScrollView
-        ref={scrollViewRef}
-        onContentSizeChange={() =>
-          scrollViewRef.current?.scrollToEnd({ animated: true })
-        }
+      <FlatList
+        ref={chatRef}
         className="h-full"
-      >
-        {history.map((item, index) => (
-          <QnA key={item.id} index={index} item={item} />
-        ))}
-      </ScrollView>
-      <LinearGradient
-        colors={['#151523', '#151523', 'transparent']}
-        className="absolute z-40 h-24 w-full"
+        data={history}
+        // initialScrollIndex={history.length - 1}
+        onViewableItemsChanged={handleViewableItemsChanged}
+        viewabilityConfig={{
+          itemVisiblePercentThreshold: 75,
+          minimumViewTime: 1000,
+        }}
+        renderItem={({ item, index }) => (
+          <QnA
+            key={item.id}
+            index={index}
+            item={item}
+            isVisible={visibleItems.includes(item.id)}
+          />
+        )}
       />
     </View>
   );
-}
+};
+
+export default Chat;

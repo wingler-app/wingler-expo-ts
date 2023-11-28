@@ -1,39 +1,21 @@
 import { GOOGLE_MAPS_API_KEY } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { memo, useEffect, useRef, useState } from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import type { MapDirectionsResponse } from 'react-native-maps-directions';
 import MapViewDirections from 'react-native-maps-directions';
 
 import { useGooglePlaces } from '@/services/GoogleMaps';
 import useHistoryStore from '@/store/useHistoryStore';
-import type { BotQA } from '@/types';
+import { useRefStore } from '@/store/useRefStore';
+import type { BotQA, Position } from '@/types';
+import { getMidpoint } from '@/utils/maps';
 
 // @ts-ignore
 import * as Colors from '../../styles/colors';
 import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';
-
-type Position = {
-  latitude: number;
-  longitude: number;
-  latitudeDelta?: number;
-  longitudeDelta?: number;
-};
-
-interface MapsProps {
-  id: string;
-  content: {
-    question: string;
-    locations?: Locations;
-  };
-  type: string;
-}
-
-interface MapsBubbleProps {
-  locations: Locations;
-}
 
 type Locations = {
   start: Position;
@@ -41,6 +23,30 @@ type Locations = {
   answer: Position;
   adress: string;
 };
+
+type Content = {
+  question: string;
+  locations?: Locations;
+  image?: string;
+};
+
+type BaseProps = {
+  id: string;
+  type: string;
+  content: Content;
+};
+
+interface MapsProps extends BaseProps {
+  visible?: boolean;
+  locations?: Locations;
+}
+
+interface MapsGeneratorProps extends BaseProps {}
+
+interface MapsBubbleProps extends BaseProps {
+  visible?: boolean;
+  content: Content & { locations: Locations }; // locations is always defined
+}
 
 const getData = async () => {
   try {
@@ -51,63 +57,36 @@ const getData = async () => {
   }
 };
 
-function getMidpoint(pos1: Position, pos2: Position): Position {
-  const lat1 = pos1.latitude * (Math.PI / 180); // Convert degrees to radians
-  const lon1 = pos1.longitude * (Math.PI / 180);
-  const lat2 = pos2.latitude * (Math.PI / 180);
-  const lon2 = pos2.longitude * (Math.PI / 180);
-
-  const dLon = lon2 - lon1;
-
-  const Bx = Math.cos(lat2) * Math.cos(dLon);
-  const By = Math.cos(lat2) * Math.sin(dLon);
-
-  const midLat = Math.atan2(
-    Math.sin(lat1) + Math.sin(lat2),
-    Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By),
-  );
-  const midLon = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
-
-  // Convert back to degrees
-  const midLatInDegrees = midLat * (180 / Math.PI);
-  const midLonInDegrees = midLon * (180 / Math.PI);
-
-  // Calculate the deltas
-  const latDelta = Math.abs(pos1.latitude - pos2.latitude) * 1.2; // 20% padding
-  const lonDelta = Math.abs(pos1.longitude - pos2.longitude) * 1.2;
-  return {
-    latitude: midLatInDegrees,
-    longitude: midLonInDegrees,
-    latitudeDelta: latDelta,
-    longitudeDelta: lonDelta,
-  };
-}
-
 const imageLogo = require('../../../assets/logo.png');
 
 const MyCustomMarkerView = memo(() => (
-  // <View className="z-50">
-  // <View className="h-1 w-1 bg-red-500" />
   <Image className="m-0 h-[19] w-[20]" source={imageLogo} />
-  /* </View> */
 ));
 
 const MapsBubble = ({
-  locations: { start, mid, answer, adress },
+  content: {
+    locations: { start, mid, answer, adress },
+    image,
+    question,
+  },
+  visible,
+  type,
+  id,
 }: MapsBubbleProps) => {
   const mapRef = useRef<MapView | null>(null);
   const [myPos, setMyPos] = useState<Position>({ latitude: 0, longitude: 0 });
   const [loading, setLoading] = useState<boolean>(true);
-  console.log('maps render');
-  const [img, setImg] = useState<string>('');
+  const [img, setImg] = useState<string>(image || '');
+  const { changeById } = useHistoryStore();
+  const { chatRef } = useRefStore();
 
   useEffect(() => {
     (async () => {
       try {
         const data = await getData();
         await setMyPos({
-          latitude: data.latitude + 0.0003,
-          longitude: data.longitude + 0.0005,
+          latitude: data.latitude,
+          longitude: data.longitude,
         });
         setLoading(false);
       } catch (e) {
@@ -127,6 +106,23 @@ const MapsBubble = ({
     snapshot?.then((uri) => {
       setImg(uri);
     });
+
+    const botQA: BotQA = {
+      done: true,
+      question,
+      answer: {
+        question,
+        image: img,
+        locations: {
+          start,
+          mid,
+          answer,
+          adress,
+        },
+        type,
+      },
+    };
+    changeById(id, botQA);
   };
 
   const fitCoords = (coords: Array<Position>) => {
@@ -140,10 +136,15 @@ const MapsBubble = ({
       },
       animated: false,
     });
-    setTimeout(() => {
-      takeSnapshot();
-    }, 1000);
+    console.log('IMAGE: ', image);
+    if (!image) {
+      setTimeout(() => {
+        takeSnapshot();
+      }, 1000);
+      if (chatRef?.current) chatRef.current?.scrollToEnd({ animated: true });
+    }
   };
+
   const handleOnReady = (result: MapDirectionsResponse): any => {
     // console.log(`Distance: ${result.distance} km`);
     // console.log(`Duration: ${result.duration} min.`);
@@ -156,10 +157,16 @@ const MapsBubble = ({
   };
 
   if (loading) return null;
+
   return (
     <BubbleWrap padding="none" colors={['transparent', 'transparent']}>
-      <View className="">
-        <Text>{`${mid.latitudeDelta} --- ${mid.longitudeDelta}`}</Text>
+      {img && !visible ? (
+        <Image
+          className="h-[500] w-[320]"
+          resizeMode="contain"
+          source={{ uri: img }}
+        />
+      ) : (
         <MapView
           ref={mapRef}
           className="h-[500] w-80 rounded-lg"
@@ -171,11 +178,11 @@ const MapsBubble = ({
             longitudeDelta: mid.longitudeDelta || 0.01,
           }}
         >
+          <Marker coordinate={start} title="My start position" />
+          <Marker coordinate={answer} title={adress} />
           <Marker coordinate={myPos} title="My current position">
             <MyCustomMarkerView />
           </Marker>
-          <Marker coordinate={start} title="My start position" />
-          <Marker coordinate={answer} title={adress} />
           <MapViewDirections
             onReady={handleOnReady}
             onError={handleError}
@@ -186,25 +193,21 @@ const MapsBubble = ({
             apikey={GOOGLE_MAPS_API_KEY}
           />
         </MapView>
-      </View>
-      {img && (
-        <Image
-          className="h-[500] w-[320]"
-          resizeMode="contain"
-          source={{ uri: img }}
-        />
       )}
     </BubbleWrap>
   );
 };
 
-const MapsGenerator = ({ content: { question }, id, type }: MapsProps) => {
+const MapsGenerator = ({
+  content: { question },
+  id,
+  type,
+}: MapsGeneratorProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [myPos, setMyPos] = useState<Position>({ latitude: 0, longitude: 0 });
   const [answerData, answerLoading] = useGooglePlaces(question);
   const { changeById } = useHistoryStore();
 
-  console.log('maps generator render');
   useEffect(() => {
     (async () => {
       try {
@@ -225,6 +228,7 @@ const MapsGenerator = ({ content: { question }, id, type }: MapsProps) => {
         done: true,
         question,
         answer: {
+          question,
           locations: {
             start: myPos,
             mid: midpoint,
@@ -251,13 +255,21 @@ const MapsGenerator = ({ content: { question }, id, type }: MapsProps) => {
         <BubbleText>Sorry, theres no place like that...</BubbleText>
       </BubbleWrap>
     );
+
   return null;
 };
 
-const Maps = ({ content, id, type }: MapsProps) => {
-  console.log('maps');
+const Maps = ({ content, id, type, visible }: MapsProps) => {
   if (content && content.locations)
-    return <MapsBubble locations={content.locations} />;
+    return (
+      <MapsBubble
+        content={content as MapsBubbleProps['content']}
+        visible={!!visible}
+        type={type}
+        id={id}
+      />
+    );
   return <MapsGenerator content={content} id={id} type={type} />;
 };
+
 export default memo(Maps);

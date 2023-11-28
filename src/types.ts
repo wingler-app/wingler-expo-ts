@@ -18,3 +18,10 @@ export interface BotQA {
   question: string;
   answer: string | any;
 }
+
+export type Position = {
+  latitude: number;
+  longitude: number;
+  latitudeDelta?: number;
+  longitudeDelta?: number;
+};
