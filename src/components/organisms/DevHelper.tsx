@@ -1,13 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { View } from 'react-native';
+
+import useHistoryStore from '@/store/useHistoryStore';
+import type { BotQA } from '@/types';
 
 import Button from '../atoms/Button';
 import Modal from './Modal';
 
 const DevHelper = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { history, clearHistory, addToHistory } = useHistoryStore();
 
   const devNav = (destination: string) => {
     router.push(destination);
@@ -20,6 +24,17 @@ const DevHelper = () => {
     } catch (e) {
       console.log(e);
     }
+  };
+
+  const handleBrownNoise = () => {
+    const botQA: BotQA = {
+      question: 'Brown Noise',
+      answer: {
+        question: 'Brown Noise',
+        type: 'musicsong',
+      },
+    };
+    addToHistory(botQA);
   };
 
   return (
@@ -45,8 +60,15 @@ const DevHelper = () => {
           title="Clear Spotify Token"
           onPress={handleClearToken}
         />
+        <Button type="list" title="Clear History" onPress={clearHistory} />
+        <Button
+          type="list"
+          title="Log History"
+          onPress={() => console.log(JSON.stringify(history, undefined, 2))}
+        />
+        <Button type="list" title="Brown Noise" onPress={handleBrownNoise} />
       </Modal>
     </View>
   );
 };
-export default DevHelper;
+export default memo(DevHelper);

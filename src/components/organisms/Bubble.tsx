@@ -8,8 +8,9 @@ import Music from '../molecules/Music';
 import Playback from '../molecules/PlayBack';
 import User from '../molecules/User';
 
-console.log();
 type BubbleProps = {
+  id?: string;
+  visible?: boolean;
   type: keyof typeof bubbleMapping;
   content: object | string;
 };
@@ -30,14 +31,14 @@ const bubbleMapping: BubbleMapping = {
   user: User,
 };
 
-const Content = ({ content, type }: BubbleProps) => {
+const Content = ({ id, visible, content, type }: BubbleProps) => {
   const Component = bubbleMapping[type];
 
   if (!Component) return <Text>Unsupported type: {type}</Text>;
-  return <Component type={type} content={content} />;
+  return <Component id={id} type={type} content={content} visible={visible} />;
 };
 
-const Bubble = ({ content, type }: BubbleProps) => (
+const Bubble = ({ id, visible, content, type }: BubbleProps) => (
   <Motion.View
     className={`mx-2 flex-1 ${type === 'user' ? 'items-end' : 'items-start'}`}
     initial={{ y: 50, opacity: 0 }}
@@ -49,7 +50,7 @@ const Bubble = ({ content, type }: BubbleProps) => (
     whileTap={{ y: 20 }}
     transition={{ type: 'spring', damping: 20 }}
   >
-    <Content type={type} content={content} />
+    <Content id={id} type={type} content={content} visible={visible} />
   </Motion.View>
 );
 

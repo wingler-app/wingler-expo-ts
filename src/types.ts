@@ -14,6 +14,14 @@ export interface RhinoInferenceObject {
 }
 
 export interface BotQA {
+  done?: boolean;
   question: string;
   answer: string | any;
 }
+
+export type Position = {
+  latitude: number;
+  longitude: number;
+  latitudeDelta?: number;
+  longitudeDelta?: number;
+};
