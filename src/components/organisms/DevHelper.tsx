@@ -54,7 +54,7 @@ const DevHelper = () => {
           type="list"
           onPress={() => devNav('/settings')}
         />
-        <Button type="list" title="Chat" onPress={() => devNav('/wingler')} />
+        <Button type="list" title="Chat" onPress={() => devNav('/home')} />
         <Button
           type="list"
           title="Clear Spotify Token"

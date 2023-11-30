@@ -9,15 +9,13 @@ import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA } from '@/types';
 import InferenceHandler, { prettyPrint } from '@/utils/inference';
 
-import Chat from '../organisms/Chat';
-import ContextInfo from '../organisms/ContextInfo';
-import DevHelper from '../organisms/DevHelper';
-import ListenerIndicator from '../organisms/ListenerIndicator';
+import ContextInfo from './ContextInfo';
+import ListenerIndicator from './ListenerIndicator';
 
 const ACCESS_KEY: string =
   'DL/kgn1cY69IfkfqQuomZtBsrFbnnSlXfjEKeunsnqHYb0gjgmJ7bw==';
 
-const WinglerBot = () => {
+const Wingler = () => {
   const [isListening, setIsListening] = useState<boolean>(false);
   const [rhinoText, setRhinoText] = useState<string>('');
   const [contextInfo, setContextInfo] = useState<string>('');
@@ -26,6 +24,7 @@ const WinglerBot = () => {
   const picovoiceManager = useRef<PicovoiceManager>();
   const fromVoiceBubbleType = useRef<string>('');
   const { addToHistory, clearHistory } = useHistoryStore();
+
   const onSpeechStart = () => {
     setIsSpeechToText(true);
   };
@@ -44,7 +43,8 @@ const WinglerBot = () => {
   };
 
   const onSpeechResults = (e: any) => {
-    if (e === undefined || e.value === undefined) return;
+    console.log('onSpeechResults', e);
+    if (e === undefined || e.value === undefined || e.value[0] === '') return;
     const botQA: BotQA = {
       question: e.value[0],
       answer: {
@@ -119,9 +119,10 @@ const WinglerBot = () => {
     };
   }, [addToHistory]);
 
+  if (!isListening) return null;
   return (
-    <View className="flex-1">
-      <View className="flex-1 justify-center bg-primary-dark">
+    <View className="absolute left-0 top-0 h-full w-full">
+      <View className="flex-1 justify-center">
         <ListenerIndicator
           isListening={isListening}
           isSpeechToText={isSpeechToText}
@@ -130,9 +131,6 @@ const WinglerBot = () => {
             clearHistory();
           }}
         />
-
-        <Chat />
-        <DevHelper />
       </View>
 
       <ContextInfo
@@ -144,4 +142,4 @@ const WinglerBot = () => {
   );
 };
 
-export default WinglerBot;
+export default Wingler;

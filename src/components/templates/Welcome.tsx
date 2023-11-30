@@ -34,7 +34,7 @@ const Welcome = () => {
   const onAuthStateChanged = (user: FirebaseAuthTypes.User | null) => {
     setTimeout(() => {
       if (user) {
-        router.push('wingler');
+        router.push('home');
         console.log('User is signed in');
       } else {
         setHasCheckedAuth(true);
