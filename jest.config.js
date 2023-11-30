@@ -20,6 +20,7 @@ module.exports = {
     '!**/babel.config.js',
     '!**/jest.setup.js',
     '!**/src/plugins/**',
+    '!**/src/styles/**',
   ],
   coverageThreshold: {
     global: {
