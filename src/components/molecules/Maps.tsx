@@ -8,7 +8,6 @@ import MapViewDirections from 'react-native-maps-directions';
 
 import { useGooglePlaces } from '@/services/GoogleMaps';
 import useHistoryStore from '@/store/useHistoryStore';
-import { useRefStore } from '@/store/useRefStore';
 import type { BotQA, Position } from '@/types';
 import { getMidpoint } from '@/utils/maps';
 
@@ -76,9 +75,8 @@ const MapsBubble = ({
   const mapRef = useRef<MapView | null>(null);
   const [myPos, setMyPos] = useState<Position>({ latitude: 0, longitude: 0 });
   const [loading, setLoading] = useState<boolean>(true);
-  const [img, setImg] = useState<string>(image || '');
+  const [img, setImg] = useState<string | null>(image || null);
   const { changeById } = useHistoryStore();
-  const { chatRef } = useRefStore();
 
   useEffect(() => {
     (async () => {
@@ -137,11 +135,10 @@ const MapsBubble = ({
       animated: false,
     });
     console.log('IMAGE: ', image);
-    if (!image) {
+    if (!img) {
       setTimeout(() => {
         takeSnapshot();
       }, 1000);
-      if (chatRef?.current) chatRef.current?.scrollToEnd({ animated: true });
     }
   };
 
