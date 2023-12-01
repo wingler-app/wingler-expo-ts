@@ -1,5 +1,6 @@
 import type { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import auth from '@react-native-firebase/auth';
+import { useFonts } from 'expo-font';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, PermissionsAndroid, Platform, Text, View } from 'react-native';
@@ -10,6 +11,11 @@ const test = require('../../../assets/logo.png');
 
 const Welcome = () => {
   const [hasCheckedAuth, setHasCheckedAuth] = useState<boolean>(false);
+  const [,] = useFonts({
+    'Moon-Regular': require('../../../assets/fonts/Moon2.0-Regular.otf'),
+    'Moon-Light': require('../../../assets/fonts/Moon2.0-Light.otf'),
+    'Moon-Bold': require('../../../assets/fonts/Moon2.0-Bold.otf'),
+  });
 
   const recordAudioRequest = async () => {
     if (Platform.OS === 'android') {

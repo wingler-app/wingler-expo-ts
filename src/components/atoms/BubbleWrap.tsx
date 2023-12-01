@@ -3,8 +3,8 @@ import { View } from 'react-native';
 
 const colorMapping = {
   default: 'bg-primary',
-  user: 'bg-primary',
-  answer: 'bg-accent-secondary',
+  user: 'bg-accent-secondary',
+  answer: 'bg-primary',
   askAI: 'bg-senary',
   music: 'bg-inc-spotify',
 };

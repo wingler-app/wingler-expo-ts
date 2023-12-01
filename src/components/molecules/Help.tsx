@@ -15,14 +15,15 @@ const helpHistory: HelpHistoryItem[] = [
       done: true,
       question: '',
       answer:
-        "Hello stranger,\nI'm wingler™, your very own personal assistant for the road!",
+        "**Hello traveler!**\n\nI'm [font-moon text-2xl text-primary-dark]wingler™[]- your very own personal assistant for the road!",
     },
     id: '1',
   },
   {
     botQA: {
       question: '',
-      answer: 'U can try saying:\n"wingler, play best of joy"',
+      answer:
+        'Take me for a spin, try saying:\n[text-primary-dark]wingler[], [text-accent]play song[], best of joy',
     },
     id: '2',
   },
@@ -30,7 +31,7 @@ const helpHistory: HelpHistoryItem[] = [
     botQA: {
       question: '',
       answer:
-        'Or ask for directions like this:\n"wingler, maps, restaurang i Eskilstuna"',
+        'Or ask for directions like this:\n[text-primary-dark]wingler[], [text-accent]maps[], restaurang i Eskilstuna',
     },
     id: '3',
   },
