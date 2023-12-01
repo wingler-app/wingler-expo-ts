@@ -49,10 +49,7 @@ export const goTo = (location: string): void => {
 const handleAppCommands = (slots: Slots) => {
   if (slots?.locations) {
     goTo(slots.locations);
-    return {
-      question: `Go to ${slots.locations}`,
-      answer: 'See you there!',
-    };
+    return null;
   }
   if (slots?.playback) {
     return {
