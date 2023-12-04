@@ -61,7 +61,6 @@ const Chat = () => {
   const [visibleItems, setVisibleItems] = useState<string[]>([]);
   const { setChatRef } = useRefStore();
   const { history } = useHistoryStore();
-
   const chatRef = useRef<FlatList<RhinoInferenceObject>>(null);
 
   const handleViewableItemsChanged = useCallback(
@@ -74,6 +73,7 @@ const Chat = () => {
 
   useEffect(() => {
     if (chatRef.current) setChatRef(chatRef);
+    // clearHistory();
   }, [chatRef, setChatRef]);
 
   return (
