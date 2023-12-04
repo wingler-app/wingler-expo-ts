@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 const useGooglePlaces = (question: string) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<any>(null);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -26,16 +27,18 @@ const useGooglePlaces = (question: string) => {
           },
         );
         await setData(await response.json());
-        setLoading(false);
       } catch (e) {
         console.error('Places API error: ', e);
+        setError(e);
+      } finally {
+        setLoading(false);
       }
     })();
 
     return () => abortController.abort();
   }, [question]);
 
-  return [data, loading];
+  return [data, loading, error];
 };
 
 export { useGooglePlaces };
