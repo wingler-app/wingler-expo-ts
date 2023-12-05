@@ -6,7 +6,7 @@ const Settings = () => (
   <>
     <Stack.Screen
       options={{
-        title: 'Wingler bot',
+        title: 'Settings',
       }}
     />
     {/* @ts-ignore */}

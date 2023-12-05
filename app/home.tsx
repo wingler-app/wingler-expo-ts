@@ -3,7 +3,7 @@ import * as Location from 'expo-location';
 import { Stack } from 'expo-router';
 import * as TaskManager from 'expo-task-manager';
 
-import WinglerBot from '@/components/templates/WinglerBot';
+import HomeTemplate from '@/components/templates/Home';
 
 const LOCATION_TASK_NAME = 'background-location-task';
 
@@ -54,17 +54,17 @@ TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
   }
 });
 
-const Wingler = () => (
+const Home = () => (
   <>
     <Stack.Screen
       options={{
-        title: 'Wingler bot',
+        title: 'Home',
       }}
     />
-    {/* <WinglerBot navigation={undefined} route={undefined} /> */}
+    {/* <HomeTemplate navigation={undefined} route={undefined} /> */}
     {/* @ts-ignore */}
-    <WinglerBot />
+    <HomeTemplate />
   </>
 );
 
-export default Wingler;
+export default Home;

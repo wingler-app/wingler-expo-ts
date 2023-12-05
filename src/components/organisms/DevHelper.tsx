@@ -41,7 +41,7 @@ const DevHelper = () => {
     <View className="w-full">
       <Button
         title=""
-        buttonStyle="absolute right-2 bottom-2 p-0 m-0 w-10 h-10 bg-red-600"
+        buttonStyle="absolute right-2 bottom-2 p-0 m-0 w-10 h-10 bg-primary-black"
         onPress={() => setIsOpen(true)}
       />
       <Modal
@@ -54,7 +54,7 @@ const DevHelper = () => {
           type="list"
           onPress={() => devNav('/settings')}
         />
-        <Button type="list" title="Chat" onPress={() => devNav('/wingler')} />
+        <Button type="list" title="Chat" onPress={() => devNav('/home')} />
         <Button
           type="list"
           title="Clear Spotify Token"
@@ -67,6 +67,7 @@ const DevHelper = () => {
           onPress={() => console.log(JSON.stringify(history, undefined, 2))}
         />
         <Button type="list" title="Brown Noise" onPress={handleBrownNoise} />
+        {/* <PlaceHolderText /> */}
       </Modal>
     </View>
   );

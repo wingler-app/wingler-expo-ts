@@ -18,7 +18,7 @@ const BubbleText = ({ children, dark, textStyle }: BubbleTextProps) => (
     }}
     className={`flex-wrap text-xl
       ${textStyle}
-    ${dark ? 'text-black' : 'text-white'}`}
+    ${dark ? 'text-black' : 'text-gray-200'}`}
   >
     {children}
   </Text>

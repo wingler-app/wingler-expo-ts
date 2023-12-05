@@ -8,7 +8,6 @@ import MapViewDirections from 'react-native-maps-directions';
 
 import { useGooglePlaces } from '@/services/GoogleMaps';
 import useHistoryStore from '@/store/useHistoryStore';
-import { useRefStore } from '@/store/useRefStore';
 import type { BotQA, Position } from '@/types';
 import { getMidpoint } from '@/utils/maps';
 
@@ -76,9 +75,8 @@ const MapsBubble = ({
   const mapRef = useRef<MapView | null>(null);
   const [myPos, setMyPos] = useState<Position>({ latitude: 0, longitude: 0 });
   const [loading, setLoading] = useState<boolean>(true);
-  const [img, setImg] = useState<string>(image || '');
+  const [img, setImg] = useState<string | null>(image || null);
   const { changeById } = useHistoryStore();
-  const { chatRef } = useRefStore();
 
   useEffect(() => {
     (async () => {
@@ -137,11 +135,10 @@ const MapsBubble = ({
       animated: false,
     });
     console.log('IMAGE: ', image);
-    if (!image) {
+    if (!img) {
       setTimeout(() => {
         takeSnapshot();
       }, 1000);
-      if (chatRef?.current) chatRef.current?.scrollToEnd({ animated: true });
     }
   };
 
@@ -169,6 +166,7 @@ const MapsBubble = ({
       ) : (
         <MapView
           ref={mapRef}
+          pitchEnabled
           className="h-[500] w-80 rounded-lg"
           provider={PROVIDER_GOOGLE}
           initialRegion={{
@@ -190,6 +188,7 @@ const MapsBubble = ({
             strokeColor={Colors.accent.secondary}
             origin={start}
             destination={adress}
+            mode="DRIVING"
             apikey={GOOGLE_MAPS_API_KEY}
           />
         </MapView>
@@ -205,7 +204,7 @@ const MapsGenerator = ({
 }: MapsGeneratorProps) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [myPos, setMyPos] = useState<Position>({ latitude: 0, longitude: 0 });
-  const [answerData, answerLoading] = useGooglePlaces(question);
+  const [answerData, answerLoading, answerError] = useGooglePlaces(question);
   const { changeById } = useHistoryStore();
 
   useEffect(() => {
@@ -221,8 +220,8 @@ const MapsGenerator = ({
   }, [question]);
 
   useEffect(() => {
-    if (answerData) {
-      console.log('got answer', answerData);
+    if (answerData && answerData?.places !== undefined && !answerError) {
+      console.log('Got an answer: ', answerData);
       const midpoint = getMidpoint(answerData.places[0].location, myPos);
       const botQA: BotQA = {
         done: true,
@@ -240,19 +239,28 @@ const MapsGenerator = ({
       };
       changeById(id, botQA);
     }
-  }, [answerData, changeById, id, myPos, question, type]);
+  }, [answerData, answerError, changeById, id, myPos, question, type]);
 
   if (loading || answerLoading)
     return (
       <BubbleWrap type="answer">
-        <BubbleText>Connecting to SkyNet... </BubbleText>
+        <BubbleText>Let me check my maps...</BubbleText>
+      </BubbleWrap>
+    );
+
+  if (answerError)
+    return (
+      <BubbleWrap type="answer">
+        <BubbleText>
+          Something didn&apos;t sit right.. {answerError.message}
+        </BubbleText>
       </BubbleWrap>
     );
 
   if (answerData?.places === undefined)
     return (
       <BubbleWrap type="answer">
-        <BubbleText>Sorry, theres no place like that...</BubbleText>
+        <BubbleText>Sorry, never heard of that place...</BubbleText>
       </BubbleWrap>
     );
 

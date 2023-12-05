@@ -18,7 +18,6 @@ const ListenerIndicator = ({
   isSpeechToText,
   onPress,
 }: ListenerIndicatorProps) => {
-  if (!isListening) return null;
   return (
     <AnimatedBlurView
       initialProps={{ intensity: 0 }}

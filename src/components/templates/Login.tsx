@@ -14,7 +14,7 @@ const RegisterTemplate = () => {
   const onAuthStateChanged = (user: FirebaseAuthTypes.User | null) => {
     setTimeout(() => {
       if (user) {
-        router.push('wingler');
+        router.replace('home');
         console.log('User is signed in');
       } else {
         setHasCheckedAuth(true);

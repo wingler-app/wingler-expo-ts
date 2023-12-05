@@ -3,10 +3,11 @@ import { View } from 'react-native';
 
 const colorMapping = {
   default: 'bg-primary',
-  user: 'bg-primary',
-  answer: 'bg-accent-secondary',
+  user: 'bg-accent-secondary',
+  answer: 'bg-primary',
   askAI: 'bg-senary',
   music: 'bg-inc-spotify',
+  image: 'bg-senary',
 };
 
 const padMapping = {
@@ -24,7 +25,7 @@ interface BubbleWrapProps {
 
 const BubbleWrap = ({ children, type, colors, padding }: BubbleWrapProps) => {
   const color = colors ? 'transparent' : colorMapping[type || 'default'];
-  const gradient = colors || ['#ffffff30', 'transparent', '#00000060'];
+  const gradient = colors || ['#ffffff20', 'transparent', '#00000040'];
   const paddingStyle = padMapping[padding || 'default'];
 
   return (

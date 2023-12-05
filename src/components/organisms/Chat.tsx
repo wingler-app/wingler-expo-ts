@@ -8,19 +8,23 @@ import type { RhinoInferenceObject } from '@/types';
 
 import Bubble from './Bubble'; // replace with your actual path
 
-type ViewableItem = {
-  item: any; // Replace 'any' with the type of your data
-  key: string;
-  index: number | null;
-  isViewable: boolean;
-  section?: any; // Replace 'any' with the type of your section data
-};
-
 interface QnAProps {
   item: RhinoInferenceObject;
   index: number;
   isVisible: boolean;
 }
+
+const fakeHistory = [
+  {
+    botQA: {
+      question: '',
+      answer: {
+        type: 'help',
+      },
+    },
+    id: '1',
+  },
+];
 
 const QnA = memo(({ item, index, isVisible }: QnAProps) => {
   const [show, setShow] = useState(item.botQA.done);
@@ -37,7 +41,7 @@ const QnA = memo(({ item, index, isVisible }: QnAProps) => {
 
   return (
     <View key={item.id} className={style}>
-      <Bubble type="user" content={question} />
+      {question !== '' && <Bubble type="user" content={question} />}
       {show &&
         (typeof answer === 'string' ? (
           <Bubble type="answer" content={answer} />
@@ -54,51 +58,46 @@ const QnA = memo(({ item, index, isVisible }: QnAProps) => {
 });
 
 const Chat = () => {
-  // export default function Chat() {
+  const [visibleItems, setVisibleItems] = useState<string[]>([]);
   const { setChatRef } = useRefStore();
   const { history } = useHistoryStore();
   const chatRef = useRef<FlatList<RhinoInferenceObject>>(null);
-  const [visibleItems, setVisibleItems] = useState<string[]>([]);
+
   const handleViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      const keys = viewableItems.map((item: ViewableItem) => item.key);
+      const keys = viewableItems.map((item: ViewToken) => item.key);
       setVisibleItems(keys);
     },
     [],
   );
 
   useEffect(() => {
-    if (chatRef.current) {
-      setChatRef(chatRef);
-    }
+    if (chatRef.current) setChatRef(chatRef);
+    // clearHistory();
   }, [chatRef, setChatRef]);
 
-  useEffect(() => {
-    chatRef.current?.scrollToEnd({ animated: true });
-  }, [history]);
-
   return (
-    <View>
-      <FlatList
-        ref={chatRef}
-        className="h-full"
-        data={history}
-        // initialScrollIndex={history.length - 1}
-        onViewableItemsChanged={handleViewableItemsChanged}
-        viewabilityConfig={{
-          itemVisiblePercentThreshold: 75,
-          minimumViewTime: 1000,
-        }}
-        renderItem={({ item, index }) => (
-          <QnA
-            key={item.id}
-            index={index}
-            item={item}
-            isVisible={visibleItems.includes(item.id)}
-          />
-        )}
-      />
-    </View>
+    <FlatList
+      ref={chatRef}
+      className="h-full"
+      data={history.length > 0 ? history : fakeHistory}
+      onViewableItemsChanged={handleViewableItemsChanged}
+      viewabilityConfig={{
+        itemVisiblePercentThreshold: 75,
+        minimumViewTime: 500,
+      }}
+      onContentSizeChange={() =>
+        chatRef.current?.scrollToEnd({ animated: true })
+      }
+      renderItem={({ item, index }) => (
+        <QnA
+          key={item.id}
+          index={index}
+          item={item}
+          isVisible={visibleItems.includes(item.id)}
+        />
+      )}
+    />
   );
 };
 

@@ -1,5 +1,10 @@
 import 'expo-router/entry';
 
+import * as SystemUI from 'expo-system-ui';
 import { LogBox } from 'react-native';
 
-LogBox.ignoreLogs(['new NativeEventEmitter()']);
+SystemUI.setBackgroundColorAsync('#151523');
+LogBox.ignoreLogs([
+  'new NativeEventEmitter()',
+  'MapViewDirections Error: Error on GMAPS route request: ZERO_RESULTS',
+]);
