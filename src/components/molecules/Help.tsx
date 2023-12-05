@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import type { BotQA } from '@/types';
 
 import Answer from './Answer';
+import ImageBubble from './Image';
 
 interface HelpHistoryItem {
   botQA: BotQA;
@@ -12,18 +13,31 @@ interface HelpHistoryItem {
 const helpHistory: HelpHistoryItem[] = [
   {
     botQA: {
-      done: true,
       question: '',
-      answer:
-        "**Hello traveler!**\n\nI'm [font-moon text-2xl text-primary-dark]wingler™[]- your very own personal assistant for the road!",
+      answer: {
+        uri: 'https://i.etsystatic.com/10823390/r/il/35be00/1353801568/il_570xN.1353801568_7l7w.jpg',
+      },
+    },
+    id: '0',
+  },
+  {
+    botQA: {
+      question: '',
+      answer: "Hello, I'm [font-moon text-xl text-accent]wingler™[]",
     },
     id: '1',
   },
   {
     botQA: {
       question: '',
-      answer:
-        'Take me for a spin, try saying:\n[text-primary-dark]wingler[], [text-accent]play song[], best of joy',
+      answer: `Your best buddy on the road!`,
+    },
+    id: '22',
+  },
+  {
+    botQA: {
+      question: '',
+      answer: `Play a song like this:                  [mb-2 bg-accent block text-primary-black px-3 rounded-full]wingler[] [bg-accent-secondary text-primary-black px-3 rounded-full]play song[] [bg-orange-500 text-primary-black px-3 rounded-full]best of joy[]`,
     },
     id: '2',
   },
@@ -31,9 +45,16 @@ const helpHistory: HelpHistoryItem[] = [
     botQA: {
       question: '',
       answer:
-        'Or ask for directions like this:\n[text-primary-dark]wingler[], [text-accent]maps[], restaurang i Eskilstuna',
+        'Or ask for directions like this:[mb-2 bg-accent block text-primary-black px-3 rounded-full]wingler[] [bg-accent-secondary text-primary-black px-3 rounded-full]maps[] [bg-orange-500 text-primary-black px-3 rounded-full]Stockholm[]',
     },
     id: '3',
+  },
+  {
+    botQA: {
+      question: '',
+      answer: 'Have fun!',
+    },
+    id: '4',
   },
 ];
 
@@ -54,7 +75,7 @@ const Help = () => {
       } else {
         clearInterval(interval);
       }
-    }, 2000);
+    }, 1000);
 
     return () => {
       clearInterval(interval);
@@ -77,7 +98,11 @@ const Help = () => {
           whileTap={{ y: 20 }}
           transition={{ type: 'spring', damping: 20 }}
         >
-          <Answer content={item.botQA.answer} />
+          {typeof item.botQA.answer === 'string' ? (
+            <Answer content={item.botQA.answer} />
+          ) : (
+            <ImageBubble content={item.botQA.answer.uri as string} />
+          )}
         </Motion.View>
       ))}
     </>

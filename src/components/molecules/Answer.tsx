@@ -1,6 +1,5 @@
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 
-import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';
 
 type ParsedContent = {
@@ -15,13 +14,13 @@ const parseContent = (content: string) => {
 
   segments.forEach((segment, index) => {
     const id = index.toString();
-    let style = '';
+    let style = 'text-xl text-white flex flex-wrap self-wrap ';
     let text = segment;
     if (/\*\*(.*?)\*\*/.test(segment)) {
-      style = 'font-bold';
+      style += 'font-bold';
       text = segment.slice(2, -2);
     } else if (/\*(.*?)\*/.test(segment)) {
-      style = 'font-italic';
+      style += 'font-italic';
       text = segment.slice(1, -1);
     } else if (/\[(.*?)\](.*?)\[\]/.test(segment)) {
       const match = /\[(.*?)\](.*?)\[\]/.exec(segment);
@@ -41,13 +40,21 @@ const Answer = ({ content }: { content: string }) => {
 
   return (
     <BubbleWrap type="answer">
-      <BubbleText>
+      <View className="flex-1 flex-row flex-wrap items-baseline">
         {parsedContent.map((item) => (
-          <Text key={item.id} className={item.style}>
+          <Text
+            style={{
+              textShadowColor: 'rgba(0, 0, 0, .1)',
+              textShadowOffset: { width: 1, height: 1 },
+              textShadowRadius: 1,
+            }}
+            key={item.id}
+            className={item.style}
+          >
             {item.text}
           </Text>
         ))}
-      </BubbleText>
+      </View>
     </BubbleWrap>
   );
 };
