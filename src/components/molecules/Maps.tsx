@@ -1,5 +1,6 @@
 import { GOOGLE_MAPS_API_KEY } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { memo, useEffect, useRef, useState } from 'react';
 import { Image } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
@@ -15,6 +16,7 @@ import { getMidpoint } from '@/utils/maps';
 import * as Colors from '../../styles/colors';
 import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';
+import Button from '../atoms/Button';
 
 type Locations = {
   start: Position;
@@ -47,7 +49,7 @@ interface MapsBubbleProps extends BaseProps {
   content: Content & { locations: Locations }; // locations is always defined
 }
 
-const getData = async () => {
+export const getData = async () => {
   try {
     const jsonValue = await AsyncStorage.getItem('@Coords');
     return jsonValue != null ? JSON.parse(jsonValue) : null;
@@ -58,7 +60,7 @@ const getData = async () => {
 
 const imageLogo = require('../../../assets/logo.png');
 
-const MyCustomMarkerView = memo(() => (
+export const MyCustomMarkerView = memo(() => (
   <Image className="m-0 h-[19] w-[20]" source={imageLogo} />
 ));
 
@@ -77,6 +79,8 @@ const MapsBubble = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [img, setImg] = useState<string | null>(image || null);
   const { changeById } = useHistoryStore();
+
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -156,7 +160,7 @@ const MapsBubble = ({
   if (loading) return null;
 
   return (
-    <BubbleWrap padding="none" colors={['transparent', 'transparent']}>
+    <BubbleWrap padding="none" type="answer">
       {img && !visible ? (
         <Image
           className="h-[500] w-[320]"
@@ -193,6 +197,21 @@ const MapsBubble = ({
           />
         </MapView>
       )}
+      <Button
+        buttonStyle="mt-6"
+        title="Start the ride"
+        onPress={() =>
+          router.push({
+            pathname: '/driving',
+            params: {
+              start: JSON.stringify(start),
+              mid: JSON.stringify(mid),
+              answer: JSON.stringify(answer),
+              adress,
+            },
+          })
+        }
+      />
     </BubbleWrap>
   );
 };
