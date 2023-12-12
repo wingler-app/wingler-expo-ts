@@ -7,6 +7,7 @@ import type { MapDirectionsResponse } from 'react-native-maps-directions';
 import MapViewDirections from 'react-native-maps-directions';
 
 import useMagnetometer from '@/hooks/useMagnetometer';
+import useUserStore from '@/store/useUserStore';
 import type { Position } from '@/types';
 
 // @ts-ignore
@@ -27,6 +28,8 @@ const DrivingTemplate = () => {
   const [duration, setDuration] = useState<number>(0);
   const { magnetometer, degree, direction } = useMagnetometer();
 
+  const { coords } = useUserStore();
+
   const params = useLocalSearchParams<{
     start: string;
     mid: string;
@@ -39,6 +42,15 @@ const DrivingTemplate = () => {
   const answer = JSON.parse(params.answer || '');
   const adress = adressParser(params.adress || '');
   const mapRef = useRef<MapView | null>(null);
+
+  useEffect(() => {
+    if (coords) {
+      setMyPos({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      });
+    }
+  }, [coords]);
 
   useEffect(() => {
     (async () => {

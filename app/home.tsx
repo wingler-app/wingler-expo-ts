@@ -4,6 +4,8 @@ import { Stack } from 'expo-router';
 import * as TaskManager from 'expo-task-manager';
 
 import HomeTemplate from '@/components/templates/Home';
+import type { Coords } from '@/store/useUserStore';
+import useUserStore from '@/store/useUserStore';
 
 const LOCATION_TASK_NAME = 'background-location-task';
 
@@ -27,15 +29,7 @@ type LocationData = {
 };
 
 type LocationObject = {
-  coords: {
-    latitude: number;
-    longitude: number;
-    altitude: number | null;
-    accuracy: number | null;
-    altitudeAccuracy: number | null;
-    heading: number | null;
-    speed: number | null;
-  };
+  coords: Coords;
   timestamp: number;
 };
 
@@ -48,6 +42,7 @@ TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
     const { locations } = data as LocationData;
     if (locations[0]) {
       console.log(locations[0].coords);
+      useUserStore.getState().setCoords(locations[0].coords);
       AsyncStorage.setItem('@Coords', JSON.stringify(locations[0].coords));
     }
     // do something with the locations captured in the background
