@@ -37,6 +37,36 @@ const DevHelper = () => {
     addToHistory(botQA);
   };
 
+  const handleMapsDemo = () => {
+    const botQA: BotQA = {
+      done: true,
+      question: 'McDonalds',
+      answer: {
+        question: 'McDonalds',
+        image: null,
+        locations: {
+          start: {
+            latitude: 59.3739838,
+            longitude: 16.5047215,
+          },
+          mid: {
+            latitude: 59.37284779285594,
+            longitude: 16.5080686120936,
+            latitudeDelta: 0.0027265199999902735,
+            longitudeDelta: 0.00803279999999944,
+          },
+          answer: {
+            latitude: 59.371711700000006,
+            longitude: 16.5114155,
+          },
+          adress: 'Kriebsensgatan 6, 632 20 Eskilstuna, Sweden',
+        },
+        type: 'maps',
+      },
+    };
+    addToHistory(botQA);
+  };
+
   return (
     <View className="w-full">
       <Button
@@ -67,6 +97,7 @@ const DevHelper = () => {
           onPress={() => console.log(JSON.stringify(history, undefined, 2))}
         />
         <Button type="list" title="Brown Noise" onPress={handleBrownNoise} />
+        <Button type="list" title="Maps Demo" onPress={handleMapsDemo} />
         {/* <PlaceHolderText /> */}
       </Modal>
     </View>
