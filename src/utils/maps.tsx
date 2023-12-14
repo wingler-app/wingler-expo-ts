@@ -31,3 +31,28 @@ export function getMidpoint(pos1: Position, pos2: Position): Position {
     longitudeDelta: lonDelta,
   };
 }
+
+export const adressParser = (input: string): string[] => {
+  const splitInput = input.split(',', 2);
+  splitInput[1] = splitInput[1]?.replace(', Sweden', '') || '';
+  return splitInput;
+};
+
+export function getDistance(pointA: Position, pointB: Position) {
+  const R = 6371e3; // Earth's radius in meters
+  const lat1 = (pointA.latitude * Math.PI) / 180; // Convert degrees to radians
+  const lat2 = (pointB.latitude * Math.PI) / 180;
+  const deltaLat = ((pointB.latitude - pointA.latitude) * Math.PI) / 180;
+  const deltaLon = ((pointB.longitude - pointA.longitude) * Math.PI) / 180;
+
+  const a =
+    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(lat1) *
+      Math.cos(lat2) *
+      Math.sin(deltaLon / 2) *
+      Math.sin(deltaLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  const distance = R * c; // Distance in meters
+  return distance;
+}

@@ -18,7 +18,7 @@ import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';
 import Button from '../atoms/Button';
 
-type Locations = {
+export type Locations = {
   start: Position;
   mid: Position;
   answer: Position;

@@ -1,12 +1,14 @@
 import { styled } from 'nativewind';
-import type { TextProps } from 'react-native';
+import type { StyleProp, TextProps, ViewStyle } from 'react-native';
 import { Text, View } from 'react-native';
+
+import { P } from '../atoms/Words';
 
 interface FancyValueProps {
   title: string;
   value: string | number;
   type?: keyof typeof typeToSuffix;
-  style?: object;
+  style?: StyleProp<ViewStyle>;
   className?: TextProps['style'];
   textStyle?: TextProps['style'];
 }
@@ -39,9 +41,9 @@ const FancyValue = ({
       >
         {title}
       </Text>
-      <Text style={textStyle} className="text-xl text-white">
+      <P dark style={textStyle}>
         {formatValue()}
-      </Text>
+      </P>
     </View>
   );
 };
