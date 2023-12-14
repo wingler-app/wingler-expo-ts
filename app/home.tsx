@@ -17,7 +17,7 @@ const requestPermissions = async () => {
       await Location.requestBackgroundPermissionsAsync();
     if (backgroundStatus === 'granted') {
       await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-        accuracy: Location.Accuracy.Balanced,
+        accuracy: Location.Accuracy.BestForNavigation,
       });
     }
   }
@@ -41,7 +41,6 @@ TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
   if (data) {
     const { locations } = data as LocationData;
     if (locations[0]) {
-      console.log(locations[0].coords);
       useUserStore.getState().setCoords(locations[0].coords);
       AsyncStorage.setItem('@Coords', JSON.stringify(locations[0].coords));
     }

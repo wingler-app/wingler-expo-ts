@@ -22,6 +22,25 @@ const adressParser = (input: string): string[] => {
   return splitInput;
 };
 
+function getDistance(pointA: Position, pointB: Position) {
+  const R = 6371e3; // Earth's radius in meters
+  const lat1 = (pointA.latitude * Math.PI) / 180; // Convert degrees to radians
+  const lat2 = (pointB.latitude * Math.PI) / 180;
+  const deltaLat = ((pointB.latitude - pointA.latitude) * Math.PI) / 180;
+  const deltaLon = ((pointB.longitude - pointA.longitude) * Math.PI) / 180;
+
+  const a =
+    Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(lat1) *
+      Math.cos(lat2) *
+      Math.sin(deltaLon / 2) *
+      Math.sin(deltaLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  const distance = R * c; // Distance in meters
+  return distance;
+}
+
 const DrivingTemplate = () => {
   const [myPos, setMyPos] = useState<Position>({ latitude: 0, longitude: 0 });
   const [distance, setDistance] = useState<number>(0);
@@ -44,13 +63,16 @@ const DrivingTemplate = () => {
   const mapRef = useRef<MapView | null>(null);
 
   useEffect(() => {
+    console.log('useEffect');
     if (coords) {
-      setMyPos({
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-      });
+      if (getDistance(myPos, coords) > 5) {
+        setMyPos({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
+      }
     }
-  }, [coords]);
+  }, [coords, myPos]);
 
   useEffect(() => {
     (async () => {
@@ -139,7 +161,7 @@ const DrivingTemplate = () => {
       </MapView>
       <SliderMenu backButton="Back to Chat">
         <View className="py-6">
-          <Text className="text-center text-2xl text-accent-secondary">
+          <Text className="text-center text-4xl text-accent-secondary">
             {adress[0]}
           </Text>
           <Text className="mb-10 text-center text-xl text-white">
