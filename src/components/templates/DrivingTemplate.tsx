@@ -19,7 +19,7 @@ import { adressParser, getDistance } from '@/utils/maps';
 // @ts-ignore
 import * as Colors from '../../styles/colors';
 import Button from '../atoms/Button';
-import { H1, P } from '../atoms/Words';
+import { H, P } from '../atoms/Words';
 import FancyValue from '../molecules/FancyValue';
 import type { Locations } from '../molecules/Maps';
 import { getData, MyCustomMarkerView } from '../molecules/Maps';
@@ -160,7 +160,7 @@ const DrivingTemplate = () => {
           onError={handleError}
           strokeWidth={6}
           strokeColor={Colors.accent.secondary}
-          origin={start}
+          origin={myPos}
           destination={answer}
           mode="DRIVING"
           apikey={GOOGLE_MAPS_API_KEY}
@@ -168,7 +168,7 @@ const DrivingTemplate = () => {
       </MapView>
       <SliderMenu backButton="Back to Chat">
         <View className="py-6">
-          <H1 dark>{adress[0]}</H1>
+          <H dark>{adress[0]}</H>
           <P dark className="mb-10">
             {adress[1]}
           </P>
