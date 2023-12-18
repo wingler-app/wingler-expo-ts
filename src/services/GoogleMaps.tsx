@@ -18,7 +18,8 @@ const useGooglePlaces = (question: string) => {
             headers: {
               'Content-Type': 'application/json',
               'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
-              'X-Goog-FieldMask': 'places.location,places.formattedAddress',
+              'X-Goog-FieldMask':
+                'places.location,places.formattedAddress,places.address_components',
             },
             body: JSON.stringify({
               textQuery: question,
