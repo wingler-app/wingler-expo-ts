@@ -2,7 +2,12 @@ import { GOOGLE_MAPS_API_KEY } from '@env';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import type { MapMarker } from 'react-native-maps';
+import MapView, {
+  Marker,
+  MarkerAnimated,
+  PROVIDER_GOOGLE,
+} from 'react-native-maps';
 import type { MapDirectionsResponse } from 'react-native-maps-directions';
 import MapViewDirections from 'react-native-maps-directions';
 
@@ -13,6 +18,7 @@ import { adressParser, getDistance } from '@/utils/maps';
 
 // @ts-ignore
 import * as Colors from '../../styles/colors';
+import Button from '../atoms/Button';
 import { H1, P } from '../atoms/Words';
 import FancyValue from '../molecules/FancyValue';
 import type { Locations } from '../molecules/Maps';
@@ -28,8 +34,10 @@ type Params = {
 
 const DrivingTemplate = () => {
   const [myPos, setMyPos] = useState<Position>({ latitude: 0, longitude: 0 });
+  const [mapPos, setMapPos] = useState<Position>({ latitude: 0, longitude: 0 });
   const [distance, setDistance] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
+  const [autoRotate, setAutoRotate] = useState<boolean>(true);
   const { magnetometer, degree, direction } = useMagnetometer();
 
   const { coords } = useUserStore();
@@ -40,25 +48,40 @@ const DrivingTemplate = () => {
   const mid = JSON.parse(params.mid || '') as Locations['mid'];
   const answer = JSON.parse(params.answer || '') as Locations['answer'];
   const adress = adressParser(params.adress || '') as string[];
+
   const mapRef = useRef<MapView | null>(null);
+  const myPosRef = useRef<MapMarker | null>(null);
 
   useEffect(() => {
-    console.log('useEffect');
     if (coords) {
+      if (getDistance(mapPos, coords) > 10) {
+        setMapPos({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
+      }
       if (getDistance(myPos, coords) > 5) {
         setMyPos({
           latitude: coords.latitude,
           longitude: coords.longitude,
         });
+        if (myPosRef.current)
+          myPosRef.current.animateMarkerToCoordinate(
+            {
+              latitude: coords.latitude,
+              longitude: coords.longitude,
+            },
+            500,
+          );
       }
     }
-  }, [coords, myPos]);
+  }, [coords, myPos, mapPos]);
 
   useEffect(() => {
     (async () => {
       try {
         const data = await getData();
-        setMyPos({
+        setMapPos({
           latitude: data.latitude,
           longitude: data.longitude,
         });
@@ -73,18 +96,18 @@ const DrivingTemplate = () => {
       mapRef.current.animateCamera(
         {
           center: {
-            latitude: myPos.latitude,
-            longitude: myPos.longitude,
+            latitude: mapPos.latitude,
+            longitude: mapPos.longitude,
           },
           pitch: 45,
-          heading: degree,
+          ...(autoRotate && { heading: degree }),
           // altitude: 10,
           // zoom: 19,
         },
         { duration: 500 },
       );
     }
-  }, [myPos, degree]);
+  }, [mapPos, degree, autoRotate]);
 
   const handleOnReady = (result: MapDirectionsResponse): any => {
     setDistance(result.distance);
@@ -114,8 +137,8 @@ const DrivingTemplate = () => {
         provider={PROVIDER_GOOGLE}
         initialCamera={{
           center: {
-            latitude: myPos.latitude,
-            longitude: myPos.longitude,
+            latitude: mapPos.latitude,
+            longitude: mapPos.longitude,
           },
           pitch: 45,
           heading: degree,
@@ -125,9 +148,13 @@ const DrivingTemplate = () => {
       >
         <Marker coordinate={start} title="My start position" />
         <Marker coordinate={answer} title={adress[0]} />
-        <Marker coordinate={myPos} title="My current position">
+        <MarkerAnimated
+          ref={myPosRef}
+          coordinate={myPos}
+          title="My current position"
+        >
           <MyCustomMarkerView />
-        </Marker>
+        </MarkerAnimated>
         <MapViewDirections
           onReady={handleOnReady}
           onError={handleError}
@@ -146,7 +173,7 @@ const DrivingTemplate = () => {
             {adress[1]}
           </P>
 
-          <View className="flex flex-row justify-center gap-8">
+          <View className="mb-10 flex flex-row justify-center gap-x-8">
             <FancyValue
               title="Distance"
               value={distance.toFixed(1)}
@@ -160,6 +187,15 @@ const DrivingTemplate = () => {
               title="Duration"
               value={duration.toFixed(1)}
               type="duration"
+            />
+          </View>
+          <View className="">
+            <Button
+              icon="compass-outline"
+              type="slider"
+              title="Auto Rotate"
+              active={autoRotate}
+              onPress={() => setAutoRotate((prev) => !prev)}
             />
           </View>
         </View>
