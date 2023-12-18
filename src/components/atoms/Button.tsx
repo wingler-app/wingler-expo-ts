@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { styled } from 'nativewind';
 import { useState } from 'react';
-import type { TextProps } from 'react-native';
+import type { StyleProp, TextProps, ViewStyle } from 'react-native';
 import { Pressable, Text } from 'react-native';
 
 interface CommonProps {
+  style?: StyleProp<ViewStyle>;
   onPress: () => void;
   buttonStyle?: TextProps['style'];
   textStyle?: TextProps['style'];
@@ -12,6 +13,7 @@ interface CommonProps {
   type?: keyof typeof buttonTypeMap;
   iconAfter?: boolean;
   active?: boolean;
+  iconSize?: number;
 }
 
 interface IconProps extends CommonProps {
@@ -51,11 +53,12 @@ const buttonTypeMap = {
     textStyle: 'px-4 tracking-widest text-white dark:text-secondary',
   },
   minimal: {
-    baseStyle: 'flex mb-6 rounded-full px-4 bg-gray-100 flex-row py-2 w-auto',
-    pressedStyle: '',
+    baseStyle:
+      'flex mb-6 rounded-full px-[10] border-[1px] border-[#ffffff50] bg-[#ffffff50] flex-row py-2 w-auto',
+    pressedStyle: 'bg-white text-black',
     pressedTextStyle: '',
     disabledStyle: '',
-    textStyle: 'text-center tracking-widest text-black dark:text-primary',
+    textStyle: 'text-center tracking-widest text-white',
   },
   slider: {
     baseStyle:
@@ -69,6 +72,7 @@ const buttonTypeMap = {
 };
 
 function Button({
+  style,
   onPress,
   buttonStyle,
   textStyle,
@@ -76,6 +80,7 @@ function Button({
   type,
   iconAfter,
   active,
+  iconSize,
   ...rest
 }: ButtonProps) {
   const { icon, title } = rest as IconProps & TitleProps;
@@ -92,15 +97,20 @@ function Button({
   };
 
   const handleIconColor = () => {
-    if (type !== 'slider') return 'black';
+    if (type !== 'slider' && type !== 'minimal') return 'black';
     return isPressed || active ? 'black' : 'white';
+  };
+
+  const handleIconSize = () => {
+    if (!iconSize) return type === 'slider' ? 32 : 26;
+    return iconSize;
   };
 
   return (
     <Pressable
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
-      style={buttonStyle}
+      style={[buttonStyle, style]}
       className={`${styles.baseStyle}
         ${isPressed && styles.pressedStyle}
         ${active && styles.pressedStyle}
@@ -113,7 +123,7 @@ function Button({
         <Ionicons
           className=""
           name={icon}
-          size={type === 'slider' ? 32 : 26}
+          size={handleIconSize()}
           color={handleIconColor()}
         />
       )}
