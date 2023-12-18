@@ -11,6 +11,7 @@ interface CommonProps {
   disabled?: boolean;
   type?: keyof typeof buttonTypeMap;
   iconAfter?: boolean;
+  active?: boolean;
 }
 
 interface IconProps extends CommonProps {
@@ -56,6 +57,15 @@ const buttonTypeMap = {
     disabledStyle: '',
     textStyle: 'text-center tracking-widest text-black dark:text-primary',
   },
+  slider: {
+    baseStyle:
+      'flex p-1 flex-col items-center rounded-md w-auto self-center border-[1px] border-white',
+    pressedStyle: 'bg-accent-secondary border-transparent',
+    pressedTextStyle: 'text-white dark:text-primary-dark',
+    disabledStyle: 'bg-gray-400',
+    textStyle:
+      'text-[10px] font-bold flex text-center uppercase mt-2 text-primary-dark dark:text-white',
+  },
 };
 
 function Button({
@@ -65,6 +75,7 @@ function Button({
   disabled,
   type,
   iconAfter,
+  active,
   ...rest
 }: ButtonProps) {
   const { icon, title } = rest as IconProps & TitleProps;
@@ -80,29 +91,40 @@ function Button({
     onPress();
   };
 
+  const handleIconColor = () => {
+    if (type !== 'slider') return 'black';
+    return isPressed || active ? 'black' : 'white';
+  };
+
   return (
     <Pressable
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
       style={buttonStyle}
-      className={`${styles.baseStyle} ${isPressed && styles.pressedStyle}
-        ${disabled && styles.disabledStyle} ${buttonStyle}`}
+      className={`${styles.baseStyle}
+        ${isPressed && styles.pressedStyle}
+        ${active && styles.pressedStyle}
+        ${disabled && styles.disabledStyle}
+        ${buttonStyle}
+      `}
       onPress={handleOnPress}
     >
       {icon && !iconAfter && (
         <Ionicons
-          className="bg-red-600 p-3"
+          className=""
           name={icon}
-          size={26}
-          color="black"
+          size={type === 'slider' ? 32 : 26}
+          color={handleIconColor()}
         />
       )}
       <Text
         style={textStyle}
         className={`${styles.textStyle}
         ${isPressed && styles.pressedTextStyle}
+        ${active && styles.pressedTextStyle}
         ${icon && !iconAfter && title && 'ml-2'}
         ${icon && iconAfter && title && 'mr-2'}
+        ${type === 'slider' && 'mr-2'}
         `}
       >
         {title && title}
