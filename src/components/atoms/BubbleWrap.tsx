@@ -8,6 +8,7 @@ const colorMapping = {
   askAI: 'bg-senary',
   music: 'bg-inc-spotify',
   image: 'bg-senary',
+  map: 'bg-[#c0abff50]',
 };
 
 const padMapping = {

@@ -1,7 +1,8 @@
 import { GOOGLE_MAPS_API_KEY } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { memo, useEffect, useRef, useState } from 'react';
-import { Image } from 'react-native';
+import { Image, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import type { MapDirectionsResponse } from 'react-native-maps-directions';
 import MapViewDirections from 'react-native-maps-directions';
@@ -9,18 +10,21 @@ import MapViewDirections from 'react-native-maps-directions';
 import { useGooglePlaces } from '@/services/GoogleMaps';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA, Position } from '@/types';
-import { getMidpoint } from '@/utils/maps';
+import { adressParser, getMidpoint } from '@/utils/maps';
 
 // @ts-ignore
 import * as Colors from '../../styles/colors';
 import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';
+import Button from '../atoms/Button';
+import { H, P } from '../atoms/Words';
 
-type Locations = {
+export type Locations = {
   start: Position;
   mid: Position;
   answer: Position;
   adress: string;
+  city: string;
 };
 
 type Content = {
@@ -47,7 +51,7 @@ interface MapsBubbleProps extends BaseProps {
   content: Content & { locations: Locations }; // locations is always defined
 }
 
-const getData = async () => {
+export const getData = async () => {
   try {
     const jsonValue = await AsyncStorage.getItem('@Coords');
     return jsonValue != null ? JSON.parse(jsonValue) : null;
@@ -58,13 +62,13 @@ const getData = async () => {
 
 const imageLogo = require('../../../assets/logo.png');
 
-const MyCustomMarkerView = memo(() => (
+export const MyCustomMarkerView = memo(() => (
   <Image className="m-0 h-[19] w-[20]" source={imageLogo} />
 ));
 
 const MapsBubble = ({
   content: {
-    locations: { start, mid, answer, adress },
+    locations: { start, mid, answer, adress, city },
     image,
     question,
   },
@@ -77,6 +81,9 @@ const MapsBubble = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [img, setImg] = useState<string | null>(image || null);
   const { changeById } = useHistoryStore();
+
+  const adresses = adressParser(adress);
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -116,6 +123,7 @@ const MapsBubble = ({
           mid,
           answer,
           adress,
+          city,
         },
         type,
       },
@@ -145,7 +153,7 @@ const MapsBubble = ({
   const handleOnReady = (result: MapDirectionsResponse): any => {
     // console.log(`Distance: ${result.distance} km`);
     // console.log(`Duration: ${result.duration} min.`);
-    fitCoords([...result.coordinates, answer, start, myPos]);
+    fitCoords([...result.coordinates, answer, start]);
   };
 
   const handleError = (errorMessage: string): any => {
@@ -156,7 +164,7 @@ const MapsBubble = ({
   if (loading) return null;
 
   return (
-    <BubbleWrap padding="none" colors={['transparent', 'transparent']}>
+    <BubbleWrap padding="none" type="map">
       {img && !visible ? (
         <Image
           className="h-[500] w-[320]"
@@ -193,6 +201,38 @@ const MapsBubble = ({
           />
         </MapView>
       )}
+      <View className="pb-4 pt-3">
+        <H size="2xl">{adresses[0]}</H>
+        <P dark>{city}</P>
+      </View>
+      <View className="flex flex-row justify-center gap-x-4">
+        <Button
+          type="minimal"
+          icon="md-chevron-back"
+          onPress={() => console.log('left')}
+        />
+        <Button
+          iconAfter
+          icon="car"
+          title="Directions"
+          onPress={() =>
+            router.push({
+              pathname: '/driving',
+              params: {
+                start: JSON.stringify(start),
+                mid: JSON.stringify(mid),
+                answer: JSON.stringify(answer),
+                adress,
+              },
+            })
+          }
+        />
+        <Button
+          type="minimal"
+          icon="md-chevron-forward"
+          onPress={() => console.log('right')}
+        />
+      </View>
     </BubbleWrap>
   );
 };
@@ -220,9 +260,18 @@ const MapsGenerator = ({
   }, [question]);
 
   useEffect(() => {
+    const getCity = (addressComponents: Array<Record<string, any>>) => {
+      const cityComponent = addressComponents.find(
+        (component) => component.types?.includes('postal_town'),
+      );
+      console.log('component: ', cityComponent);
+      return cityComponent ? cityComponent.longText : null;
+    };
+
     if (answerData && answerData?.places !== undefined && !answerError) {
-      console.log('Got an answer: ', answerData);
+      console.log('Got an answer: ', answerData.places[0].addressComponents);
       const midpoint = getMidpoint(answerData.places[0].location, myPos);
+      const city = getCity(answerData.places[0].addressComponents);
       const botQA: BotQA = {
         done: true,
         question,
@@ -233,6 +282,7 @@ const MapsGenerator = ({
             mid: midpoint,
             answer: answerData.places[0].location,
             adress: answerData.places[0].formattedAddress,
+            city,
           },
           type,
         },

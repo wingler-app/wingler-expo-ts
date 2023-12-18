@@ -4,6 +4,8 @@ import { Stack } from 'expo-router';
 import * as TaskManager from 'expo-task-manager';
 
 import HomeTemplate from '@/components/templates/Home';
+import type { Coords } from '@/store/useUserStore';
+import useUserStore from '@/store/useUserStore';
 
 const LOCATION_TASK_NAME = 'background-location-task';
 
@@ -15,7 +17,7 @@ const requestPermissions = async () => {
       await Location.requestBackgroundPermissionsAsync();
     if (backgroundStatus === 'granted') {
       await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-        accuracy: Location.Accuracy.Balanced,
+        accuracy: Location.Accuracy.BestForNavigation,
       });
     }
   }
@@ -27,15 +29,7 @@ type LocationData = {
 };
 
 type LocationObject = {
-  coords: {
-    latitude: number;
-    longitude: number;
-    altitude: number | null;
-    accuracy: number | null;
-    altitudeAccuracy: number | null;
-    heading: number | null;
-    speed: number | null;
-  };
+  coords: Coords;
   timestamp: number;
 };
 
@@ -47,7 +41,7 @@ TaskManager.defineTask(LOCATION_TASK_NAME, ({ data, error }) => {
   if (data) {
     const { locations } = data as LocationData;
     if (locations[0]) {
-      console.log(locations[0].coords);
+      useUserStore.getState().setCoords(locations[0].coords);
       AsyncStorage.setItem('@Coords', JSON.stringify(locations[0].coords));
     }
     // do something with the locations captured in the background

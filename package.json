@@ -24,6 +24,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@expo/vector-icons": "^13.0.0",
     "@legendapp/motion": "^2.2.1",
     "@picovoice/cheetah-react-native": "^1.1.1",
     "@picovoice/picovoice-react-native": "^3.0.0",
