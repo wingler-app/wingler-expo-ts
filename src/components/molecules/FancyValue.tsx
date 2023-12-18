@@ -36,7 +36,7 @@ const FancyValue = ({
   return (
     <View style={[style, className]} className="items-center">
       <Text
-        className="font-bold uppercase tracking-wider text-accent"
+        className="text-xs font-bold uppercase tracking-wider text-accent"
         style={textStyle}
       >
         {title}
