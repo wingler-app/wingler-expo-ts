@@ -10,7 +10,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import { useGooglePlaces } from '@/services/GoogleMaps';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA, Position } from '@/types';
-import { adressParser, getMidpoint } from '@/utils/maps';
+import { adressParser, getCity, getMidpoint } from '@/utils/maps';
 
 // @ts-ignore
 import * as Colors from '../../styles/colors';
@@ -80,8 +80,8 @@ const MapsBubble = ({
   const [myPos, setMyPos] = useState<Position>({ latitude: 0, longitude: 0 });
   const [loading, setLoading] = useState<boolean>(true);
   const [img, setImg] = useState<string | null>(image || null);
-  const { changeById } = useHistoryStore();
 
+  const { changeById } = useHistoryStore();
   const adresses = adressParser(adress);
   const router = useRouter();
 
@@ -110,25 +110,25 @@ const MapsBubble = ({
     });
     snapshot?.then((uri) => {
       setImg(uri);
-    });
 
-    const botQA: BotQA = {
-      done: true,
-      question,
-      answer: {
+      const botQA: BotQA = {
+        done: true,
         question,
-        image: img,
-        locations: {
-          start,
-          mid,
-          answer,
-          adress,
-          city,
+        answer: {
+          question,
+          image: uri,
+          locations: {
+            start,
+            mid,
+            answer,
+            adress,
+            city,
+          },
+          type,
         },
-        type,
-      },
-    };
-    changeById(id, botQA);
+      };
+      changeById(id, botQA);
+    });
   };
 
   const fitCoords = (coords: Array<Position>) => {
@@ -142,7 +142,7 @@ const MapsBubble = ({
       },
       animated: false,
     });
-    console.log('IMAGE: ', image);
+
     if (!img) {
       setTimeout(() => {
         takeSnapshot();
@@ -260,14 +260,6 @@ const MapsGenerator = ({
   }, [question]);
 
   useEffect(() => {
-    const getCity = (addressComponents: Array<Record<string, any>>) => {
-      const cityComponent = addressComponents.find(
-        (component) => component.types?.includes('postal_town'),
-      );
-      console.log('component: ', cityComponent);
-      return cityComponent ? cityComponent.longText : null;
-    };
-
     if (answerData && answerData?.places !== undefined && !answerError) {
       console.log('Got an answer: ', answerData.places[0].addressComponents);
       const midpoint = getMidpoint(answerData.places[0].location, myPos);
