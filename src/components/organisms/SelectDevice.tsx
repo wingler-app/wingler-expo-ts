@@ -8,6 +8,7 @@ import type { DeviceType, FetchError } from '@/types/spotify';
 import { spotifyFetch } from '@/utils/spotify';
 
 import useToken from '../../hooks/spotify/useToken';
+import { P } from '../atoms/Words';
 
 const SelectDevice = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -77,7 +78,9 @@ const SelectDevice = () => {
           onClose={() => setShowDevices(false)}
         >
           {error ? (
-            <Text className="text-white">{error.message}</Text>
+            <P dark size="sm" className="px-4 text-left">
+              {error.message}
+            </P>
           ) : (
             <>
               {devices.map(({ id, name }) => (
