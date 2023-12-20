@@ -99,15 +99,8 @@ const MapsBubble = ({
   const [adresses, setAdresses] = useState<string[]>(
     adressParser(destinations[destinationIndex || 0].formattedAddress),
   );
-  // const { clearHistory } = useHistoryStore();
-  // clearHistory();
-  // const answer = destination.location;
-  // const mid = getMidpoint(answer, start);
-  // const city = getCity(destination.addressComponents);
-  // const adress = destination.formattedAddress;
 
   const { changeById } = useHistoryStore();
-  // const adresses = adressParser(adress);
   const router = useRouter();
 
   useEffect(() => {
@@ -186,19 +179,21 @@ const MapsBubble = ({
   };
 
   const destinationSwitcher = (value: 'increment' | 'decrement') => () => {
-    console.log('Switching destination');
+    let index = currentIndex;
     if (value === 'increment') {
-      if (currentIndex + 1 === destinations.length) {
-        setCurrentIndex(0);
+      if (index + 1 === destinations.length) {
+        index = 0;
       } else {
-        setCurrentIndex(currentIndex + 1);
+        index += 1;
       }
-    } else if (currentIndex - 1 < 0) {
-      setCurrentIndex(destinations.length - 1);
+    } else if (index - 1 < 0) {
+      index = destinations.length - 1;
     } else {
-      setCurrentIndex(currentIndex - 1);
+      index -= 1;
     }
-    const destination = destinations[currentIndex];
+
+    const destination = destinations[index];
+
     setAdress(destination.formattedAddress);
     setCity(getCity(destination.addressComponents));
     setMid(getMidpoint(destination.location, start));
@@ -207,6 +202,7 @@ const MapsBubble = ({
     setTimeout(() => {
       takeSnapshot();
     }, 1000);
+    setCurrentIndex(index);
   };
 
   if (loading) return null;
@@ -333,8 +329,7 @@ const MapsGenerator = ({
   useEffect(() => {
     if (answerData && answerData?.places !== undefined && !answerError) {
       console.log('Got an answer: ', answerData.places[0].addressComponents);
-      // const midpoint = getMidpoint(answerData.places[0].location, myPos);
-      // const city = getCity(answerData.places[0].addressComponents);
+
       const botQA: BotQA = {
         done: true,
         question,
@@ -344,10 +339,6 @@ const MapsGenerator = ({
             start: myPos,
             destinations: answerData.places,
             destinationIndex: 0,
-            // mid: midpoint,
-            // answer: answerData.places[0].location,
-            //
-            // city,
           },
           type,
         },
