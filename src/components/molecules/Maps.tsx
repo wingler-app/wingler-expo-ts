@@ -10,6 +10,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import { useGooglePlaces } from '@/services/GoogleMaps';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA, Position } from '@/types';
+import type { PlaceDetails } from '@/types/maps';
 import { adressParser, getCity, getMidpoint } from '@/utils/maps';
 
 // @ts-ignore
@@ -100,8 +101,29 @@ const MapsBubble = ({
     adressParser(destinations[destinationIndex || 0].formattedAddress),
   );
 
+  const [details, setDetails] = useState<PlaceDetails | null>(null);
+
   const { changeById } = useHistoryStore();
   const router = useRouter();
+
+  useEffect(() => {
+    const getName = async (placeName: string) => {
+      try {
+        const placeId = placeName.split('/')[1];
+        const placeDetailsResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}`,
+        );
+        const placeDetailsData = await placeDetailsResponse.json();
+        console.log('data', placeDetailsData.result);
+        setDetails(placeDetailsData.result);
+      } catch (e) {
+        console.error('Place details API error: ', e);
+        setDetails(null); // If an error occurs, return the original place data
+      }
+    };
+    setDetails(null);
+    getName(destinations[currentIndex].name);
+  }, [currentIndex, destinations]);
 
   useEffect(() => {
     (async () => {
@@ -252,13 +274,23 @@ const MapsBubble = ({
           adjustsFontSizeToFit
           className="max-w-[300] self-center"
         >
-          {adresses[0]}
+          {details ? details.name : '...'}
         </H>
         <P
+          size="sm"
           dark
           numberOfLines={1}
           adjustsFontSizeToFit
           className="max-w-[300] self-center"
+        >
+          {adresses[0]}
+        </P>
+        <P
+          size="xs"
+          dark
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          className="max-w-[300] self-center opacity-50"
         >
           {city}
         </P>
@@ -283,6 +315,7 @@ const MapsBubble = ({
                 mid: JSON.stringify(mid),
                 answer: JSON.stringify(answer),
                 adress,
+                details: JSON.stringify(details),
               },
             })
           }
@@ -328,8 +361,6 @@ const MapsGenerator = ({
 
   useEffect(() => {
     if (answerData && answerData?.places !== undefined && !answerError) {
-      console.log('Got an answer: ', answerData.places[0].addressComponents);
-
       const botQA: BotQA = {
         done: true,
         question,

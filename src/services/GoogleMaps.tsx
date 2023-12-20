@@ -19,7 +19,7 @@ const useGooglePlaces = (question: string) => {
               'Content-Type': 'application/json',
               'X-Goog-Api-Key': GOOGLE_MAPS_API_KEY,
               'X-Goog-FieldMask':
-                'places.location,places.formattedAddress,places.address_components',
+                'places.location,places.formattedAddress,places.address_components,places.name',
             },
             body: JSON.stringify({
               textQuery: question,
@@ -27,7 +27,8 @@ const useGooglePlaces = (question: string) => {
             signal: abortController.signal,
           },
         );
-        await setData(await response.json());
+
+        setData(await response.json());
       } catch (e) {
         console.error('Places API error: ', e);
         setError(e);

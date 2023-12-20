@@ -14,6 +14,7 @@ import MapViewDirections from 'react-native-maps-directions';
 import useMagnetometer from '@/hooks/useMagnetometer';
 import useUserStore from '@/store/useUserStore';
 import type { Position } from '@/types';
+import type { PlaceDetails } from '@/types/maps';
 import { adressParser, getDistance } from '@/utils/maps';
 
 // @ts-ignore
@@ -23,6 +24,8 @@ import { H, P } from '../atoms/Words';
 import FancyValue from '../molecules/FancyValue';
 import type { Locations } from '../molecules/Maps';
 import { getData, MyCustomMarkerView } from '../molecules/Maps';
+import PhotoReference from '../molecules/PhotoReference';
+import WingModal from '../organisms/Modal';
 import SliderMenu from '../organisms/SliderMenu';
 
 type Params = {
@@ -30,6 +33,7 @@ type Params = {
   mid: string;
   answer: string;
   adress: string;
+  details: string;
 };
 
 const DrivingTemplate = () => {
@@ -38,6 +42,7 @@ const DrivingTemplate = () => {
   const [distance, setDistance] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
   const [autoRotate, setAutoRotate] = useState<boolean>(true);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
   const { magnetometer, degree, direction } = useMagnetometer();
 
   const { coords } = useUserStore();
@@ -48,6 +53,7 @@ const DrivingTemplate = () => {
   const mid = JSON.parse(params.mid || '') as Locations['mid'];
   const answer = JSON.parse(params.answer || '') as Locations['answer'];
   const adress = adressParser(params.adress || '') as string[];
+  const details = JSON.parse(params.details || '') as PlaceDetails;
 
   const mapRef = useRef<MapView | null>(null);
   const myPosRef = useRef<MapMarker | null>(null);
@@ -168,12 +174,38 @@ const DrivingTemplate = () => {
       </MapView>
       <SliderMenu backButton="Back to Chat">
         <View className="py-6">
-          <H dark>{adress[0]}</H>
-          <P dark className="mb-10">
+          <H size="2xl" className="mb-2">
+            {details.name}
+          </H>
+          <P dark className="">
+            {adress[0]}
+          </P>
+          <P dark size="sm" className="mb-10 opacity-50">
             {adress[1]}
           </P>
+          <Button onPress={() => setShowDetails(true)} title="Show Details" />
+          <WingModal
+            title="Details"
+            visible={showDetails}
+            onClose={() => setShowDetails(false)}
+          >
+            {details?.photos &&
+              details?.photos[0]?.photo_reference !== undefined && (
+                <PhotoReference
+                  reference={details.photos[0]?.photo_reference}
+                  height={200}
+                  className="mb-5"
+                />
+              )}
+            <P dark className="px-4 text-left">
+              Reviews
+            </P>
+            <P dark size="sm" className="px-4 text-left">
+              &quot;{details.reviews[0]?.text}&quot;
+            </P>
+          </WingModal>
 
-          <View className="mb-10 flex flex-row justify-center gap-x-8">
+          <View className="mb-10 mt-6 flex flex-row justify-center gap-x-8">
             <FancyValue
               title="Distance"
               value={distance.toFixed(1)}
