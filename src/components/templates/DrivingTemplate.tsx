@@ -24,7 +24,7 @@ import { H, P } from '../atoms/Words';
 import FancyValue from '../molecules/FancyValue';
 import type { Locations } from '../molecules/Maps';
 import { getData, MyCustomMarkerView } from '../molecules/Maps';
-import PhotoReference from '../molecules/PhotoReference';
+import Details from '../organisms/Details';
 import WingModal from '../organisms/Modal';
 import SliderMenu from '../organisms/SliderMenu';
 
@@ -183,26 +183,18 @@ const DrivingTemplate = () => {
           <P dark size="sm" className="mb-10 opacity-50">
             {adress[1]}
           </P>
-          <Button onPress={() => setShowDetails(true)} title="Show Details" />
+          <Button
+            icon="information-circle"
+            onPress={() => setShowDetails(true)}
+            title="Details"
+            iconAfter
+          />
           <WingModal
             title="Details"
             visible={showDetails}
             onClose={() => setShowDetails(false)}
           >
-            {details?.photos &&
-              details?.photos[0]?.photo_reference !== undefined && (
-                <PhotoReference
-                  reference={details.photos[0]?.photo_reference}
-                  height={200}
-                  className="mb-5"
-                />
-              )}
-            <P dark className="px-4 text-left">
-              Reviews
-            </P>
-            <P dark size="sm" className="px-4 text-left">
-              &quot;{details.reviews[0]?.text}&quot;
-            </P>
+            <Details details={details} />
           </WingModal>
 
           <View className="mb-10 mt-6 flex flex-row justify-center gap-x-8">
