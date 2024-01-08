@@ -56,3 +56,11 @@ export function getDistance(pointA: Position, pointB: Position) {
   const distance = R * c; // Distance in meters
   return distance;
 }
+
+export const getCity = (addressComponents: Array<Record<string, any>>) => {
+  const cityComponent = addressComponents.find(
+    (component) => component.types?.includes('postal_town'),
+  );
+  console.log('component: ', cityComponent);
+  return cityComponent ? cityComponent.longText : null;
+};

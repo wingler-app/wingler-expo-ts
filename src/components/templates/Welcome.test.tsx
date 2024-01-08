@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, waitFor } from '@testing-library/react-native';
 
 import { Welcome } from './Welcome';
 
@@ -9,9 +9,9 @@ jest.mock('@react-native-firebase/auth', () => {
 });
 
 describe('Welcome', () => {
-  it('should render the default text', () => {
+  it('should render the default text', async () => {
     render(<Welcome />);
     const text = screen.queryByText(/Calling/);
-    expect(text).toBeVisible();
+    await waitFor(() => expect(text).toBeVisible());
   });
 });

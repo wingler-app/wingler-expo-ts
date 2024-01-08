@@ -1,12 +1,13 @@
-import type { StyleProp, TextStyle } from 'react-native';
+import type { StyleProp, TextProps, TextStyle } from 'react-native';
 import { Text } from 'react-native';
 
-interface WordsProps {
+interface WordsProps extends TextProps {
   children: React.ReactNode;
   className?: string;
   style?: StyleProp<TextStyle>;
   dark?: boolean;
   size?: keyof typeof sizeMap;
+  rest?: any;
 }
 
 const sizeMap = {
@@ -19,7 +20,7 @@ const sizeMap = {
   '3xl': 'text-3xl',
 };
 
-const H = ({ children, className, style, dark, size }: WordsProps) => {
+const H = ({ children, className, style, dark, size, ...rest }: WordsProps) => {
   const sizeClass = size ? sizeMap[size] : 'text-4xl';
 
   return (
@@ -28,13 +29,14 @@ const H = ({ children, className, style, dark, size }: WordsProps) => {
       className={`text-center ${sizeClass} ${
         dark ? 'text-accent-secondary' : 'text-accent'
       } ${className}`}
+      {...rest}
     >
       {children}
     </Text>
   );
 };
 
-const P = ({ children, className, style, dark, size }: WordsProps) => {
+const P = ({ children, className, style, dark, size, ...rest }: WordsProps) => {
   const sizeClass = size ? sizeMap[size] : 'text-xl';
 
   return (
@@ -43,6 +45,7 @@ const P = ({ children, className, style, dark, size }: WordsProps) => {
       className={` text-center ${sizeClass} ${
         dark && 'text-white'
       } ${className}`}
+      {...rest}
     >
       {children}
     </Text>

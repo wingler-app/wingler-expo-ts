@@ -10,7 +10,8 @@ import MapViewDirections from 'react-native-maps-directions';
 import { useGooglePlaces } from '@/services/GoogleMaps';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA, Position } from '@/types';
-import { adressParser, getMidpoint } from '@/utils/maps';
+import type { PlaceDetails } from '@/types/maps';
+import { adressParser, getCity, getMidpoint } from '@/utils/maps';
 
 // @ts-ignore
 import * as Colors from '../../styles/colors';
@@ -22,9 +23,9 @@ import { H, P } from '../atoms/Words';
 export type Locations = {
   start: Position;
   mid: Position;
-  answer: Position;
-  adress: string;
-  city: string;
+  destinations: any[];
+  destinationIndex?: number;
+  answer?: Position;
 };
 
 type Content = {
@@ -68,7 +69,7 @@ export const MyCustomMarkerView = memo(() => (
 
 const MapsBubble = ({
   content: {
-    locations: { start, mid, answer, adress, city },
+    locations: { start, destinations, destinationIndex },
     image,
     question,
   },
@@ -80,10 +81,49 @@ const MapsBubble = ({
   const [myPos, setMyPos] = useState<Position>({ latitude: 0, longitude: 0 });
   const [loading, setLoading] = useState<boolean>(true);
   const [img, setImg] = useState<string | null>(image || null);
-  const { changeById } = useHistoryStore();
+  const [currentIndex, setCurrentIndex] = useState<number>(
+    destinationIndex || 0,
+  );
 
-  const adresses = adressParser(adress);
+  const [adress, setAdress] = useState<string>(
+    destinations[destinationIndex || 0].formattedAddress,
+  );
+  const [city, setCity] = useState<string>(
+    getCity(destinations[destinationIndex || 0].addressComponents),
+  );
+  const [mid, setMid] = useState<Position>(
+    getMidpoint(destinations[destinationIndex || 0].location, start),
+  );
+  const [answer, setAnswer] = useState<Position>(
+    destinations[destinationIndex || 0].location,
+  );
+  const [adresses, setAdresses] = useState<string[]>(
+    adressParser(destinations[destinationIndex || 0].formattedAddress),
+  );
+
+  const [details, setDetails] = useState<PlaceDetails | null>(null);
+
+  const { changeById } = useHistoryStore();
   const router = useRouter();
+
+  useEffect(() => {
+    const getName = async (placeName: string) => {
+      try {
+        const placeId = placeName.split('/')[1];
+        const placeDetailsResponse = await fetch(
+          `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}`,
+        );
+        const placeDetailsData = await placeDetailsResponse.json();
+        console.log('data', placeDetailsData.result);
+        setDetails(placeDetailsData.result);
+      } catch (e) {
+        console.error('Place details API error: ', e);
+        setDetails(null); // If an error occurs, return the original place data
+      }
+    };
+    setDetails(null);
+    getName(destinations[currentIndex].name);
+  }, [currentIndex, destinations]);
 
   useEffect(() => {
     (async () => {
@@ -110,25 +150,24 @@ const MapsBubble = ({
     });
     snapshot?.then((uri) => {
       setImg(uri);
-    });
 
-    const botQA: BotQA = {
-      done: true,
-      question,
-      answer: {
+      const botQA: BotQA = {
+        done: true,
         question,
-        image: img,
-        locations: {
-          start,
-          mid,
-          answer,
-          adress,
-          city,
+        answer: {
+          question,
+          image: uri,
+          locations: {
+            start,
+            mid,
+            destinations,
+            currentIndex,
+          },
+          type,
         },
-        type,
-      },
-    };
-    changeById(id, botQA);
+      };
+      changeById(id, botQA);
+    });
   };
 
   const fitCoords = (coords: Array<Position>) => {
@@ -142,7 +181,7 @@ const MapsBubble = ({
       },
       animated: false,
     });
-    console.log('IMAGE: ', image);
+
     if (!img) {
       setTimeout(() => {
         takeSnapshot();
@@ -159,6 +198,33 @@ const MapsBubble = ({
   const handleError = (errorMessage: string): any => {
     console.log('Routes api error: ', errorMessage);
     fitCoords([answer, start]);
+  };
+
+  const destinationSwitcher = (value: 'increment' | 'decrement') => () => {
+    let index = currentIndex;
+    if (value === 'increment') {
+      if (index + 1 === destinations.length) {
+        index = 0;
+      } else {
+        index += 1;
+      }
+    } else if (index - 1 < 0) {
+      index = destinations.length - 1;
+    } else {
+      index -= 1;
+    }
+
+    const destination = destinations[index];
+
+    setAdress(destination.formattedAddress);
+    setCity(getCity(destination.addressComponents));
+    setMid(getMidpoint(destination.location, start));
+    setAnswer(destination.location);
+    setAdresses(adressParser(destination.formattedAddress));
+    setTimeout(() => {
+      takeSnapshot();
+    }, 1000);
+    setCurrentIndex(index);
   };
 
   if (loading) return null;
@@ -202,15 +268,41 @@ const MapsBubble = ({
         </MapView>
       )}
       <View className="pb-4 pt-3">
-        <H size="2xl">{adresses[0]}</H>
-        <P dark>{city}</P>
+        <H
+          size="2xl"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          className="max-w-[300] self-center"
+        >
+          {details ? details.name : '...'}
+        </H>
+        <P
+          size="sm"
+          dark
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          className="max-w-[300] self-center"
+        >
+          {adresses[0]}
+        </P>
+        <P
+          size="xs"
+          dark
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          className="max-w-[300] self-center opacity-50"
+        >
+          {city}
+        </P>
       </View>
       <View className="flex flex-row justify-center gap-x-4">
-        <Button
-          type="minimal"
-          icon="md-chevron-back"
-          onPress={() => console.log('left')}
-        />
+        {destinations.length > 1 && (
+          <Button
+            type="minimal"
+            icon="md-chevron-back"
+            onPress={destinationSwitcher('decrement')}
+          />
+        )}
         <Button
           iconAfter
           icon="car"
@@ -223,16 +315,24 @@ const MapsBubble = ({
                 mid: JSON.stringify(mid),
                 answer: JSON.stringify(answer),
                 adress,
+                details: JSON.stringify(details),
               },
             })
           }
         />
-        <Button
-          type="minimal"
-          icon="md-chevron-forward"
-          onPress={() => console.log('right')}
-        />
+        {destinations.length > 1 && (
+          <Button
+            type="minimal"
+            icon="md-chevron-forward"
+            onPress={destinationSwitcher('increment')}
+          />
+        )}
       </View>
+      {destinations.length > 1 && (
+        <P dark size="xs" className="relative -top-3">
+          {currentIndex + 1} of {destinations.length}
+        </P>
+      )}
     </BubbleWrap>
   );
 };
@@ -260,18 +360,7 @@ const MapsGenerator = ({
   }, [question]);
 
   useEffect(() => {
-    const getCity = (addressComponents: Array<Record<string, any>>) => {
-      const cityComponent = addressComponents.find(
-        (component) => component.types?.includes('postal_town'),
-      );
-      console.log('component: ', cityComponent);
-      return cityComponent ? cityComponent.longText : null;
-    };
-
     if (answerData && answerData?.places !== undefined && !answerError) {
-      console.log('Got an answer: ', answerData.places[0].addressComponents);
-      const midpoint = getMidpoint(answerData.places[0].location, myPos);
-      const city = getCity(answerData.places[0].addressComponents);
       const botQA: BotQA = {
         done: true,
         question,
@@ -279,10 +368,8 @@ const MapsGenerator = ({
           question,
           locations: {
             start: myPos,
-            mid: midpoint,
-            answer: answerData.places[0].location,
-            adress: answerData.places[0].formattedAddress,
-            city,
+            destinations: answerData.places,
+            destinationIndex: 0,
           },
           type,
         },

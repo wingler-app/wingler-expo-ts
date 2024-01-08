@@ -2,15 +2,25 @@ import type { TextProps } from 'react-native';
 import { Modal, ScrollView, Text, View } from 'react-native';
 
 import Button from '../atoms/Button';
+import { P } from '../atoms/Words';
 
 interface WingModalProps {
   title?: string;
-  children: TextProps['children'];
+  children: TextProps['children'] | string;
   visible: boolean;
   onClose: () => void | undefined;
 }
 
 const WingModal = ({ children, visible, onClose, title }: WingModalProps) => {
+  const content =
+    typeof children === 'string' ? (
+      <P dark size="sm" className="px-4 text-left">
+        {children}
+      </P>
+    ) : (
+      children
+    );
+
   return (
     <Modal
       animationType="fade"
@@ -24,7 +34,7 @@ const WingModal = ({ children, visible, onClose, title }: WingModalProps) => {
             {title && (
               <Text className="p-4 text-xl font-bold text-accent">{title}</Text>
             )}
-            {children}
+            {content}
           </ScrollView>
           <Button title="Close" buttonStyle="m-4" onPress={onClose} />
         </View>

@@ -36,14 +36,14 @@ const ContextInfo = ({ visible, rhinoText, contextInfo }: ContextInfoProps) => {
         visible={showContextInfo}
         onClose={() => setShowContextInfo(false)}
       >
-        <Text>{contextInfo}</Text>
+        {contextInfo}
       </WingModal>
       <WingModal
         title="Inference"
         visible={showInferenceInfo}
         onClose={() => setShowInferenceInfo(false)}
       >
-        <Text>{rhinoText}</Text>
+        {rhinoText}
       </WingModal>
     </View>
   );
