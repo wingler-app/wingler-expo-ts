@@ -14,7 +14,8 @@ const imageLogo = require('../../../assets/logo.png');
 
 export default function SettingsTemplate() {
   const [params, request, promptAsync, , handleToken] = useToken();
-  const { readAloud, toggleReadAloud } = useSettingsStore();
+  const { readAloud, toggleReadAloud, showTextChat, toggleShowTextChat } =
+    useSettingsStore();
 
   const handleLogout = async () => {
     auth()
@@ -41,6 +42,14 @@ export default function SettingsTemplate() {
             buttonStyle={`${readAloud && 'bg-green-500'}`}
             textStyle={`${readAloud && 'text-white'}`}
             onPress={toggleReadAloud}
+          />
+
+          <Button
+            title={`Text Chatting is ${showTextChat ? 'on' : 'off'}`}
+            type="menu"
+            buttonStyle={`${showTextChat && 'bg-green-500'}`}
+            textStyle={`${showTextChat && 'text-white'}`}
+            onPress={toggleShowTextChat}
           />
         </View>
         <MenuSectionTitle title="Spotify" />

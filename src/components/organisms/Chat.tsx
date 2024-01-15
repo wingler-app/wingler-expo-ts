@@ -1,12 +1,15 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import type { ViewToken } from 'react-native';
 import { FlatList, View } from 'react-native';
 
 import useHistoryStore from '@/store/useHistoryStore';
 import { useRefStore } from '@/store/useRefStore';
+import useSettingsStore from '@/store/useSettingsStore';
 import type { RhinoInferenceObject } from '@/types';
 
 import Bubble from './Bubble'; // replace with your actual path
+import TextChat from './TextChat';
 
 interface QnAProps {
   item: RhinoInferenceObject;
@@ -62,6 +65,7 @@ const Chat = () => {
   const { setChatRef } = useRefStore();
   const { history } = useHistoryStore();
   const chatRef = useRef<FlatList<RhinoInferenceObject>>(null);
+  const { showTextChat } = useSettingsStore();
 
   const handleViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -77,27 +81,45 @@ const Chat = () => {
   }, [chatRef, setChatRef]);
 
   return (
-    <FlatList
-      ref={chatRef}
-      className="h-full"
-      data={history.length > 0 ? history : fakeHistory}
-      onViewableItemsChanged={handleViewableItemsChanged}
-      viewabilityConfig={{
-        itemVisiblePercentThreshold: 75,
-        minimumViewTime: 500,
-      }}
-      onContentSizeChange={() =>
-        chatRef.current?.scrollToEnd({ animated: true })
-      }
-      renderItem={({ item, index }) => (
-        <QnA
-          key={item.id}
-          index={index}
-          item={item}
-          isVisible={visibleItems.includes(item.id)}
-        />
+    <>
+      <LinearGradient
+        colors={['#000000', '#00000000', 'transparent']}
+        className="absolute top-0 z-50 h-40 w-full"
+      />
+      <FlatList
+        ref={chatRef}
+        className="h-full"
+        data={history.length > 0 ? history : fakeHistory}
+        onViewableItemsChanged={handleViewableItemsChanged}
+        viewabilityConfig={{
+          itemVisiblePercentThreshold: 75,
+          minimumViewTime: 500,
+        }}
+        onContentSizeChange={() =>
+          chatRef.current?.scrollToEnd({ animated: true })
+        }
+        ListFooterComponent={
+          <View style={{ height: showTextChat ? 82 : 10 }} />
+        }
+        renderItem={({ item, index }) => (
+          <QnA
+            key={item.id}
+            index={index}
+            item={item}
+            isVisible={visibleItems.includes(item.id)}
+          />
+        )}
+      />
+      {showTextChat && (
+        <>
+          <LinearGradient
+            colors={['#00000000', '#000000']}
+            className="absolute bottom-0 z-40 h-20 w-full"
+          />
+          <TextChat />
+        </>
       )}
-    />
+    </>
   );
 };
 

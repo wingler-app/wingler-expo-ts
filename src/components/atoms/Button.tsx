@@ -16,7 +16,7 @@ interface CommonProps {
   iconSize?: number;
 }
 
-interface IconProps extends CommonProps {
+export interface IconProps extends CommonProps {
   icon: keyof typeof Ionicons.glyphMap;
 }
 
@@ -60,6 +60,13 @@ const buttonTypeMap = {
     disabledStyle: '',
     textStyle: 'text-center tracking-widest text-white',
   },
+  iconOnly: {
+    baseStyle: 'flex mb-6 rounded-full px-[10] flex-row py-2 w-auto',
+    pressedStyle: '',
+    pressedTextStyle: '',
+    disabledStyle: '',
+    textStyle: 'text-center tracking-widest text-white',
+  },
   slider: {
     baseStyle:
       'flex p-1 flex-col items-center rounded-md w-auto self-center border-[1px] border-white',
@@ -97,6 +104,7 @@ function Button({
   };
 
   const handleIconColor = () => {
+    if (type === 'iconOnly') return 'yellow';
     if (type !== 'slider' && type !== 'minimal') return 'black';
     return isPressed || active ? 'black' : 'white';
   };
