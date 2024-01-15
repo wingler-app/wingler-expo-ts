@@ -71,7 +71,7 @@ const DevHelper = () => {
     <View className="w-full">
       <Button
         title=""
-        buttonStyle="absolute right-2 bottom-2 p-0 m-0 w-10 h-10 bg-primary-black"
+        buttonStyle="absolute right-2 bottom-20 p-0 m-0 w-10 h-10 bg-primary-black"
         onPress={() => setIsOpen(true)}
       />
       <Modal
