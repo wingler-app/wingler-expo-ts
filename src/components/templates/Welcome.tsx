@@ -3,9 +3,10 @@ import auth from '@react-native-firebase/auth';
 import { useFonts } from 'expo-font';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, PermissionsAndroid, Platform, Text, View } from 'react-native';
+import { Image, PermissionsAndroid, Platform, View } from 'react-native';
 
 import Button from '../atoms/Button';
+import Logo from '../molecules/Logo';
 
 const test = require('../../../assets/logo.png');
 
@@ -62,7 +63,7 @@ const Welcome = () => {
   return (
     <View className="flex-1 items-center justify-center bg-primary-dark">
       {!hasCheckedAuth ? (
-        <Text className="text-4xl text-white">Calling firebase</Text>
+        <Logo animation="loading" />
       ) : (
         <>
           <Image className="h-[92] w-[100]" source={test} />

@@ -1,6 +1,6 @@
 import auth from '@react-native-firebase/auth';
 import { router } from 'expo-router';
-import { Image, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
 import SelectDevice from '@/components/organisms/SelectDevice';
 import useToken from '@/hooks/spotify/useToken';
@@ -8,9 +8,8 @@ import useSettingsStore from '@/store/useSettingsStore';
 
 import Button from '../atoms/Button';
 import MenuSectionTitle from '../atoms/MenuSectionTitle';
+import Logo from '../molecules/Logo';
 import DevHelper from '../organisms/DevHelper';
-
-const imageLogo = require('../../../assets/logo.png');
 
 export default function SettingsTemplate() {
   const [params, request, promptAsync, , handleToken] = useToken();
@@ -28,10 +27,8 @@ export default function SettingsTemplate() {
 
   return (
     <ScrollView className="flex-1 bg-primary-black">
-      <Image
-        className=" mb-24 mt-32 h-[93] w-[100] self-center"
-        source={imageLogo}
-      />
+      <Logo logoStyles="mb-24 mt-32 self-center" />
+
       <DevHelper />
       <View className="flex-1 bg-primary-black">
         <MenuSectionTitle title="General" />

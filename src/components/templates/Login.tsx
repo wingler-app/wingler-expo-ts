@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Text, TextInput, View } from 'react-native';
 
 import Button from '../atoms/Button';
+import Logo from '../molecules/Logo';
 
 const RegisterTemplate = () => {
   const [email, setEmail] = useState<string | undefined>();
@@ -50,7 +51,7 @@ const RegisterTemplate = () => {
   return (
     <View className="flex-1 justify-center bg-primary-dark px-5 ">
       {!hasCheckedAuth ? (
-        <Text className="text-center text-white">Calling Firebase...</Text>
+        <Logo animation="loading" />
       ) : (
         <>
           <Text className="text-4xl text-white">Login</Text>
