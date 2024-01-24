@@ -1,3 +1,5 @@
+// const spotifyLogo = require('assets/logos/spotify.svg');
+import SpotifyLogo from 'assets/logos/spotify.svg';
 import { useEffect } from 'react';
 import { Image, Pressable, View } from 'react-native';
 
@@ -40,6 +42,11 @@ const MusicBubble = ({ track }: { track: Track }) => {
         </Pressable>
         <BubbleText textStyle="my-4">{name}</BubbleText>
         <Artist id={artist.id} name={artist.name} />
+        <SpotifyLogo
+          width="75"
+          height="22.5"
+          className="mt-4 flex items-end self-end"
+        />
       </View>
     </BubbleWrap>
   );
