@@ -46,7 +46,7 @@ const helpHistory: HelpHistoryItem[] = [
     botQA: {
       question: '',
       answer:
-        'Ask for directions by voice, like this:[mb-2 bg-accent block text-primary-black px-3 rounded-full]wingler[] [bg-accent-secondary text-primary-black px-3 rounded-full]maps[] [bg-orange-500 text-primary-black px-3 rounded-full]food in Eskilstuna[]',
+        'Ask for directions by voice, like this:[mb-2 bg-accent block text-primary-black px-3 rounded-full]wingler[] [bg-accent-secondary text-primary-black px-3 rounded-full]maps[] [bg-white text-primary-black px-3 rounded-full]mat i Eskilstuna[]',
     },
     id: '3',
   },
