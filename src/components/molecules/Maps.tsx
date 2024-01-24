@@ -114,7 +114,6 @@ const MapsBubble = ({
           `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}`,
         );
         const placeDetailsData = await placeDetailsResponse.json();
-        console.log('data', placeDetailsData.result);
         setDetails(placeDetailsData.result);
       } catch (e) {
         console.error('Place details API error: ', e);
