@@ -99,7 +99,8 @@ export const config: ExpoConfig = {
       },
     ],
     ['@config-plugins/detox', { subdomains: '*' }],
-    ['./src/plugins/my-plugin.js', './assets/picovoice'],
+    ['./src/plugins/picovoice-assets.js', './assets/picovoice'],
+    ['./src/plugins/rive-assets.js', './assets/rive'],
     [
       '@react-native-voice/voice',
       {

@@ -1,5 +1,6 @@
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { render, waitFor } from '@testing-library/react-native';
 
+import Logo from '../molecules/Logo';
 import { Welcome } from './Welcome';
 
 jest.mock('@react-native-firebase/auth', () => {
@@ -8,10 +9,11 @@ jest.mock('@react-native-firebase/auth', () => {
   });
 });
 
+jest.mock('../molecules/Logo', () => jest.fn(() => null));
+
 describe('Welcome', () => {
   it('should render the default text', async () => {
     render(<Welcome />);
-    const text = screen.queryByText(/Calling/);
-    await waitFor(() => expect(text).toBeVisible());
+    await waitFor(() => expect(Logo).toHaveBeenCalled());
   });
 });
