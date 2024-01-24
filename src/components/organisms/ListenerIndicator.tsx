@@ -1,9 +1,9 @@
 import { createMotionAnimatedComponent, Motion } from '@legendapp/motion';
 import { BlurView } from 'expo-blur';
 import type { GestureResponderEvent } from 'react-native';
-import { Image, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
-const imageLogo = require('../../../assets/logo.png');
+import Logo from '../molecules/Logo';
 
 type ListenerIndicatorProps = {
   isListening: boolean;
@@ -29,7 +29,7 @@ const ListenerIndicator = ({
     >
       <Motion.View
         className={`absolute h-40 w-40 rounded-full ${
-          isSpeechToText ? 'bg-orange-500' : ''
+          isSpeechToText ? 'border-4 border-accent-secondary' : ''
         }`}
         animate={{
           scale: isSpeechToText ? 1 : 0,
@@ -42,8 +42,21 @@ const ListenerIndicator = ({
         }}
       />
       <TouchableOpacity className="absolute " onPress={onPress}>
-        <Image className="h-[93] w-[100]" source={imageLogo} />
+        <Logo animation={isSpeechToText ? 'idle' : 'wave'} />
       </TouchableOpacity>
+      <View className="absolute bottom-60">
+        {isSpeechToText ? (
+          <Text className="text-4xl text-white">Listening...</Text>
+        ) : (
+          <View className="flex flex-row">
+            <Text className="m-1 rounded-full bg-accent px-4 py-1">maps</Text>
+            <Text className="m-1 rounded-full bg-accent-secondary px-4 py-1">
+              play
+            </Text>
+            <Text className="m-1 rounded-full bg-red-500 px-4 py-1">stop</Text>
+          </View>
+        )}
+      </View>
     </AnimatedBlurView>
   );
 };

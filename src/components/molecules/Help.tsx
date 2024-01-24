@@ -5,21 +5,22 @@ import type { BotQA } from '@/types';
 
 import Answer from './Answer';
 import ImageBubble from './Image';
+import Logo from './Logo';
 
 interface HelpHistoryItem {
   botQA: BotQA;
   id: string;
 }
 const helpHistory: HelpHistoryItem[] = [
-  {
-    botQA: {
-      question: '',
-      answer: {
-        uri: 'https://i.etsystatic.com/10823390/r/il/35be00/1353801568/il_570xN.1353801568_7l7w.jpg',
-      },
-    },
-    id: '0',
-  },
+  // {
+  //   botQA: {
+  //     question: '',
+  //     answer: {
+  //       uri: 'https://i.etsystatic.com/10823390/r/il/35be00/1353801568/il_570xN.1353801568_7l7w.jpg',
+  //     },
+  //   },
+  //   id: '0',
+  // },
   {
     botQA: {
       question: '',
@@ -34,18 +35,18 @@ const helpHistory: HelpHistoryItem[] = [
     },
     id: '22',
   },
-  {
-    botQA: {
-      question: '',
-      answer: `Play a song like this:                  [mb-2 bg-accent block text-primary-black px-3 rounded-full]wingler[] [bg-accent-secondary text-primary-black px-3 rounded-full]play song[] [bg-orange-500 text-primary-black px-3 rounded-full]best of joy[]`,
-    },
-    id: '2',
-  },
+  // {
+  //   botQA: {
+  //     question: '',
+  //     answer: `Play a song like this:                  [mb-2 bg-accent block text-primary-black px-3 rounded-full]wingler[] [bg-accent-secondary text-primary-black px-3 rounded-full]play song[] [bg-orange-500 text-primary-black px-3 rounded-full]best of joy[]`,
+  //   },
+  //   id: '2',
+  // },
   {
     botQA: {
       question: '',
       answer:
-        'Or ask for directions like this:[mb-2 bg-accent block text-primary-black px-3 rounded-full]wingler[] [bg-accent-secondary text-primary-black px-3 rounded-full]maps[] [bg-orange-500 text-primary-black px-3 rounded-full]Stockholm[]',
+        'Ask for directions by voice, like this:[mb-2 bg-accent block text-primary-black px-3 rounded-full]wingler[] [bg-accent-secondary text-primary-black px-3 rounded-full]maps[] [bg-orange-500 text-primary-black px-3 rounded-full]food in Eskilstuna[]',
     },
     id: '3',
   },
@@ -85,6 +86,7 @@ const Help = () => {
 
   return (
     <>
+      <Logo />
       {displayedItems.map((item) => (
         <Motion.View
           key={item.id}
