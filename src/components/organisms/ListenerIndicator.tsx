@@ -44,16 +44,22 @@ const ListenerIndicator = ({
       <TouchableOpacity className="absolute " onPress={onPress}>
         <Logo animation={isSpeechToText ? 'idle' : 'wave'} />
       </TouchableOpacity>
-      <View className="absolute bottom-60">
+      <View className="absolute bottom-60 w-full">
         {isSpeechToText ? (
-          <Text className="text-4xl text-white">Listening...</Text>
+          <Text className="text-center text-4xl text-white">Listening...</Text>
         ) : (
-          <View className="flex flex-row">
+          <View className="flex flex-row flex-wrap items-center justify-center text-center">
             <Text className="m-1 rounded-full bg-accent px-4 py-1">maps</Text>
             <Text className="m-1 rounded-full bg-accent-secondary px-4 py-1">
-              play
+              play pop
             </Text>
             <Text className="m-1 rounded-full bg-red-500 px-4 py-1">stop</Text>
+            <Text className="m-1 rounded-full bg-white px-4 py-1 text-black">
+              i wonder
+            </Text>
+            <Text className="m-1 rounded-full bg-accent-secondary px-4 py-1">
+              play song
+            </Text>
           </View>
         )}
       </View>
