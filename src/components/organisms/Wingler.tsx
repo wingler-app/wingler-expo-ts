@@ -13,7 +13,7 @@ import ContextInfo from './ContextInfo';
 import ListenerIndicator from './ListenerIndicator';
 
 const ACCESS_KEY: string =
-  'DL/kgn1cY69IfkfqQuomZtBsrFbnnSlXfjEKeunsnqHYb0gjgmJ7bw==';
+  '+RCoyTvNL56a5KKlvIIWNNaHB6PfwqPSB/B2N2gIGMvXGnY2LGXLxA==';
 
 const Wingler = () => {
   const [isListening, setIsListening] = useState<boolean>(false);
