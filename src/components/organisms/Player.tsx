@@ -73,7 +73,7 @@ const Player = () => {
                 {playbackData?.item?.name}
               </P>
               <P
-                className="mb-2 text-left text-xs text-white/70"
+                className="mb-1 text-left text-xs text-white/70"
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 style={{
@@ -99,7 +99,7 @@ const Player = () => {
                   type="iconOnly"
                   onPress={handlePlayback}
                   className="mb-0 mr-3"
-                  iconSize={40}
+                  iconSize={45}
                 />
                 <Button
                   icon="play-skip-forward"
