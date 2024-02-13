@@ -32,6 +32,10 @@ const Player = () => {
 
   if (!playbackData) return null;
 
+  const width =
+    ((playbackData?.progress_ms ?? 0) /
+      (playbackData?.item?.duration_ms ?? 1)) *
+    100;
   return (
     <View className="absolute inset-x-0 top-8 z-40  w-full px-4 py-2">
       <View className="shadow-lg shadow-primary-black">
@@ -39,6 +43,9 @@ const Player = () => {
           className="absolute left-0 top-0 z-10 h-full w-full rounded-xl"
           colors={playbackData.colors}
         />
+        <View className="absolute inset-x-0 bottom-0 z-30 h-10 w-full justify-end overflow-hidden rounded-b-xl ">
+          <View className="h-1 bg-inc-spotify" style={{ width: `${width}%` }} />
+        </View>
         <View className="relative z-20 h-full w-full rounded-xl border-[1px] border-white/10  p-4 ">
           {/* <P
           size="2xs"
