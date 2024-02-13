@@ -29,6 +29,7 @@ const bubbleMapping: BubbleMapping = {
   musicartist: Music,
   musicalbum: Music,
   musicsong: Music,
+  musicplaylist: Music,
   playback: Playback,
   user: User,
   help: Help,
