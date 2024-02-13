@@ -24,11 +24,11 @@ interface MusicProps {
 }
 
 const MusicBubble = ({ track }: { track: Track }) => {
-  const { uri, name, albumCover, artist, colors } = track;
+  const { uris, name, albumCover, artist, colors } = track;
   const { play } = usePlayback();
 
   const handleClick = () => {
-    if (play) play(uri);
+    if (play) play(uris);
   };
 
   return (
@@ -68,7 +68,7 @@ const MusicGenerator = ({
   useEffect(() => {
     if (answer) {
       console.log('got answer', answer);
-      play(answer.uri);
+      play(answer.uris);
       const botQA: BotQA = {
         done: true,
         question: question || `Play ${params}`,

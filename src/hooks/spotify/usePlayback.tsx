@@ -5,7 +5,7 @@ import { spotifyFetch } from '@/utils/spotify';
 
 import useToken from './useToken';
 
-type PlaybackPlay = (url?: string) => Promise<void>;
+type PlaybackPlay = (url?: string[]) => Promise<void>;
 type PlaybackStop = () => Promise<void>;
 type PlaybackNext = () => Promise<void>;
 type PlaybackPrevious = () => Promise<void>;
@@ -20,7 +20,7 @@ type PlaybackResponse = {
 const usePlayback = (): PlaybackResponse => {
   const [params] = useToken();
 
-  const play = async (uri?: string) => {
+  const play = async (uris?: string[]) => {
     if (params) {
       try {
         const data = await AsyncStorage.getItem('@SpotifyDevice');
@@ -28,9 +28,9 @@ const usePlayback = (): PlaybackResponse => {
           const device: DeviceType = JSON.parse(data);
           const url = `me/player/play?device_id=${device.id}`;
           console.log(url);
-          if (uri) {
+          if (uris) {
             const body = JSON.stringify({
-              uris: [uri],
+              uris,
               offset: {
                 position: 0,
               },

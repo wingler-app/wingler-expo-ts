@@ -41,14 +41,15 @@ const useSpotifySearch = ({ genre, type }: GenreProps): GenreResponse => {
             `${searchString}${genre}&type=track`,
             params.accessToken,
           );
-          // console.log(JSON.stringify(data.tracks.items[0], null, 2));
 
           const { average, darkMuted } = (await getColors(
             data.tracks.items[0].album.images[0].url,
           )) as AndroidImageColors;
 
+          const uris = data.tracks.items.map((track: any) => track.uri);
+
           await setAnswer({
-            uri: data.tracks.items[0].uri,
+            uris,
             name: data.tracks.items[0].name,
             albumCover: data.tracks.items[0].album.images[0].url,
             artist: {
