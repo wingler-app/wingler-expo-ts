@@ -86,7 +86,7 @@ const TextChat = () => {
         <Button
           icon={ButtonModeMap[mode] as IconProps['icon']}
           type="iconOnly"
-          className="mx-2 mb-0 flex-none border-transparent bg-transparent"
+          className="mx-2 mb-0 flex-none border-transparent bg-transparent py-2"
           onPress={switchMode}
         />
         <TextInput
