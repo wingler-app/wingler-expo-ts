@@ -11,6 +11,7 @@ interface WordsProps extends TextProps {
 }
 
 const sizeMap = {
+  '2xs': 'text-[8px]',
   xs: 'text-xs',
   sm: 'text-sm',
   md: 'text-md',
