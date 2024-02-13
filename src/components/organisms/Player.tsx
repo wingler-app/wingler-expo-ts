@@ -53,15 +53,15 @@ const Player = () => {
           />
           <View className="flex flex-row">
             <Image
-              className="mr-4"
+              className="absolute top-0"
               source={{ uri: playbackData?.item?.album?.images[0].url }}
               width={90}
               height={90}
             />
-            <View className="">
+            <View className="w-full pl-[110px]">
               <P
                 size="sm"
-                className="-mt-1 mr-4 text-left text-white"
+                className="-mt-1 w-full text-left text-white"
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 style={{
@@ -73,7 +73,7 @@ const Player = () => {
                 {playbackData?.item?.name}
               </P>
               <P
-                className="mb-1 text-left text-xs text-white/70"
+                className="mb-2 text-left text-xs text-white/70"
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 style={{
@@ -89,7 +89,10 @@ const Player = () => {
                   icon="play-skip-back"
                   type="iconOnly"
                   onPress={playPrevious}
-                  className="-ml-3 mb-0 mr-4"
+                  className={`-ml-3 mb-0 mr-4 ${
+                    playbackData?.actions?.disallows?.skipping_prev &&
+                    'opacity-20'
+                  }`}
                 />
                 <Button
                   icon={playbackData?.is_playing ? 'pause' : 'play'}
@@ -102,7 +105,10 @@ const Player = () => {
                   icon="play-skip-forward"
                   type="iconOnly"
                   onPress={playNext}
-                  className="mb-0"
+                  className={`mb-0 ${
+                    playbackData?.actions?.disallows?.skipping_next &&
+                    'opacity-20'
+                  }`}
                 />
               </View>
             </View>
