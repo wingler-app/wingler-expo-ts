@@ -31,7 +31,6 @@ const Details = ({
   const question = reviews?.map((review) => review.text).join(' ');
   const [width, setWidth] = useState<number | null>(null);
   const [answer] = useAskSummary(question || '');
-  // const [answer, loading] = useAskAi(question || '');
 
   const handleLayout = (e: LayoutChangeEvent) => {
     console.log(e.nativeEvent.layout);
