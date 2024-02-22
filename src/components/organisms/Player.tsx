@@ -81,7 +81,7 @@ const Player = () => {
             onPress={() => setVisible(true)}
           />
           <Button
-            buttonStyle="absolute top-2  z-20 right-0"
+            buttonStyle="absolute bottom-[-65px]  z-20 right-[-10px]"
             icon="md-arrow-forward-circle"
             type="iconOnly"
             onPress={() => setVisible(false)}
