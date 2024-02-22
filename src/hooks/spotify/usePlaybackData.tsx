@@ -31,9 +31,9 @@ const usePlaybackData = () => {
               colors,
             };
 
-            console.log('Has data: ', data);
+            // console.log('Has data: ', data);
             if (data?.is_playing !== undefined) {
-              console.log(data.is_playing);
+              // console.log(data.is_playing);
               setPlaybackData(newData);
               return data.is_playing;
             }
@@ -52,7 +52,7 @@ const usePlaybackData = () => {
 
         let playing = false;
         playing = await getPlaybackData(mytoken);
-        console.log('state of playing:', playing);
+        // console.log('state of playing:', playing);
 
         intervalIdRef.current = setTimeout(
           () => step(mytoken),
