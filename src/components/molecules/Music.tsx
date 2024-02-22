@@ -1,13 +1,13 @@
-// const spotifyLogo = require('assets/logos/spotify.svg');
-import SpotifyLogo from 'assets/logos/spotify.svg';
+import SpotifyIcon from 'assets/logos/spotify-white-icon.svg';
 import { useEffect } from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { Image, Linking, Pressable, View } from 'react-native';
 
 import usePlayback from '@/hooks/spotify/usePlayback';
 import useSpotifySearch from '@/hooks/spotify/useSpotifySearch';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA } from '@/types';
 import type { Track } from '@/types/spotify';
+import { goTo } from '@/utils/inference';
 
 import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';
@@ -31,6 +31,11 @@ const MusicBubble = ({ track }: { track: Track }) => {
     if (play) play(uris);
   };
 
+  const goToSpotify = () => {
+    goTo('spotify:album:3n3Ppam7vgaVa1iaRUc9Lp');
+    Linking.openURL(uris[0] as string);
+  };
+
   return (
     <BubbleWrap type="music" colors={colors} padding="even">
       <View className="flex max-w-[240] flex-col">
@@ -42,10 +47,11 @@ const MusicBubble = ({ track }: { track: Track }) => {
         </Pressable>
         <BubbleText textStyle="my-4">{name}</BubbleText>
         <Artist id={artist.id} name={artist.name} />
-        <SpotifyLogo
-          width="75"
+        <SpotifyIcon
+          width="22.5"
           height="22.5"
-          className="mt-4 flex items-end self-end"
+          className=" flex items-end self-end"
+          onPress={goToSpotify}
         />
       </View>
     </BubbleWrap>
