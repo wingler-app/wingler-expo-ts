@@ -1,5 +1,6 @@
 import { Motion } from '@legendapp/motion';
 import SpotifyLogo from 'assets/logos/spotify.svg';
+import SpotifyIcon from 'assets/logos/spotify-icon.svg';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from 'react';
 import { Image, View } from 'react-native';
@@ -51,8 +52,8 @@ const Player = () => {
         });
       }}
       className="absolute inset-x-0 top-8 z-40 w-full px-4 py-2"
-      initial={{ x: 0 }}
-      animate={{ x: visible ? 0 : playerWidth - 20 }}
+      initial={{ x: 0, opacity: 0 }}
+      animate={{ x: visible ? 0 : playerWidth, opacity: 1 }}
       transition={{ type: 'spring', damping: 20 }}
     >
       <View className="shadow-lg shadow-primary-black">
@@ -73,18 +74,17 @@ const Player = () => {
         >
           Playing on {playbackData?.device?.name}
         </P> */}
+          <SpotifyIcon
+            width="40"
+            height="40"
+            className="absolute left-[-81px] z-40"
+            onPress={() => setVisible(true)}
+          />
           <Button
-            buttonStyle={`absolute top-2  z-20 ${
-              visible ? 'right-0' : '-left-10'
-            }`}
-            icon={`${
-              visible ? 'md-arrow-forward-circle' : 'md-arrow-back-circle'
-            }`}
+            buttonStyle="absolute top-2  z-20 right-0"
+            icon="md-arrow-forward-circle"
             type="iconOnly"
-            onPress={() => {
-              console.log('pressed');
-              setVisible((state) => !state);
-            }}
+            onPress={() => setVisible(false)}
           />
           <SpotifyLogo
             width="75"
