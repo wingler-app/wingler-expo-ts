@@ -1,5 +1,7 @@
+import { Motion } from '@legendapp/motion';
 import SpotifyLogo from 'assets/logos/spotify.svg';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRef, useState } from 'react';
 import { Image, View } from 'react-native';
 
 import usePlayback from '@/hooks/spotify/usePlayback';
@@ -12,6 +14,9 @@ const Player = () => {
   const { play, stop, next, prev } = usePlayback();
   const playbackData = usePlaybackData();
 
+  const playerRef = useRef<View | null>(null);
+  const [visible, setVisible] = useState(true);
+  const [playerWidth, setPlayerWidth] = useState<number>(0);
   const handlePlayback = () => {
     if (playbackData) {
       if (playbackData.is_playing) {
@@ -32,19 +37,34 @@ const Player = () => {
 
   if (!playbackData) return null;
 
-  const width =
+  const progress =
     ((playbackData?.progress_ms ?? 0) /
       (playbackData?.item?.duration_ms ?? 1)) *
     100;
   return (
-    <View className="absolute inset-x-0 top-8 z-40  w-full px-4 py-2">
+    <Motion.View
+      ref={playerRef}
+      onLayout={() => {
+        playerRef.current?.measure((x, y, width, height, pageX, pageY) => {
+          console.log('measurements', x, y, width, height, pageX, pageY);
+          setPlayerWidth(width);
+        });
+      }}
+      className="absolute inset-x-0 top-8 z-40 w-full px-4 py-2"
+      initial={{ x: 0 }}
+      animate={{ x: visible ? 0 : playerWidth - 20 }}
+      transition={{ type: 'spring', damping: 20 }}
+    >
       <View className="shadow-lg shadow-primary-black">
         <LinearGradient
           className="absolute left-0 top-0 z-10 h-full w-full rounded-xl"
           colors={playbackData.colors}
         />
         <View className="absolute inset-x-0 bottom-0 z-30 h-10 w-full justify-end overflow-hidden rounded-b-xl ">
-          <View className="h-1 bg-inc-spotify" style={{ width: `${width}%` }} />
+          <View
+            className="h-1 bg-inc-spotify"
+            style={{ width: `${progress}%` }}
+          />
         </View>
         <View className="relative z-20 h-full w-full rounded-xl border-[1px] border-white/10  p-4 ">
           {/* <P
@@ -53,6 +73,19 @@ const Player = () => {
         >
           Playing on {playbackData?.device?.name}
         </P> */}
+          <Button
+            buttonStyle={`absolute top-2  z-20 ${
+              visible ? 'right-0' : '-left-10'
+            }`}
+            icon={`${
+              visible ? 'md-arrow-forward-circle' : 'md-arrow-back-circle'
+            }`}
+            type="iconOnly"
+            onPress={() => {
+              console.log('pressed');
+              setVisible((state) => !state);
+            }}
+          />
           <SpotifyLogo
             width="75"
             height="22.5"
@@ -122,7 +155,7 @@ const Player = () => {
           </View>
         </View>
       </View>
-    </View>
+    </Motion.View>
   );
 };
 
