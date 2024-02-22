@@ -1,11 +1,13 @@
+import SpotifyIcon from 'assets/logos/spotify-white-icon.svg';
 import { useEffect } from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { Image, Linking, Pressable, View } from 'react-native';
 
 import usePlayback from '@/hooks/spotify/usePlayback';
 import useSpotifySearch from '@/hooks/spotify/useSpotifySearch';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA } from '@/types';
 import type { Track } from '@/types/spotify';
+import { goTo } from '@/utils/inference';
 
 import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';
@@ -22,11 +24,16 @@ interface MusicProps {
 }
 
 const MusicBubble = ({ track }: { track: Track }) => {
-  const { uri, name, albumCover, artist, colors } = track;
+  const { uris, name, albumCover, artist, colors } = track;
   const { play } = usePlayback();
 
   const handleClick = () => {
-    if (play) play(uri);
+    if (play) play(uris);
+  };
+
+  const goToSpotify = () => {
+    goTo('spotify:album:3n3Ppam7vgaVa1iaRUc9Lp');
+    Linking.openURL(uris[0] as string);
   };
 
   return (
@@ -40,6 +47,12 @@ const MusicBubble = ({ track }: { track: Track }) => {
         </Pressable>
         <BubbleText textStyle="my-4">{name}</BubbleText>
         <Artist id={artist.id} name={artist.name} />
+        <SpotifyIcon
+          width="22.5"
+          height="22.5"
+          className=" flex items-end self-end"
+          onPress={goToSpotify}
+        />
       </View>
     </BubbleWrap>
   );
@@ -61,7 +74,7 @@ const MusicGenerator = ({
   useEffect(() => {
     if (answer) {
       console.log('got answer', answer);
-      play(answer.uri);
+      play(answer.uris);
       const botQA: BotQA = {
         done: true,
         question: question || `Play ${params}`,

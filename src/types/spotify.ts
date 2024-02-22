@@ -9,7 +9,7 @@ export type FetchError = {
 };
 
 export type Track = {
-  uri: string;
+  uris: string[];
   name: string;
   albumCover: string;
   artist: {

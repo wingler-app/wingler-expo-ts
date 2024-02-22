@@ -9,6 +9,7 @@ import useSettingsStore from '@/store/useSettingsStore';
 import type { RhinoInferenceObject } from '@/types';
 
 import Bubble from './Bubble'; // replace with your actual path
+import Player from './Player';
 import TextChat from './TextChat';
 
 interface QnAProps {
@@ -84,7 +85,7 @@ const Chat = () => {
     <>
       <LinearGradient
         colors={['#000000', '#00000000', 'transparent']}
-        className="absolute top-0 z-50 h-40 w-full"
+        className="absolute top-0 z-40 h-40 w-full"
       />
       <FlatList
         ref={chatRef}
@@ -119,6 +120,7 @@ const Chat = () => {
           <TextChat />
         </>
       )}
+      <Player />
     </>
   );
 };

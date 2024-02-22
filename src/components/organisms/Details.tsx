@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { memo, useState } from 'react';
 import type { LayoutChangeEvent } from 'react-native';
-import { Image, Linking, ScrollView, View } from 'react-native';
+import { Linking, ScrollView, View } from 'react-native';
 
+import { useAskSummary } from '@/services/CloudFunctions';
 import type { PlaceDetails } from '@/types/maps';
 
 // @ts-ignore
@@ -10,6 +11,7 @@ import * as Colors from '../../styles/colors';
 import Button from '../atoms/Button';
 import { H, P } from '../atoms/Words';
 import PhotoReference from '../molecules/PhotoReference';
+import Review from '../molecules/Review';
 
 interface DetailsProps {
   details: PlaceDetails;
@@ -26,12 +28,15 @@ const Details = ({
     formatted_phone_number,
   },
 }: DetailsProps) => {
+  const question = reviews?.map((review) => review.text).join(' ');
   const [width, setWidth] = useState<number | null>(null);
+  const [answer] = useAskSummary(question || '');
 
   const handleLayout = (e: LayoutChangeEvent) => {
     console.log(e.nativeEvent.layout);
     setWidth(e.nativeEvent.layout.width);
   };
+
   return (
     <>
       <P
@@ -132,45 +137,15 @@ const Details = ({
         <H dark size="sm" className="px-4 text-left uppercase">
           Reviews
         </H>
+        <Review
+          review={{
+            author_name: 'wingler AI',
+            text: answer || "Loading AI's answer...",
+          }}
+        />
         {reviews?.map((review) => {
           const key = `${review?.author_name}-${review?.time}`;
-          return (
-            <View key={key} className="my-4 px-4">
-              <View className="mb-4 flex flex-row">
-                {review?.profile_photo_url && (
-                  <Image
-                    height={45}
-                    width={45}
-                    source={{ uri: review?.profile_photo_url }}
-                  />
-                )}
-                <View className="ml-2 flex flex-col">
-                  <P dark size="sm" className="text-left">
-                    {review?.author_name}
-                  </P>
-                  {review?.rating && (
-                    <View className="flex flex-row">
-                      {[...Array(review?.rating)].map((_, i) => {
-                        const starKey = `${review?.author_name}-${review?.time}-${i}`;
-                        return (
-                          <Ionicons
-                            key={starKey}
-                            style={{ marginRight: 1 }}
-                            name="star"
-                            size={20}
-                            color={Colors.accent.DEFAULT}
-                          />
-                        );
-                      })}
-                    </View>
-                  )}
-                </View>
-              </View>
-              <P dark size="sm" className="text-left">
-                {review?.text}
-              </P>
-            </View>
-          );
+          return <Review key={key} review={review} />;
         })}
       </View>
     </>

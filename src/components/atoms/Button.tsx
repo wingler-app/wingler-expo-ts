@@ -61,7 +61,7 @@ const buttonTypeMap = {
     textStyle: 'text-center tracking-widest text-white',
   },
   iconOnly: {
-    baseStyle: 'flex mb-6 rounded-full px-[10] flex-row py-2 w-auto',
+    baseStyle: 'flex mb-6 px-[10] flex-row  w-auto',
     pressedStyle: '',
     pressedTextStyle: '',
     disabledStyle: '',
@@ -104,7 +104,7 @@ function Button({
   };
 
   const handleIconColor = () => {
-    if (type === 'iconOnly') return 'yellow';
+    if (type === 'iconOnly') return 'white';
     if (type !== 'slider' && type !== 'minimal') return 'black';
     return isPressed || active ? 'black' : 'white';
   };
