@@ -8,6 +8,7 @@ import type { MapDirectionsResponse } from 'react-native-maps-directions';
 import MapViewDirections from 'react-native-maps-directions';
 
 import { useGooglePlaces } from '@/services/GoogleMaps';
+import type { Command } from '@/store/useHistoryStore';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA, Position } from '@/types';
 import type { PlaceDetails } from '@/types/maps';
@@ -103,8 +104,11 @@ const MapsBubble = ({
 
   const [details, setDetails] = useState<PlaceDetails | null>(null);
 
-  const { changeById } = useHistoryStore();
+  const { changeById, commands, lastId } = useHistoryStore();
+
   const router = useRouter();
+  const isFirstRender = useRef(true);
+  const lastCommandRef = useRef<Command>();
 
   useEffect(() => {
     const getName = async (placeName: string) => {
@@ -225,6 +229,34 @@ const MapsBubble = ({
     }, 1000);
     setCurrentIndex(index);
   };
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (lastId !== id) return;
+
+    const lastCommand = commands[commands.length - 1];
+    if (
+      lastCommand?.type === 'playback' &&
+      lastCommand !== lastCommandRef.current
+    ) {
+      lastCommandRef.current = lastCommand;
+      switch (lastCommand.command) {
+        case 'next':
+          destinationSwitcher('increment')();
+          break;
+        case 'previous':
+          destinationSwitcher('decrement')();
+          break;
+        default:
+          break;
+        // Add more cases as needed
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commands]);
 
   if (loading) return null;
 
