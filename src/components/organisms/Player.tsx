@@ -94,7 +94,7 @@ const Player = () => {
           <View className="flex flex-row">
             <Image
               className="absolute top-0"
-              source={{ uri: playbackData?.item?.album?.images[0].url }}
+              source={{ uri: playbackData?.item?.album?.images[0]?.url }}
               width={90}
               height={90}
             />
