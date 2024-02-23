@@ -5,9 +5,10 @@ import Voice from '@react-native-voice/voice';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
+import { useInference } from '@/hooks/useInference';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA } from '@/types';
-import InferenceHandler, { prettyPrint } from '@/utils/inference';
+import { prettyPrint } from '@/utils/inferenceUtils';
 
 import ContextInfo from './ContextInfo';
 import ListenerIndicator from './ListenerIndicator';
@@ -24,6 +25,7 @@ const Wingler = () => {
   const picovoiceManager = useRef<PicovoiceManager>();
   const fromVoiceBubbleType = useRef<string>('');
   const { addToHistory, clearHistory } = useHistoryStore();
+  const { handleInference } = useInference();
 
   const onSpeechStart = () => {
     setIsSpeechToText(true);
@@ -69,7 +71,7 @@ const Wingler = () => {
     const inferenceCallback = async (inference: RhinoInference) => {
       setRhinoText(prettyPrint(inference));
 
-      const botQA = await InferenceHandler(inference);
+      const botQA = await handleInference(inference);
 
       if (botQA !== null && typeof botQA === 'object') {
         addToHistory(botQA);
@@ -117,6 +119,7 @@ const Wingler = () => {
       Voice.destroy();
       picovoiceManager?.current?.stop();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addToHistory]);
 
   if (!isListening) return null;
