@@ -85,7 +85,7 @@ const MapsBubble = ({
   const [currentIndex, setCurrentIndex] = useState<number>(
     destinationIndex || 0,
   );
-
+  const [countDown, setCountDown] = useState<number>(5);
   const [adress, setAdress] = useState<string>(
     destinations[destinationIndex || 0].formattedAddress,
   );
@@ -105,10 +105,45 @@ const MapsBubble = ({
   const [details, setDetails] = useState<PlaceDetails | null>(null);
 
   const { changeById, commands, lastId } = useHistoryStore();
-
   const router = useRouter();
+
   const isFirstRender = useRef(true);
   const lastCommandRef = useRef<Command>();
+  const lastIdRef = useRef<string | null>();
+  const idRef = useRef<string>();
+  const handleGoDrivingRef = useRef(() => {});
+
+  lastIdRef.current = lastId;
+  idRef.current = id;
+
+  const handleGoDriving = () => {
+    router.push({
+      pathname: '/driving',
+      params: {
+        start: JSON.stringify(start),
+        mid: JSON.stringify(mid),
+        answer: JSON.stringify(answer),
+        adress,
+        details: JSON.stringify(details),
+      },
+    });
+  };
+
+  handleGoDrivingRef.current = handleGoDriving;
+
+  useEffect(() => {
+    if (!loading) {
+      if (idRef.current === lastIdRef.current) {
+        if (countDown > 0) {
+          setTimeout(() => {
+            setCountDown(countDown - 1);
+          }, 1000);
+        } else {
+          handleGoDrivingRef.current();
+        }
+      }
+    }
+  }, [countDown, loading, img]);
 
   useEffect(() => {
     const getName = async (placeName: string) => {
@@ -229,13 +264,17 @@ const MapsBubble = ({
     }, 1000);
     setCurrentIndex(index);
   };
+
+  const destinationSwitcherRef = useRef(destinationSwitcher);
+  destinationSwitcherRef.current = destinationSwitcher;
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
 
-    if (lastId !== id) return;
+    if (lastIdRef.current !== idRef.current) return;
 
     const lastCommand = commands[commands.length - 1];
     if (
@@ -245,17 +284,16 @@ const MapsBubble = ({
       lastCommandRef.current = lastCommand;
       switch (lastCommand.command) {
         case 'next':
-          destinationSwitcher('increment')();
+          destinationSwitcherRef.current('increment')();
           break;
         case 'previous':
-          destinationSwitcher('decrement')();
+          destinationSwitcherRef.current('decrement')();
           break;
         default:
           break;
         // Add more cases as needed
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commands]);
 
   if (loading) return null;
@@ -338,18 +376,7 @@ const MapsBubble = ({
           iconAfter
           icon="car"
           title="Directions"
-          onPress={() =>
-            router.push({
-              pathname: '/driving',
-              params: {
-                start: JSON.stringify(start),
-                mid: JSON.stringify(mid),
-                answer: JSON.stringify(answer),
-                adress,
-                details: JSON.stringify(details),
-              },
-            })
-          }
+          onPress={handleGoDriving}
         />
         {destinations.length > 1 && (
           <Button
