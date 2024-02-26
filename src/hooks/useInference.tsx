@@ -1,6 +1,6 @@
 import type { RhinoInference } from '@picovoice/rhino-react-native';
 import * as Speech from 'expo-speech';
-import { useEffect } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import useHistoryStore from '@/store/useHistoryStore';
 import useSettingsStore from '@/store/useSettingsStore';
@@ -16,36 +16,45 @@ export const useInference = () => {
   const { stop } = usePlayback();
   const { addCommand } = useHistoryStore();
 
-  const playback = (command: string) => {
-    if (command === 'stop') {
-      Speech.stop();
-      stop();
-    }
+  const playback = useCallback(
+    (command: string) => {
+      if (command === 'stop') {
+        Speech.stop();
+        stop();
+      }
 
-    if (command === 'next') {
-      const lastHistory = history[history.length - 1];
-      console.log('next');
-      console.log('history', lastHistory);
-    }
-    addCommand({ type: 'playback', command });
-  };
+      if (command === 'next') {
+        const lastHistory = history[history.length - 1];
+        console.log('next');
+        console.log('history', lastHistory);
+      }
+      addCommand({ type: 'playback', command });
+    },
+    [stop, history, addCommand],
+  );
 
-  const handleAppCommands = (slots: Slots) => {
-    if (slots?.locations) {
-      goTo(slots.locations);
-    }
-    if (slots?.playback) {
-      playback(slots.playback);
-    }
-    return null;
-  };
+  const handleAppCommands = useCallback(
+    (slots: Slots) => {
+      if (slots?.locations) {
+        goTo(slots.locations);
+      }
+      if (slots?.playback) {
+        playback(slots.playback);
+      }
+      return null;
+    },
+    [playback],
+  );
 
-  const intentHandlers = {
-    showMap: () => 'maps',
-    playMusic: (slots: Slots) => handlePlayMusic(slots),
-    appCommands: (slots: Slots) => handleAppCommands(slots),
-    askQuestion: () => 'askAI',
-  };
+  const intentHandlers = useMemo(
+    () => ({
+      showMap: () => 'maps',
+      playMusic: (slots: Slots) => handlePlayMusic(slots),
+      appCommands: (slots: Slots) => handleAppCommands(slots),
+      askQuestion: () => 'askAI',
+    }),
+    [handleAppCommands],
+  );
 
   const handleInference = async (
     inference: RhinoInference,
@@ -65,16 +74,16 @@ export const useInference = () => {
     return result;
   };
 
-  useEffect(() => {
-    // Here you can subscribe to the event that triggers the inference handling
-    // For example:
-    // eventEmitter.on('inference', handleInference);
+  // useEffect(() => {
+  // Here you can subscribe to the event that triggers the inference handling
+  // For example:
+  // eventEmitter.on('inference', handleInference);
 
-    // Don't forget to unsubscribe on cleanup
-    return () => {
-      // eventEmitter.off('inference', handleInference);
-    };
-  }, []);
+  // Don't forget to unsubscribe on cleanup
+  // return () => {
+  // eventEmitter.off('inference', handleInference);
+  // };
+  // }, []);
 
   return { handleInference };
 };
