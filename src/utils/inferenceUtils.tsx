@@ -3,9 +3,7 @@ import { router } from 'expo-router';
 import type * as Speech from 'expo-speech';
 
 export const speechOptions: Speech.SpeechOptions = {
-  language: 'en-US',
-  pitch: 0.75,
-  rate: 0.75,
+  language: 'sv-SE',
 };
 export const prettyPrint = (inference: RhinoInference): string =>
   JSON.stringify(inference, null, 4);
