@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { useAskAi } from '@/services/CloudFunctions';
-import { speechOptions } from '@/utils/inference';
+import { speechOptions } from '@/utils/inferenceUtils';
 
 import BubbleWrap from '../atoms/BubbleWrap';
 import Button from '../atoms/Button';
