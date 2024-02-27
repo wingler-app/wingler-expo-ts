@@ -33,6 +33,7 @@ type Content = {
   question: string;
   locations?: Locations;
   image?: string;
+  activated: boolean;
 };
 
 type BaseProps = {
@@ -73,6 +74,7 @@ const MapsBubble = ({
     locations: { start, destinations, destinationIndex },
     image,
     question,
+    activated,
   },
   visible,
   type,
@@ -112,6 +114,23 @@ const MapsBubble = ({
   const lastIdRef = useRef<string | null>();
   const idRef = useRef<string>();
   const handleGoDrivingRef = useRef(() => {});
+  const botQARef = useRef<BotQA>();
+
+  botQARef.current = {
+    done: true,
+    question,
+    answer: {
+      question,
+      activated,
+      locations: {
+        start,
+        mid,
+        destinations,
+        currentIndex,
+      },
+      type,
+    },
+  };
 
   lastIdRef.current = lastId;
   idRef.current = id;
@@ -132,18 +151,21 @@ const MapsBubble = ({
   handleGoDrivingRef.current = handleGoDriving;
 
   useEffect(() => {
-    if (!loading) {
-      if (idRef.current === lastIdRef.current) {
-        if (countDown > 0) {
-          setTimeout(() => {
-            setCountDown(countDown - 1);
-          }, 1000);
-        } else {
-          handleGoDrivingRef.current();
-        }
-      }
+    if (activated || loading) return;
+    if (idRef.current !== lastIdRef.current) return;
+    if (countDown < 1) {
+      const botQA: BotQA = botQARef.current as BotQA;
+      botQA.answer.activated = true;
+      // setHasActivated(true);
+      console.log('botQA', botQA);
+      changeById(idRef.current as string, botQA);
+      handleGoDrivingRef.current();
+      return;
     }
-  }, [countDown, loading, img]);
+    setTimeout(() => {
+      setCountDown(countDown - 1);
+    }, 1000);
+  }, [activated, countDown, loading, img, changeById]);
 
   useEffect(() => {
     const getName = async (placeName: string) => {
@@ -189,21 +211,9 @@ const MapsBubble = ({
     snapshot?.then((uri) => {
       setImg(uri);
 
-      const botQA: BotQA = {
-        done: true,
-        question,
-        answer: {
-          question,
-          image: uri,
-          locations: {
-            start,
-            mid,
-            destinations,
-            currentIndex,
-          },
-          type,
-        },
-      };
+      const botQA: BotQA = botQARef.current as BotQA;
+      botQA.answer.image = uri;
+      botQARef.current = botQA;
       changeById(id, botQA);
     });
   };
@@ -291,7 +301,6 @@ const MapsBubble = ({
           break;
         default:
           break;
-        // Add more cases as needed
       }
     }
   }, [commands]);
@@ -364,6 +373,7 @@ const MapsBubble = ({
           {city}
         </P>
       </View>
+
       <View className="flex flex-row justify-center gap-x-4">
         {destinations.length > 1 && (
           <Button
@@ -375,7 +385,7 @@ const MapsBubble = ({
         <Button
           iconAfter
           icon="car"
-          title="Directions"
+          title={activated ? 'Directions' : `${countDown} Directions`}
           onPress={handleGoDriving}
         />
         {destinations.length > 1 && (
@@ -424,6 +434,7 @@ const MapsGenerator = ({
         question,
         answer: {
           question,
+          activated: false,
           locations: {
             start: myPos,
             destinations: answerData.places,
