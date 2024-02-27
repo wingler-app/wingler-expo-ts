@@ -1,6 +1,7 @@
 import { GOOGLE_MAPS_API_KEY } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import * as Speech from 'expo-speech';
 import { memo, useEffect, useRef, useState } from 'react';
 import { Image, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
@@ -12,6 +13,7 @@ import type { Command } from '@/store/useHistoryStore';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA, Position } from '@/types';
 import type { PlaceDetails } from '@/types/maps';
+import { speechOptions } from '@/utils/inferenceUtils';
 import { adressParser, getCity, getMidpoint } from '@/utils/maps';
 
 // @ts-ignore
@@ -87,7 +89,7 @@ const MapsBubble = ({
   const [currentIndex, setCurrentIndex] = useState<number>(
     destinationIndex || 0,
   );
-  const [countDown, setCountDown] = useState<number>(5);
+  const [countDown, setCountDown] = useState<number>(10);
   const [adress, setAdress] = useState<string>(
     destinations[destinationIndex || 0].formattedAddress,
   );
@@ -176,6 +178,8 @@ const MapsBubble = ({
         );
         const placeDetailsData = await placeDetailsResponse.json();
         setDetails(placeDetailsData.result);
+        if (placeDetailsData.result.name && lastIdRef.current === idRef.current)
+          Speech.speak(placeDetailsData.result.name, speechOptions);
       } catch (e) {
         console.error('Place details API error: ', e);
         setDetails(null); // If an error occurs, return the original place data
@@ -298,6 +302,10 @@ const MapsBubble = ({
           break;
         case 'previous':
           destinationSwitcherRef.current('decrement')();
+          break;
+        case 'go':
+          console.log('go');
+          handleGoDrivingRef.current();
           break;
         default:
           break;
