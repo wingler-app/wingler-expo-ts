@@ -92,12 +92,14 @@ const Player = () => {
             className="absolute bottom-[26px]  right-4"
           />
           <View className="flex flex-row">
-            <Image
-              className="absolute top-0"
-              source={{ uri: playbackData?.item?.album?.images[0]?.url }}
-              width={90}
-              height={90}
-            />
+            {playbackData?.item && (
+              <Image
+                className="absolute top-0"
+                source={{ uri: playbackData?.item?.album?.images[0]?.url }}
+                width={90}
+                height={90}
+              />
+            )}
             <View className="w-full pl-[110px]">
               <P
                 size="sm"
