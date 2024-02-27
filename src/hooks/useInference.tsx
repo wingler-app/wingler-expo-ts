@@ -11,7 +11,6 @@ import { goTo, handlePlayMusic, speechOptions } from '@/utils/inferenceUtils';
 import usePlayback from './spotify/usePlayback';
 
 export const useInference = () => {
-  const { history } = useHistoryStore();
   const { readAloud } = useSettingsStore();
   const { stop } = usePlayback();
   const { addCommand } = useHistoryStore();
@@ -23,20 +22,19 @@ export const useInference = () => {
         stop();
       }
 
-      if (command === 'next') {
-        const lastHistory = history[history.length - 1];
-        console.log('next');
-        console.log('history', lastHistory);
-      }
       addCommand({ type: 'playback', command });
     },
-    [stop, history, addCommand],
+    [stop, addCommand],
   );
 
   const handleAppCommands = useCallback(
     (slots: Slots) => {
       if (slots?.locations) {
-        goTo(slots.locations);
+        if (slots.locations === 'maps' || slots.locations === 'google maps') {
+          playback('go');
+        } else {
+          goTo(slots.locations);
+        }
       }
       if (slots?.playback) {
         playback(slots.playback);
