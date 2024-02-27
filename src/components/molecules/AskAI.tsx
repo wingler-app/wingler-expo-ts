@@ -1,5 +1,5 @@
 import * as Speech from 'expo-speech';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Text, View } from 'react-native';
 
 import { useAskAi } from '@/services/CloudFunctions';
@@ -8,6 +8,7 @@ import { speechOptions } from '@/utils/inferenceUtils';
 import BubbleWrap from '../atoms/BubbleWrap';
 import Button from '../atoms/Button';
 import WingModal from '../organisms/Modal';
+import Logo from './Logo';
 
 type AskAIProps = {
   content: {
@@ -33,12 +34,12 @@ const AskAI = ({ content: { question } }: AskAIProps) => {
     });
   }, [loading, answer]);
 
-  useEffect(() => {
-    if (!loading) readAnswer();
-    return () => {
-      Speech.stop();
-    };
-  }, [loading, readAnswer]);
+  // useEffect(() => {
+  //   if (!loading) readAnswer();
+  //   return () => {
+  //     Speech.stop();
+  //   };
+  // }, [loading, readAnswer]);
 
   if (loading)
     return (
@@ -53,13 +54,19 @@ const AskAI = ({ content: { question } }: AskAIProps) => {
   return (
     <BubbleWrap type="askAI">
       <View className="flex flex-col">
+        <View className="flex flex-row items-center rounded-full bg-primary-dark p-1">
+          <Logo logoStyles="mx-2 w-[45px] h-[45]" />
+          <Button
+            className={`mb-0 self-center ${
+              isSpeaking ? 'bg-red-500' : 'bg-green-500'
+            }`}
+            title={isSpeaking ? 'Stop ◼' : 'Play ▶'}
+            onPress={readAnswer}
+          />
+        </View>
         <Button
-          title={isSpeaking ? 'Stop ◼' : 'Play ▶'}
-          onPress={readAnswer}
-        />
-        <Button
-          buttonStyle="mb-0 p-0 bg-transparent"
-          title="Show Answer"
+          buttonStyle="mb-0 mt-4  p-0 bg-transparent"
+          title="Show transcript"
           onPress={() => setShowAnswer(true)}
         />
         <WingModal
