@@ -99,6 +99,7 @@ const Chat = () => {
         onContentSizeChange={() =>
           chatRef.current?.scrollToEnd({ animated: true })
         }
+        ListHeaderComponent={<View style={{ height: 110 }} />}
         ListFooterComponent={
           <View style={{ height: showTextChat ? 82 : 10 }} />
         }
