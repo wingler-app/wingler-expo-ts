@@ -45,7 +45,7 @@ const AskAI = ({ content: { question } }: AskAIProps) => {
     return (
       <BubbleWrap type="askAI">
         <Text className="flex-wrap text-xl text-primary-dark">
-          Connecting to SkyNet...
+          Pratar med wingler AI...
         </Text>
       </BubbleWrap>
     );
