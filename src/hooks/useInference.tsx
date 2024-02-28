@@ -68,7 +68,7 @@ export const useInference = () => {
     if (typeof result === 'string' && readAloud) {
       setTimeout(() => Speech.speak(result, speechOptions), 1000);
     }
-
+    goTo('chat');
     return result;
   };
 
