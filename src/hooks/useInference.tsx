@@ -12,7 +12,7 @@ import usePlayback from './spotify/usePlayback';
 
 export const useInference = () => {
   const { readAloud } = useSettingsStore();
-  const { stop } = usePlayback();
+  const { play, stop } = usePlayback();
   const { addCommand } = useHistoryStore();
 
   const playback = useCallback(
@@ -22,9 +22,13 @@ export const useInference = () => {
         stop();
       }
 
+      if (command === 'resume') {
+        play();
+      }
+
       addCommand({ type: 'playback', command });
     },
-    [stop, addCommand],
+    [play, stop, addCommand],
   );
 
   const handleAppCommands = useCallback(
