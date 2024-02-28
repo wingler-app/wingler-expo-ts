@@ -177,9 +177,10 @@ const MapsBubble = ({
           `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}`,
         );
         const placeDetailsData = await placeDetailsResponse.json();
-        setDetails(placeDetailsData.result);
-        if (placeDetailsData.result.name && lastIdRef.current === idRef.current)
-          Speech.speak(placeDetailsData.result.name, speechOptions);
+        const placeDetails: PlaceDetails = placeDetailsData.result;
+        setDetails(placeDetails);
+        if (placeDetails.name && lastIdRef.current === idRef.current)
+          Speech.speak(placeDetails.name, speechOptions);
       } catch (e) {
         console.error('Place details API error: ', e);
         setDetails(null); // If an error occurs, return the original place data
