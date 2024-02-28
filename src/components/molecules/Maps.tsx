@@ -289,7 +289,9 @@ const MapsBubble = ({
     }
 
     if (lastIdRef.current !== idRef.current) return;
-
+    const botQA: BotQA = botQARef.current as BotQA;
+    botQA.answer.activated = true;
+    changeById(idRef.current as string, botQA);
     const lastCommand = commands[commands.length - 1];
     if (
       lastCommand?.type === 'playback' &&
@@ -311,7 +313,7 @@ const MapsBubble = ({
           break;
       }
     }
-  }, [commands]);
+  }, [commands, changeById]);
 
   if (loading) return null;
 
