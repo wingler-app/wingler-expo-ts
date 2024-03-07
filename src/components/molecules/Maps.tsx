@@ -1,6 +1,7 @@
 import { GOOGLE_MAPS_API_KEY } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import * as Speech from 'expo-speech';
 import { memo, useEffect, useRef, useState } from 'react';
 import { Image, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
@@ -8,9 +9,11 @@ import type { MapDirectionsResponse } from 'react-native-maps-directions';
 import MapViewDirections from 'react-native-maps-directions';
 
 import { useGooglePlaces } from '@/services/GoogleMaps';
+import type { Command } from '@/store/useHistoryStore';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA, Position } from '@/types';
 import type { PlaceDetails } from '@/types/maps';
+import { speechOptions } from '@/utils/inferenceUtils';
 import { adressParser, getCity, getMidpoint } from '@/utils/maps';
 
 // @ts-ignore
@@ -32,6 +35,7 @@ type Content = {
   question: string;
   locations?: Locations;
   image?: string;
+  activated: boolean;
 };
 
 type BaseProps = {
@@ -72,6 +76,7 @@ const MapsBubble = ({
     locations: { start, destinations, destinationIndex },
     image,
     question,
+    activated,
   },
   visible,
   type,
@@ -84,7 +89,7 @@ const MapsBubble = ({
   const [currentIndex, setCurrentIndex] = useState<number>(
     destinationIndex || 0,
   );
-
+  const [countDown, setCountDown] = useState<number>(10);
   const [adress, setAdress] = useState<string>(
     destinations[destinationIndex || 0].formattedAddress,
   );
@@ -103,8 +108,66 @@ const MapsBubble = ({
 
   const [details, setDetails] = useState<PlaceDetails | null>(null);
 
-  const { changeById } = useHistoryStore();
+  const { changeById, commands, lastId } = useHistoryStore();
   const router = useRouter();
+
+  const isFirstRender = useRef(true);
+  const lastCommandRef = useRef<Command>();
+  const lastIdRef = useRef<string | null>();
+  const idRef = useRef<string>();
+  const handleGoDrivingRef = useRef(() => {});
+  const botQARef = useRef<BotQA>();
+
+  botQARef.current = {
+    done: true,
+    question,
+    answer: {
+      question,
+      activated,
+      locations: {
+        start,
+        mid,
+        destinations,
+        currentIndex,
+      },
+      type,
+    },
+  };
+
+  lastIdRef.current = lastId;
+  idRef.current = id;
+
+  const handleGoDriving = () => {
+    router.push({
+      pathname: '/driving',
+      params: {
+        start: JSON.stringify(start),
+        mid: JSON.stringify(mid),
+        answer: JSON.stringify(answer),
+        adress,
+        details: JSON.stringify(details),
+      },
+    });
+  };
+
+  handleGoDrivingRef.current = handleGoDriving;
+
+  useEffect(() => {
+    if (activated || loading) return;
+    if (idRef.current !== lastIdRef.current) return;
+    if (countDown < 1) {
+      const botQA: BotQA = botQARef.current as BotQA;
+      botQA.answer.activated = true;
+      // setHasActivated(true);
+      console.log('botQA', botQA);
+      changeById(idRef.current as string, botQA);
+      handleGoDrivingRef.current();
+      return;
+    }
+    setTimeout(() => {
+      setCountDown(countDown - 1);
+    }, 1000);
+  }, [activated, countDown, loading, img, changeById]);
 
   useEffect(() => {
     const getName = async (placeName: string) => {
@@ -114,7 +177,10 @@ const MapsBubble = ({
           `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${GOOGLE_MAPS_API_KEY}`,
         );
         const placeDetailsData = await placeDetailsResponse.json();
-        setDetails(placeDetailsData.result);
+        const placeDetails: PlaceDetails = placeDetailsData.result;
+        setDetails(placeDetails);
+        if (placeDetails.name && lastIdRef.current === idRef.current)
+          Speech.speak(placeDetails.name, speechOptions);
       } catch (e) {
         console.error('Place details API error: ', e);
         setDetails(null); // If an error occurs, return the original place data
@@ -150,21 +216,9 @@ const MapsBubble = ({
     snapshot?.then((uri) => {
       setImg(uri);
 
-      const botQA: BotQA = {
-        done: true,
-        question,
-        answer: {
-          question,
-          image: uri,
-          locations: {
-            start,
-            mid,
-            destinations,
-            currentIndex,
-          },
-          type,
-        },
-      };
+      const botQA: BotQA = botQARef.current as BotQA;
+      botQA.answer.image = uri;
+      botQARef.current = botQA;
       changeById(id, botQA);
     });
   };
@@ -225,6 +279,42 @@ const MapsBubble = ({
     }, 1000);
     setCurrentIndex(index);
   };
+
+  const destinationSwitcherRef = useRef(destinationSwitcher);
+  destinationSwitcherRef.current = destinationSwitcher;
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (lastIdRef.current !== idRef.current) return;
+    const botQA: BotQA = botQARef.current as BotQA;
+    botQA.answer.activated = true;
+    changeById(idRef.current as string, botQA);
+    const lastCommand = commands[commands.length - 1];
+    if (
+      lastCommand?.type === 'playback' &&
+      lastCommand !== lastCommandRef.current
+    ) {
+      lastCommandRef.current = lastCommand;
+      switch (lastCommand.command) {
+        case 'next':
+          destinationSwitcherRef.current('increment')();
+          break;
+        case 'previous':
+          destinationSwitcherRef.current('decrement')();
+          break;
+        case 'go':
+          console.log('go');
+          handleGoDrivingRef.current();
+          break;
+        default:
+          break;
+      }
+    }
+  }, [commands, changeById]);
 
   if (loading) return null;
 
@@ -294,6 +384,7 @@ const MapsBubble = ({
           {city}
         </P>
       </View>
+
       <View className="flex flex-row justify-center gap-x-4">
         {destinations.length > 1 && (
           <Button
@@ -305,19 +396,8 @@ const MapsBubble = ({
         <Button
           iconAfter
           icon="car"
-          title="Directions"
-          onPress={() =>
-            router.push({
-              pathname: '/driving',
-              params: {
-                start: JSON.stringify(start),
-                mid: JSON.stringify(mid),
-                answer: JSON.stringify(answer),
-                adress,
-                details: JSON.stringify(details),
-              },
-            })
-          }
+          title={activated ? 'Directions' : `${countDown} Directions`}
+          onPress={handleGoDriving}
         />
         {destinations.length > 1 && (
           <Button
@@ -365,6 +445,7 @@ const MapsGenerator = ({
         question,
         answer: {
           question,
+          activated: false,
           locations: {
             start: myPos,
             destinations: answerData.places,

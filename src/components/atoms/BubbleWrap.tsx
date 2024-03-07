@@ -5,7 +5,7 @@ const colorMapping = {
   default: 'bg-primary',
   user: 'bg-accent-secondary',
   answer: 'bg-primary',
-  askAI: 'bg-senary',
+  askAI: 'bg-white',
   music: 'bg-inc-spotify',
   image: 'bg-senary',
   map: 'bg-[#c0abff50]',

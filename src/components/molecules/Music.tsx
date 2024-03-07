@@ -7,7 +7,7 @@ import useSpotifySearch from '@/hooks/spotify/useSpotifySearch';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA } from '@/types';
 import type { Track } from '@/types/spotify';
-import { goTo } from '@/utils/inference';
+import { goTo } from '@/utils/inferenceUtils';
 
 import BubbleText from '../atoms/BubbleText';
 import BubbleWrap from '../atoms/BubbleWrap';

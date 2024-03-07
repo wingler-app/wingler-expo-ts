@@ -6,7 +6,7 @@ import * as Colors from '../../styles/colors';
 import { P } from '../atoms/Words';
 import Logo from './Logo';
 
-interface ReviewProps {
+export interface ReviewProps {
   review: {
     author_name: string;
     profile_photo_url?: string;

@@ -1,6 +1,6 @@
 import { Motion } from '@legendapp/motion';
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
 import Button from '../atoms/Button';
@@ -15,6 +15,14 @@ const SliderMenu = ({ children, backButton }: SliderMenuProps) => {
   const [menuHeight, setMenuHeight] = useState<number>(0);
 
   const menuRef = useRef<View | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setMenu(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <Motion.View

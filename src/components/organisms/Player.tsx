@@ -92,38 +92,48 @@ const Player = () => {
             className="absolute bottom-[26px]  right-4"
           />
           <View className="flex flex-row">
-            <Image
-              className="absolute top-0"
-              source={{ uri: playbackData?.item?.album?.images[0].url }}
-              width={90}
-              height={90}
-            />
-            <View className="w-full pl-[110px]">
-              <P
-                size="sm"
-                className="-mt-1 w-full text-left text-white"
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                style={{
-                  textShadowColor: 'rgba(0, 0, 0, .1)',
-                  textShadowOffset: { width: 1, height: 1 },
-                  textShadowRadius: 1,
-                }}
-              >
-                {playbackData?.item?.name}
-              </P>
-              <P
-                className="mb-1 text-left text-xs text-white/70"
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                style={{
-                  textShadowColor: 'rgba(0, 0, 0, .1)',
-                  textShadowOffset: { width: 1, height: 1 },
-                  textShadowRadius: 1,
-                }}
-              >
-                {playbackData?.item?.artists[0].name}
-              </P>
+            {playbackData?.item && (
+              <Image
+                className="absolute top-0"
+                source={{ uri: playbackData?.item?.album?.images[0]?.url }}
+                width={90}
+                height={90}
+              />
+            )}
+            <View
+              className={`w-full ${
+                playbackData?.item ? ' pl-[110px]' : 'pl-1'
+              }`}
+            >
+              {playbackData?.item && (
+                <>
+                  <P
+                    size="sm"
+                    className="-mt-1 w-full text-left text-white"
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    style={{
+                      textShadowColor: 'rgba(0, 0, 0, .1)',
+                      textShadowOffset: { width: 1, height: 1 },
+                      textShadowRadius: 1,
+                    }}
+                  >
+                    {playbackData?.item?.name}
+                  </P>
+                  <P
+                    className="mb-1 text-left text-xs text-white/70"
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    style={{
+                      textShadowColor: 'rgba(0, 0, 0, .1)',
+                      textShadowOffset: { width: 1, height: 1 },
+                      textShadowRadius: 1,
+                    }}
+                  >
+                    {playbackData?.item?.artists[0].name}
+                  </P>
+                </>
+              )}
               <View className="flex w-full flex-row items-center">
                 <Button
                   icon="play-skip-back"

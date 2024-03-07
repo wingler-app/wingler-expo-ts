@@ -2,12 +2,13 @@ import { PicovoiceManager } from '@picovoice/picovoice-react-native';
 import type { RhinoInference } from '@picovoice/rhino-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Voice from '@react-native-voice/voice';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
+import { useInference } from '@/hooks/useInference';
 import useHistoryStore from '@/store/useHistoryStore';
 import type { BotQA } from '@/types';
-import InferenceHandler, { prettyPrint } from '@/utils/inference';
+import { prettyPrint } from '@/utils/inferenceUtils';
 
 import ContextInfo from './ContextInfo';
 import ListenerIndicator from './ListenerIndicator';
@@ -24,6 +25,10 @@ const Wingler = () => {
   const picovoiceManager = useRef<PicovoiceManager>();
   const fromVoiceBubbleType = useRef<string>('');
   const { addToHistory, clearHistory } = useHistoryStore();
+  const { handleInference } = useInference();
+
+  const handleInferenceRef =
+    useRef<(inference: RhinoInference) => Promise<BotQA | string | null>>();
 
   const onSpeechStart = () => {
     setIsSpeechToText(true);
@@ -60,34 +65,40 @@ const Wingler = () => {
   Voice.onSpeechError = onSpeechError;
   Voice.onSpeechResults = onSpeechResults;
 
-  useEffect(() => {
-    const switchToVTT = () => {
-      picovoiceManager.current?.stop();
-      Voice.start('sv-SE');
-    };
+  handleInferenceRef.current = handleInference;
 
-    const inferenceCallback = async (inference: RhinoInference) => {
+  const switchToVTT = useCallback(() => {
+    picovoiceManager.current?.stop();
+    Voice.start('sv-SE');
+  }, []);
+
+  const wakeWordCallback = useCallback(() => {
+    console.log('Wake word detected');
+    setIsListening(true);
+  }, []);
+
+  const inferenceCallback = useCallback(
+    async (inference: RhinoInference) => {
       setRhinoText(prettyPrint(inference));
+      if (handleInferenceRef.current) {
+        const botQA = await handleInferenceRef.current(inference);
 
-      const botQA = await InferenceHandler(inference);
-
-      if (botQA !== null && typeof botQA === 'object') {
-        addToHistory(botQA);
-        setIsListening(false);
-      } else if (typeof botQA === 'string') {
-        fromVoiceBubbleType.current = botQA;
-        switchToVTT();
-      } else {
-        console.log('Inference Text is null');
-        setIsListening(false);
+        if (botQA !== null && typeof botQA === 'object') {
+          addToHistory(botQA);
+          setIsListening(false);
+        } else if (typeof botQA === 'string') {
+          fromVoiceBubbleType.current = botQA;
+          switchToVTT();
+        } else {
+          console.log('Inference Text is null');
+          setIsListening(false);
+        }
       }
-    };
+    },
+    [addToHistory, switchToVTT],
+  );
 
-    const wakeWordCallback = () => {
-      console.log('Wake word detected');
-      setIsListening(true);
-    };
-
+  useEffect(() => {
     (async () => {
       try {
         picovoiceManager.current = await PicovoiceManager.create(
@@ -117,9 +128,10 @@ const Wingler = () => {
       Voice.destroy();
       picovoiceManager?.current?.stop();
     };
-  }, [addToHistory]);
+  }, [wakeWordCallback, inferenceCallback]);
 
   if (!isListening) return null;
+
   return (
     <View className="absolute left-0 top-0 h-full w-full">
       <View className="flex-1 justify-center">
